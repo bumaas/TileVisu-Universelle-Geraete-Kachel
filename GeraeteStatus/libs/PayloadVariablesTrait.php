@@ -146,7 +146,12 @@ trait PayloadVariablesTrait
         $finalFormattedValue = GetValueFormatted($variable['Variable']);
         $finalRawValue = GetValue($variable['Variable']);
 
-        if (!$progressbarActive && (($variable['DisplayType'] ?? 'text') === 'progress')) {
+        // Balken bei inaktivem Status: „-“ (dash, Vorgabe), aktueller Wert (value) oder Zeile ausblenden (hide)
+        $isInactiveProgress = !$progressbarActive && (($variable['DisplayType'] ?? 'text') === 'progress');
+        $inactiveDisplay = (string)($variable['InactiveDisplay'] ?? 'dash');
+        $inactiveDash = $isInactiveProgress && $inactiveDisplay !== 'value';
+
+        if ($inactiveDash) {
             // Progressbar deaktiviert: Zeige "-" für alle Werte und mache Text/Icon 50% transparent
             $finalRawValue = 0;
             $finalFormattedValue = '-';
@@ -180,7 +185,8 @@ trait PayloadVariablesTrait
             'rawValue' => $finalRawValue, // Backend-überschriebener Wert
             'icon' => $icon,
             'progressbarActive' => $progressbarActive, // Progressbar Active Status
-            'progressbarInactive' => (!$progressbarActive && (($variable['DisplayType'] ?? 'text') === 'progress')), // 50% Transparenz Flag nur für Progress
+            'progressbarInactive' => $inactiveDash, // 50% Transparenz Flag nur für Progress
+            'hidden' => $isInactiveProgress && $inactiveDisplay === 'hide',
             'useSecondVariableAsTarget' => (bool)($variable['UseSecondVariableAsTarget'] ?? false),
             'variableAssociations' => $variableAssociations, // Variable-Associations für Button-Erstellung (Integer + String)
             'scriptId' => intval($variable['ScriptID'] ?? 0),
@@ -230,7 +236,7 @@ trait PayloadVariablesTrait
             $secondFinalFormattedValue = GetValueFormatted($variable['SecondVariable']);
             $secondFinalRawValue = GetValue($variable['SecondVariable']);
 
-            if (!$progressbarActive) {
+            if ($inactiveDash) {
                 // Progressbar deaktiviert: Zeige "-" für zweite Variable und mache Text/Icon 50% transparent
                 $secondFinalRawValue = 0;
                 $secondFinalFormattedValue = '-';

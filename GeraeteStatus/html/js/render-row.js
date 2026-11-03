@@ -1,5 +1,9 @@
         // Hilfsfunktion zum Rendern einer einzelnen Variable
         function renderSingleVariable(variable, isGrouped = false) {
+            // Ausgeblendete Zeile (Balken bei inaktivem Status): leeres Element, damit Zeilen-Updates sie wiederfinden
+            if (variable.hidden) {
+                return `<div class="variable-item" style="display: none;" data-variable-id="${esc(variable.id)}" data-row-key="${esc(variable.key)}"></div>`;
+            }
             let content = '';
             
             // Bestimme Darstellungstyp für Gruppenlayout

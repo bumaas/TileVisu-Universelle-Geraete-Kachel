@@ -387,6 +387,7 @@ class UniversalDeviceTile extends IPSModuleStrict
             'ShowBorderLine' => true, 'VerticalAlignment' => true,
             'OpenObjectId' => false,
             'ImageMedia' => false, 'ImageWidth' => false, 'ImageBorderRadius' => false,
+            'InactiveDisplay' => false,
         ],
         'image' => [
             'ShowIcon' => false, 'ShowLabel' => false, 'ShowValue' => false,
@@ -402,6 +403,7 @@ class UniversalDeviceTile extends IPSModuleStrict
             'ShowBorderLine' => false, 'VerticalAlignment' => true,
             'OpenObjectId' => false,
             'ImageMedia' => true, 'ImageWidth' => true, 'ImageBorderRadius' => true,
+            'InactiveDisplay' => false,
         ],
         'progress' => [
             'ShowIcon' => true, 'ShowLabel' => true, 'ShowValue' => true,
@@ -417,6 +419,7 @@ class UniversalDeviceTile extends IPSModuleStrict
             'ShowBorderLine' => false, 'VerticalAlignment' => false,
             'OpenObjectId' => false,
             'ImageMedia' => false, 'ImageWidth' => false, 'ImageBorderRadius' => false,
+            'InactiveDisplay' => true,
         ],
         'slider' => [
             'ShowIcon' => true, 'ShowLabel' => true, 'ShowValue' => true,
@@ -432,6 +435,7 @@ class UniversalDeviceTile extends IPSModuleStrict
             'ShowBorderLine' => false, 'VerticalAlignment' => true,
             'OpenObjectId' => false,
             'ImageMedia' => false, 'ImageWidth' => false, 'ImageBorderRadius' => false,
+            'InactiveDisplay' => false,
         ],
         'button' => [
             'ShowIcon' => true, 'ShowLabel' => true, 'ShowValue' => true,
@@ -447,6 +451,7 @@ class UniversalDeviceTile extends IPSModuleStrict
             'ShowBorderLine' => false, 'VerticalAlignment' => true,
             'OpenObjectId' => true,
             'ImageMedia' => false, 'ImageWidth' => false, 'ImageBorderRadius' => false,
+            'InactiveDisplay' => false,
         ],
         'default' => [
             'ShowIcon' => false, 'ShowLabel' => false, 'ShowValue' => false,
@@ -461,6 +466,7 @@ class UniversalDeviceTile extends IPSModuleStrict
             'ShowBorderLine' => false, 'VerticalAlignment' => false,
             'OpenObjectId' => false,
             'ImageMedia' => false, 'ImageWidth' => false, 'ImageBorderRadius' => false,
+            'InactiveDisplay' => false,
         ],
     ];
 
