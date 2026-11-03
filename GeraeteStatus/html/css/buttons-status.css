@@ -218,6 +218,13 @@
             z-index: 1;
         }
 
+        /* Inhalt (Text, Icons) liegt über dem Overlay: abgedunkelt wird nur der Hintergrund */
+        .variable-button > *,
+        .variable-multi-button > * {
+            position: relative;
+            z-index: 2;
+        }
+
         /* Button-Gruppierung: Spezielle Border-Radius für zusammenhängende Button-Gruppe */
         .variable-multi-button.first-button {
             border-radius: var(--progress-bar-border-radius, 10px) 0 0 var(--progress-bar-border-radius, 10px); /* Nur links rund */

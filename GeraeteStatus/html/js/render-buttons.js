@@ -124,7 +124,7 @@
                                         data-variable-id="${esc(variable.id)}"
                                         data-script-button="${isScriptButton ? '1' : '0'}"
                                         data-open-object-id="${(variable.openObjectId && variable.openObjectId > 1) ? variable.openObjectId : 0}"
-                                        style="background-color: ${esc(buttonColor)} !important; color: ${getTextColor(variable)} !important; ${buttonStyleExtras}">
+                                        style="background-color: ${esc(buttonColor)} !important; color: ${getButtonTextColor(variable, isActive)} !important; ${buttonStyleExtras}">
                                     ${buttonText}
                                 </div>
                             </div>
@@ -229,7 +229,7 @@
                                         data-request-value="${esc(JSON.stringify(variable.variableType === 1 ? Number(association.value) : String(association.value)))}" 
                                         data-variable-id="${esc(variable.id)}"
                                         data-association-value="${esc(association.value)}"
-                                        style="background-color: ${esc(buttonColor)} !important; color: ${getTextColor(variable)} !important; ${isGroupStretched ? '' : `width: ${buttonWidth}px; min-width: ${buttonWidth}px;`}">
+                                        style="background-color: ${esc(buttonColor)} !important; color: ${getButtonTextColor(variable, isActive)} !important; ${isGroupStretched ? '' : `width: ${buttonWidth}px; min-width: ${buttonWidth}px;`}">
                                     ${buttonText}
                                 </div>`;
                         });
