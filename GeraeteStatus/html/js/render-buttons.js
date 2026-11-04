@@ -91,7 +91,7 @@
                                 textParts.push(`<span style="font-weight: 700;">${esc(displayLabel)}:&nbsp;</span>`);
                             } else {
                                 // Kein Doppelpunkt wenn nur Label - Label fett
-                                textParts.push(`<span style="font-weight: 700;">${esc(displayLabel)}</span>`);
+                                textParts.push(`<span style="font-weight: 400;">${esc(displayLabel)}</span>`);
                             }
                         }
                         
@@ -101,7 +101,7 @@
                         
                         // Falls keine Checkbox aktiviert ist, zeige Label als Fallback (ohne Doppelpunkt) - fett
                         if (!variable.showIcon && !variable.showLabel && !variable.showValue) {
-                            textParts.push(`<span style="font-weight: 700;">${esc(variable.label || (isActive ? getUiText('on', 'On') : getUiText('off', 'Off')))}</span>`);
+                            textParts.push(`<span style="font-weight: 400;">${esc(variable.label || (isActive ? getUiText('on', 'On') : getUiText('off', 'Off')))}</span>`);
                         }
                         
                         buttonText = textParts.join(' ');
@@ -204,7 +204,7 @@
                                         buttonContentParts.push(`<span style="font-weight: 700;">${esc(lbl)}:&nbsp;</span>`);
                                     } else {
                                         // Nur Label ohne Doppelpunkt
-                                        buttonContentParts.push(`<span style="font-weight: 700;">${esc(lbl)}</span>`);
+                                        buttonContentParts.push(`<span style="font-weight: 400;">${esc(lbl)}</span>`);
                                     }
                                 }
                             }
@@ -218,7 +218,7 @@
                             
                             // Falls keine Checkbox aktiviert ist, zeige Association-Name als Fallback
                             if (!variable.showIcon && !variable.showLabel && !variable.showValue) {
-                                buttonContentParts.push(`<span>${esc(association.name || 'Wert ' + association.value)}</span>`);
+                                buttonContentParts.push(`<span style="font-weight: 400;">${esc(association.name || 'Wert ' + association.value)}</span>`);
                             }
                             
                             const isMultiIconOnly = variable.showIcon && !variable.showLabel && !variable.showValue && hasIconInt;

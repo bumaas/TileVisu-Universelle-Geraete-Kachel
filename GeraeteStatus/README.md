@@ -110,6 +110,7 @@ Die Konfiguration gliedert sich in mehrere Bereiche der Form:
   - Skript-Schalter lösen das hinterlegte Skript aus, zeigen während der Ausführung ein drehendes FontAwesome-Icon und leuchten für die Dauer des Spins auf.
   - Schalter zum Öffnen von Objekten öffnen das konfigurierte Zielobjekt in der Kachelvisualisierung.
 - Deaktivierte Fortschrittsbalken und Werte werden automatisch ausgegraut und mit dem Wert`-` angezeigt.
+- Schaltertexte erscheinen einheitlich in normaler Schrift wie die Schalter der Kachel-Visualisierung. Stehen Beschriftung und Wert gemeinsam auf einem Schalter, ist die Beschriftung fett.
 - Schieberegler unterstützen Drag und +/- Schalter, setzen Werte optimistisch und verifizieren anschließend, ob der Wert tatsächlich in die Variable geschrieben wurde. Falls nicht, springt der Schieberegler automatisch auf den tatsächlichen Variablenwert zurück.
 - Schieberegler-Farben: Schieberegler verwenden eigene Schieberegler-Farben (Schieberegler-Farbe 1/2). Sind diese nicht gesetzt, wird auf die Fortschrittsbalken-Farben zurückgefallen.
 
