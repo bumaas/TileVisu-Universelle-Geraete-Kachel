@@ -1,11 +1,11 @@
 
-![IP-Symcon](https://img.shields.io/badge/IP--Symcon-Module-blue.svg)
+![Symcon](https://img.shields.io/badge/Symcon-Module-blue.svg)
 
 # Universelle Geräte Kachel
 
 ![Kachelübersicht](https://github.com/da8ter/images/blob/main/kachelanleitung_ugk.png)
 
-Das Modul **Universelle Geräte Kachel** stellt eine flexibel konfigurierbare Geräte-Kachel für die IP-Symcon Visualisierung bereit. Eine Kachel kann Statusinformationen, frei wählbare Variablen, Fortschrittsbalken, Schieberegler, Schalter und Bilder in einem gemeinsamen Layout kombinieren.
+Das Modul **Universelle Geräte Kachel** stellt eine flexibel konfigurierbare Geräte-Kachel für die Kachel-Visualisierung von Symcon bereit. Eine Kachel kann Statusinformationen, frei wählbare Variablen, Fortschrittsbalken, Schieberegler, Schalter und Bilder in einem gemeinsamen Layout kombinieren.
 
 ## Inhaltsverzeichnis
 1. [Funktion](#funktion)
@@ -29,14 +29,14 @@ Das Modul **Universelle Geräte Kachel** stellt eine flexibel konfigurierbare Ge
 ## Voraussetzungen
 - Symcon Version ≥ 8.1
 - Kachelvisualisierung.
-- Für benutzerdefinierte Icons/Bilder: entsprechende Medienobjekte in IP-Symcon.
+- Für benutzerdefinierte Icons/Bilder: entsprechende Medienobjekte in Symcon.
 
 ## Installation
-1. Im IP-Symcon `Modul-Control` folgende URL hinzufügen:
+1. Im Symcon `Module Control` folgende URL hinzufügen:
    ```
    https://github.com/da8ter/TileVisu-Universelle-Geraete-Kachel.git
    ```
-   Oder über den Module-Store: in der Suche Universelle Geräte Kachel eingeben und dann installieren.
+   Oder über den Module Store: in der Suche Universelle Geräte Kachel eingeben und dann installieren.
 
 
 2. Das Modul aktualisieren/laden.
