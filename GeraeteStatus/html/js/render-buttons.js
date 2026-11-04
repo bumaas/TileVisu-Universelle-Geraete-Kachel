@@ -91,19 +91,19 @@
                                 textParts.push(`<span style="font-weight: 700;">${esc(displayLabel)}:&nbsp;</span>`);
                             } else {
                                 // Kein Doppelpunkt wenn nur Label - Label fett
-                                textParts.push(`<span style="font-weight: 700;">${esc(displayLabel)}</span>`);
+                                textParts.push(`<span style="font-weight: 500;">${esc(displayLabel)}</span>`);
                             }
                         }
                         
                         if (variable.showValue) {
-                            // Normal nur neben einer Beschriftung; steht der Wert allein, so stark wie eine Beschriftung
-                            const valueWeight = variable.showLabel ? 'normal' : '700';
+                            // Normal nur neben einer Beschriftung; steht der Wert allein, so stark wie jeder andere Schaltertext
+                            const valueWeight = variable.showLabel ? 'normal' : '500';
                             textParts.push(`<span style="font-weight: ${valueWeight};">${esc(variable.formattedValue)}</span>`);
                         }
                         
                         // Falls keine Checkbox aktiviert ist, zeige Label als Fallback (ohne Doppelpunkt) - fett
                         if (!variable.showIcon && !variable.showLabel && !variable.showValue) {
-                            textParts.push(`<span style="font-weight: 700;">${esc(variable.label || (isActive ? getUiText('on', 'On') : getUiText('off', 'Off')))}</span>`);
+                            textParts.push(`<span style="font-weight: 500;">${esc(variable.label || (isActive ? getUiText('on', 'On') : getUiText('off', 'Off')))}</span>`);
                         }
                         
                         buttonText = textParts.join(' ');
@@ -206,7 +206,7 @@
                                         buttonContentParts.push(`<span style="font-weight: 700;">${esc(lbl)}:&nbsp;</span>`);
                                     } else {
                                         // Nur Label ohne Doppelpunkt
-                                        buttonContentParts.push(`<span style="font-weight: 700;">${esc(lbl)}</span>`);
+                                        buttonContentParts.push(`<span style="font-weight: 500;">${esc(lbl)}</span>`);
                                     }
                                 }
                             }
@@ -215,14 +215,14 @@
                             if (variable.showValue) {
                                 // Bei aktiven Buttons: aktueller Wert, bei inaktiven: Association-Name als Value
                                 const displayValue = isActive ? variable.formattedValue : association.name;
-                                // Normal nur neben einer Beschriftung; steht der Wert allein, so stark wie eine Beschriftung
-                                const valueWeight = variable.showLabel ? 'normal' : '700';
+                                // Normal nur neben einer Beschriftung; steht der Wert allein, so stark wie jeder andere Schaltertext
+                                const valueWeight = variable.showLabel ? 'normal' : '500';
                                 buttonContentParts.push(`<span style="font-weight: ${valueWeight};">${esc(displayValue)}</span>`);
                             }
                             
                             // Falls keine Checkbox aktiviert ist, zeige Association-Name als Fallback
                             if (!variable.showIcon && !variable.showLabel && !variable.showValue) {
-                                buttonContentParts.push(`<span style="font-weight: 700;">${esc(association.name || 'Wert ' + association.value)}</span>`);
+                                buttonContentParts.push(`<span style="font-weight: 500;">${esc(association.name || 'Wert ' + association.value)}</span>`);
                             }
                             
                             const isMultiIconOnly = variable.showIcon && !variable.showLabel && !variable.showValue && hasIconInt;
