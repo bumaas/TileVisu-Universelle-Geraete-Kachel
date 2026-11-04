@@ -323,21 +323,19 @@ trait FormTrait
 
     public function UpdateList(int $StatusID): void
     {
-        $listData = []; // Hier sammeln Sie die Daten für Ihre Liste
-    
-    $id = $StatusID;
+        $this->UpdateFormField('ProfilAssoziazionen', 'values', (string)json_encode($this->BuildAssociationList($StatusID)));
+    }
 
-    // Prüfen, ob die übergebene ID einer existierenden Variable entspricht
-    if (IPS_VariableExists($id)) {
-        $variable = IPS_GetVariable($id);
-        $variableType = $variable['VariableType'];
-        
-        // Alle Variablentypen über GetVariableAssociations (nutzt IPS_GetVariablePresentation + Profil-Fallback)
-        $associations = $this->GetVariableAssociations($id, $variableType);
-        
-        // Konvertiere Associations zu ListData Format
-        if (!empty($associations)) {
-            foreach ($associations as $association) {
+    /**
+     * Status-Zuordnungen aus der Darstellung (oder dem Profil) der Statusvariable, je Wert mit Icon der
+     * Darstellung oder ohne Bild; für das Formular (UpdateList) und den Editor.
+     */
+    private function BuildAssociationList(int $statusID): array
+    {
+        $listData = [];
+        if ($statusID > 0 && IPS_VariableExists($statusID)) {
+            $associations = $this->GetVariableAssociations($statusID, IPS_GetVariable($statusID)['VariableType']);
+            foreach (is_array($associations) ? $associations : [] as $association) {
                 $hasIcon = isset($association['icon']) && !empty($association['icon']);
                 $listData[] = [
                     'AssoziationName' => $association['name'],
@@ -351,11 +349,7 @@ trait FormTrait
                 ];
             }
         }
-    }
-    
-    // Konvertieren Sie Ihre Liste in JSON und aktualisieren Sie das Konfigurationsformular
-    $jsonListData = json_encode($listData);
-    $this->UpdateFormField('ProfilAssoziazionen', 'values', $jsonListData);
+        return $listData;
     }
 
     public function UpdateDisplayTypeVisibility(string $displayType, ?int $rowId = null): void

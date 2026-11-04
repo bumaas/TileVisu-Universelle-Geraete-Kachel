@@ -68,12 +68,13 @@ trait ImageHookTrait
 
     /**
      * Die Bildmedien, die diese Kachel zeigt: Standardbild, Hintergrundbild, eigene Bilder der
-     * Status-Zuordnungen und Bildzeilen. Nur diese liefert der Bild-Hook aus.
+     * Status-Zuordnungen und Bildzeilen. Nur diese liefert der Bild-Hook aus (dazu eine Stunde lang die
+     * eines Editor-Entwurfs); mit Entwurf die des Entwurfs.
      */
     private function GetConfiguredMediaIds(): array
     {
-        $ids = [$this->ReadPropertyInteger('DefaultImage'), $this->ReadPropertyInteger('bgImage')];
-        $associations = json_decode($this->ReadPropertyString('ProfilAssoziazionen'), true);
+        $ids = [$this->SettingInteger('DefaultImage'), $this->SettingInteger('bgImage')];
+        $associations = json_decode($this->SettingString('ProfilAssoziazionen'), true);
         foreach (is_array($associations) ? $associations : [] as $association) {
             if (is_array($association) && ($association['Bildauswahl'] ?? '') === 'custom') {
                 $ids[] = (int)($association['EigenesBild'] ?? 0);
@@ -204,6 +205,10 @@ trait ImageHookTrait
     // (bei IPSModule ohne Rückgabetyp, siehe N20): der Rückgabetyp folgt der Basisklasse.
     protected function ProcessHookData(): void
     {
+        if ($this->IsEditorRequest()) {
+            $this->ProcessEditorRequest();
+            return;
+        }
         // Pfad relativ zum Modulordner (diese Datei liegt in libs/)
         $placeholder = __DIR__ . '/../../imgs/transparent.webp';
         $instT = $this->ReadAttributeString('HookToken');
@@ -213,7 +218,7 @@ trait ImageHookTrait
             return;
         }
         $mid = isset($_GET['mid']) ? (int)$_GET['mid'] : 0;
-        if ($mid > 0 && !in_array($mid, $this->GetConfiguredMediaIds(), true)) {
+        if ($mid > 0 && !in_array($mid, $this->GetConfiguredMediaIds(), true) && !in_array($mid, $this->EditorDraftMediaIds(), true)) {
             http_response_code(404);
             $this->SendDebug(__FUNCTION__, 'Medium ' . $mid . ' ist in dieser Kachel nicht konfiguriert', 0);
             return;

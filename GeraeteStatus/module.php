@@ -37,6 +37,9 @@ require_once __DIR__ . '/libs/FormTrait.php';
 require_once __DIR__ . '/libs/ActionTrait.php';
 require_once __DIR__ . '/libs/UpdateTrait.php';
 require_once __DIR__ . '/libs/TileHtmlTrait.php';
+require_once __DIR__ . '/libs/EditorSchema.php';
+require_once __DIR__ . '/libs/EditorTreeTrait.php';
+require_once __DIR__ . '/libs/EditorHookTrait.php';
 
 class UniversalDeviceTile extends IPSModuleStrict
 {
@@ -50,9 +53,14 @@ class UniversalDeviceTile extends IPSModuleStrict
     use \UDT\ActionTrait;
     use \UDT\UpdateTrait;
     use \UDT\TileHtmlTrait;
+    use \UDT\EditorTreeTrait;
+    use \UDT\EditorHookTrait;
 
     // Darstellung „Legacy“: Symcon verweist damit auf das klassische Variablenprofil
     private const LEGACY_PRESENTATION_GUID = '4153A8D4-5C33-C65F-C1F3-7B61AAF99B1C';
+
+    // Connect Control: Adresse für „Editor über Connect öffnen“
+    private const CONNECT_CONTROL_GUID = '{9486D575-BE8C-4ED8-B5B5-20930E26DE6F}';
 
     // Variablen-Zugriff und Status-Variable-ID
     
@@ -125,6 +133,7 @@ class UniversalDeviceTile extends IPSModuleStrict
 
         // Bild-Hook nativ (Symcon 8.1+): flüchtig, deshalb bei jedem Create, also jedem Systemstart
         $this->RegisterHook('udtimages/' . $this->InstanceID);
+        $this->RegisterHook('udteditor/' . $this->InstanceID);
         
         // Lade das Icon-Mapping
         $this->LoadIconMapping();
@@ -157,6 +166,9 @@ class UniversalDeviceTile extends IPSModuleStrict
         $this->UpdateGroupSelectOptionsInForm($form, $groupOptions);
         $this->UpdateGroupOptionsInDynamicFormScript($form, $groupOptions);
         $this->populateGroupNameColumn($form, $groupNames);
+        if ($this->EditorConnectURL() !== '') {
+            $form['elements'][1]['items'][1]['visible'] = true; // „Editor über Connect öffnen“
+        }
 
         // Sichtbarkeiten des Zeilendialogs aus der Matrix einsetzen (als PHP-Stringliteral mit JSON)
         $matrix = var_export((string)json_encode(self::DISPLAY_TYPE_FIELD_VISIBILITY), true);
