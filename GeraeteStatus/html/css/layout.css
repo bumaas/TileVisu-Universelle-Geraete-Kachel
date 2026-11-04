@@ -28,21 +28,6 @@
             background: var(--background-image, none) center / cover no-repeat;
         }
 
-        /* Schrift der Kachel-Visualisierung: Poppins setzt Symcon im Kopf jeder HTML-Kachel (400 und 700).
-           Ergänzt werden die Zwischenstärken, die die Schalter nutzen. */
-        @font-face {
-            font-family: "Poppins";
-            src: url("/tile/assets/google_fonts/Poppins-Medium.ttf") format("truetype");
-            font-weight: 500;
-            font-style: normal;
-        }
-
-        @font-face {
-            font-family: "Poppins";
-            src: url("/tile/assets/google_fonts/Poppins-SemiBold.ttf") format("truetype");
-            font-weight: 600;
-            font-style: normal;
-        }
 
         .hidden {
             display: none;
