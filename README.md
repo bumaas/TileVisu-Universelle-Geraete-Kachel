@@ -109,7 +109,7 @@ Die Konfiguration gliedert sich in mehrere Bereiche der Form:
   - Integer-/String-Schalter werden aus Assoziationen und Darstellungen als Mehrfach-Schaltergruppe dargestellt.
   - Skript-Schalter lösen das hinterlegte Skript aus, zeigen während der Ausführung ein drehendes FontAwesome-Icon und leuchten für die Dauer des Spins auf.
   - Schalter zum Öffnen von Objekten öffnen das konfigurierte Zielobjekt in der Kachelvisualisierung.
-- Deaktivierte Fortschrittsbalken und Werte werden automatisch ausgegraut und mit dem Wert`-` angezeigt.
+- Deaktivierte Fortschrittsbalken und Werte werden automatisch ausgegraut und mit dem Wert `-` angezeigt; je Zeile lässt sich stattdessen der aktuelle Wert zeigen oder die Zeile ausblenden.
 - Schaltertexte erscheinen einheitlich in normaler Schrift wie die Schalter der Kachel-Visualisierung. Stehen Beschriftung und Wert gemeinsam auf einem Schalter, ist die Beschriftung fett.
 - Die Kachel verwendet die Schrift der Kachel-Visualisierung (Poppins).
 - Schieberegler unterstützen Drag und +/- Schalter, setzen Werte optimistisch und verifizieren anschließend, ob der Wert tatsächlich in die Variable geschrieben wurde. Falls nicht, springt der Schieberegler automatisch auf den tatsächlichen Variablenwert zurück.
@@ -127,6 +127,11 @@ Das Modul stellt aktuell keine öffentlichen PHP-Befehle bereit. Die komplette F
   - Bilder: geänderte Bilder (z. B. Kamerabilder) erscheinen sofort, zu große Bilder zeigen einen Platzhalter mit Meldung im Log, die Kacheln sind deutlich kleiner (keine eingebetteten Bilder mehr).
   - Bedienung: Schieberegler mit Bereich bis 0 (z. B. -80..0 dB) und feiner Schrittweite, Schalter per Tastatur (Enter/Leertaste), Gruppen brechen in schmalen Kacheln um, Schalter-Darstellungen mit Beschriftung, Farbe und Icon, transparenter Balkenhintergrund.
   - Robustheit: ungültige Zeichen in Texten und ältere Konfigurationen (IDs als Text) legen die Kachel nicht mehr still; der Zeilendialog zeigt beim Umschalten der Darstellungsart die passenden Felder.
+  - Neu: Fortschrittsbalken zeigen bei inaktivem Status je nach Einstellung „-“ (wie bisher), den aktuellen Wert (etwa eine Ist-Temperatur) oder werden ausgeblendet.
+  - Darstellung: die Kachel nutzt die Schrift der Kachel-Visualisierung (Poppins) statt Arial, Schaltertexte stehen in normaler Stärke wie die Schalter der Visualisierung, Icons in Fortschrittsbalken sitzen auf der Textmitte, inaktive Schalter bleiben lesbar (abgedunkelt wird nur der Hintergrund).
+  - Icons werden von allen Kacheln gemeinsam geladen statt je Kachel; die Kacheln öffnen schneller.
+  - Behoben: Bei einer Installation über Git unter Windows kam die Kachel ohne Gestaltung und Funktionen an.
+  - Danke an bumaas für die Beiträge zu Schaltern, Fortschrittsbalken und Schrift.
   - Nach dem Update offene Visualisierungen einmal neu laden.
 - **2.1.0**
   - Internes Refactoring: PHP-Backend in libs/-Traits modularisiert (module.php 3526 → ~700 Zeilen), Frontend-JS in IIFE strukturiert und nach Darstellungsarten zerlegt, toter Legacy-Code entfernt, strict_types eingeführt.
