@@ -12,9 +12,10 @@ Das Modul **Universelle Geräte Kachel** stellt eine flexibel konfigurierbare Ge
 2. [Voraussetzungen](#voraussetzungen)
 3. [Installation](#installation)
 4. [Konfiguration](#konfiguration)
-5. [Visualisierung und Bedienung](#visualisierung-und_bedienung)
-6. [PHP-Befehle](#php-befehle)
-7. [Changelog](#changelog)
+5. [Editor](#editor)
+6. [Visualisierung und Bedienung](#visualisierung-und-bedienung)
+7. [PHP-Befehle](#php-befehle)
+8. [Changelog](#changelog)
 
 ## Funktion
 - **Statusbereich**: Anzeige einer zentralen Statusvariable inklusive optionalem Icon, Label, Wert sowie Standard- oder Default-Bild.
@@ -102,6 +103,22 @@ Die Konfiguration gliedert sich in mehrere Bereiche der Form:
   - Schalter auf volle Breite: Schalter in einer Gruppe werden auf die volle verfügbare Breite gestreckt.
 
 
+## Editor
+
+Der Editor bearbeitet die Kachel in einer eigenen Webseite mit Live-Vorschau. Das Konfigurationsformular bleibt vollständig nutzbar; beide schreiben dieselben Einstellungen.
+
+- **Öffnen:** In der Konfiguration der Instanz oben auf „Editor öffnen“ klicken. Ist Symcon Connect aktiv, öffnet „Editor über Connect öffnen“ denselben Editor über die Connect-Adresse.
+- **Vorschau:** Links steht die echte Kachel mit dem Entwurf, wahlweise in den Größen 1×1 bis maximiert und im hellen oder dunklen Design. Die Werte laufen live mit. Ein Klick auf eine Zeile in der Vorschau wählt sie zur Bearbeitung aus. Schalter und Regler schalten in der Vorschau nichts.
+- **Zeilen:** Neue Zeilen gibt es je Anzeigetyp (Text, Fortschrittsbalken, Schieberegler, Schalter, Bild). Am Griff gezogen, wandern Zeilen an eine andere Stelle oder in eine Gruppe hinein und wieder heraus; ganze Gruppen lassen sich genauso verschieben. Alt + Pfeiltasten verschieben die ausgewählte Zeile. Unter der Liste stehen nur die Felder, die zum Anzeigetyp passen, dazu ein Hinweis, wenn eine Variable fehlt oder keine Aktion hat.
+- **Gruppen:** Name, Icon (Font-Awesome-Name, z. B. `bolt`), „Name anzeigen“, „Name über der Gruppe“, „Linie unter der Gruppe“ und „Elemente auf volle Breite“ stehen direkt an der Gruppe.
+- **Status:** Statusvariable, Anzeigeoptionen, Standardbild und die Zuordnungen je Wert mit Bild oder Icon, Farben und „Fortschrittsbalken aktiv“. „Aus der Darstellung neu einlesen“ übernimmt neue Werte der Statusvariable und behält die Einstellungen der vorhandenen.
+- **Status simulieren:** In der Vorschau lässt sich jeder Status zeigen, für Balken und Regler auch ein Testwert. Das wirkt nur in der Vorschau, an Variablen und Geräten ändert sich nichts.
+- **Vorlagen:** Waschmaschine, Wallbox, PV-Anlage und Fenster geben Zeilen, Gruppen und Aufteilung vor; danach werden die Variablen zugeordnet. „Exportieren“ und „Importieren“ übertragen eine Konfiguration als JSON, etwa auf eine zweite Kachel. Objekt-IDs passen dabei nur zur selben Symcon-Installation.
+- **Speichern:** Erst „Speichern“ (oder Strg/Cmd + S) schreibt in die Instanz, „Verwerfen“ kehrt zum gespeicherten Stand zurück. Wurde die Konfiguration inzwischen anderswo gespeichert, etwa im Formular, fragt der Editor nach. Ungültige Werte werden nicht gespeichert.
+- **Formular und Editor:** Nach dem Speichern im Editor ein noch offenes Konfigurationsformular neu öffnen, bevor dort etwas übernommen wird. Sonst überschreibt das Formular den Stand des Editors.
+- **Zugang:** Der Link enthält einen Zugangscode und ist ein Verwaltungszugang zu dieser Kachel; die Objektauswahl zeigt auch Namen und Werte anderer Objekte. Den Link deshalb nicht weitergeben. Er gilt eine Stunde ohne Nutzung, höchstens acht Stunden, und verfällt mit einem Neustart von Symcon. Danach den Editor einfach wieder über das Formular öffnen.
+
+
 ## Visualisierung und Bedienung
 
 **Beispiele für kleine Kacheln**
@@ -130,9 +147,14 @@ Die Konfiguration gliedert sich in mehrere Bereiche der Form:
 - Schieberegler-Farben: Schieberegler verwenden eigene Schieberegler-Farben (Schieberegler-Farbe 1/2). Sind diese nicht gesetzt, wird auf die Fortschrittsbalken-Farben zurückgefallen.
 
 ## PHP-Befehle
-Das Modul stellt aktuell keine öffentlichen PHP-Befehle bereit. Die komplette Funktionalität erfolgt über die Instanz-Konfiguration.
+Die Funktionalität erfolgt über die Instanz-Konfiguration und den Editor. Für den Editor gibt es:
+
+- `UDST_EditorURL(int $InstanzID): string` – Adresse des Editors (ohne Host) mit frischem Zugangscode.
+- `UDST_EditorConnectURL(int $InstanzID): string` – dieselbe Adresse über Symcon Connect; leer, wenn Connect nicht aktiv ist.
 
 ## Changelog
+- **3.1.0** (in Vorbereitung)
+  - Neu: visueller Editor mit Live-Vorschau der echten Kachel, geöffnet über „Editor öffnen“ im Formular. Zeilen und Gruppen per Ziehen und Ablegen, Eigenschaften je Anzeigetyp, Objektauswahl mit Suche, Status simulieren und Testwerte nur in der Vorschau, Vorlagen sowie Export und Import. Gespeichert wird erst auf Klick, mit Rückfrage, wenn die Konfiguration inzwischen anderswo gespeichert wurde.
 - **3.0.0**
   - Voraussetzung Symcon 8.1: das Modul nutzt Module Strict und den nativen Webhook; der Eintrag im WebHook Control entfällt.
   - Wertänderungen aktualisieren nur die betroffenen Zeilen: wertabhängige Icons wechseln mit, mehrere Zeilen derselben Variable bleiben richtig, ein Statuswechsel baut die Kachel nicht mehr neu auf, Ziel-Marker stimmen auch bei inaktivem Balken.
