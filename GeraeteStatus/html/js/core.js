@@ -190,6 +190,15 @@
             return variable.textColor;
         }
 
+        // Schrift auf Schaltern: Inaktive Schalter liegen unter einem dunklen Overlay. Ohne eigene
+        // Textfarbe wäre die Schrift im hellen Design dunkel auf dunkel, deshalb dort Weiß.
+        function getButtonTextColor(variable, isActive) {
+            if (!isActive && variable.isTextColorTransparent) {
+                return '#ffffff';
+            }
+            return getTextColor(variable);
+        }
+
         // Hilfsfunktion zur Anwendung der Bildposition
         function applyImagePosition(position) {
             const mainContainer = document.querySelector('.main_container');
