@@ -1,0 +1,264 @@
+/* Universal Device Tile – Editor: Zeilenliste mit Gruppen. Eine Gruppe steht dort, wo ihre erste Zeile
+   steht (so zeichnet die Kachel sie). Ziehen am Griff verschiebt Zeilen und ganze Gruppen; während des
+   Ziehens ist die Liste selbst der Stand, beim Loslassen wird die Reihenfolge aus ihr gelesen. */
+(function (E) {
+    'use strict';
+    const h = E.h;
+    let listEl = null;
+    let inspectorEl = null;
+
+    const usedGroups = () => {
+        const used = new Set();
+        E.rows().forEach(r => { const n = E.groupNumber(r.Group); if (n) used.add(n); });
+        return used;
+    };
+
+    E.addRow = function (type) {
+        const row = Object.assign(E.clone(E.s.rowDefaults), { DisplayType: type });
+        E.change(() => { E.rows().push(row); }, true);
+        const index = E.rows().length - 1;
+        E.select(index);
+        const kind = type === 'image' ? 'image' : (type === 'button' ? null : 'variable');
+        if (kind) {
+            E.pick(kind, 0, id => E.change(() => { row[kind === 'image' ? 'ImageMedia' : 'Variable'] = id; }, true));
+        }
+    };
+
+    E.duplicateRow = function (index) {
+        E.change(d => { d.VariablesList.splice(index + 1, 0, E.clone(d.VariablesList[index])); }, true);
+        E.select(index + 1);
+    };
+
+    E.deleteRow = function (index) {
+        const row = E.rows()[index];
+        E.change(d => { d.VariablesList.splice(index, 1); }, true);
+        E.select(null);
+        E.toast(E.tf('Row “%s” removed. “Discard” brings it back until you save.', E.rowTitle(row)));
+    };
+
+    const moveRow = (index, delta) => {
+        const rows = E.rows();
+        const to = index + delta;
+        if (to < 0 || to >= rows.length) return;
+        E.change(() => { const [r] = rows.splice(index, 1); rows.splice(to, 0, r); }, true);
+        E.select(to);
+        const item = listEl.querySelector('.row-item[data-index="' + to + '"]');
+        if (item) item.focus();
+    };
+
+    const rowItem = (row, index) => {
+        const problem = E.rowProblem(row);
+        const item = h('div', {
+            class: 'row-item' + (index === E.s.selected ? ' selected' : '') + (problem ? ' has-problem' : ''),
+            tabindex: '0', 'data-index': String(index), role: 'button'
+        },
+            h('span', { class: 'grip', title: E.t('Drag to move') }, E.icon('grip-dots-vertical')),
+            E.icon(E.typeIcon(E.rowValue(row, 'DisplayType')), 'type'),
+            h('span', { class: 'row-title', text: E.rowTitle(row) }),
+            problem ? h('span', { class: 'problem', title: problem }, E.icon('triangle-exclamation')) : null);
+        item.addEventListener('click', e => { if (!e.target.closest('.grip')) E.select(index === E.s.selected ? null : index); });
+        item.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); E.select(index); }
+            if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) { e.preventDefault(); moveRow(index, e.key === 'ArrowUp' ? -1 : 1); }
+            if (e.key === 'Delete') { e.preventDefault(); E.deleteRow(index); }
+        });
+        item.querySelector('.grip').addEventListener('pointerdown', e => startDrag(e, item));
+        return item;
+    };
+
+    const toggle = (group, key, icon, title) => {
+        const button = h('button', { type: 'button', class: 'btn small icon toggle' + (group[key] ? ' on' : ''), title: E.t(title), 'aria-pressed': String(!!group[key]) }, E.icon(icon));
+        button.addEventListener('click', () => {
+            E.change(() => { group[key] = !group[key]; });
+            button.classList.toggle('on', !!group[key]);
+            button.setAttribute('aria-pressed', String(!!group[key]));
+        });
+        return button;
+    };
+
+    const groupCard = (number, members) => {
+        const group = E.groups()[number - 1];
+        const iconPreview = h('span', { class: 'group-icon' }, group.Groupicon ? E.icon(group.Groupicon) : E.icon('layer-group'));
+        const name = h('input', { type: 'text', class: 'group-name', maxlength: '100', value: group.GroupName || '', 'aria-label': E.t('Group name') });
+        name.addEventListener('input', () => E.change(() => { group.GroupName = name.value; }));
+        const icon = h('input', { type: 'text', class: 'group-iconname', maxlength: '64', value: group.Groupicon || '', placeholder: E.t('Icon'), title: E.t('Font Awesome name, e.g. bolt') });
+        icon.addEventListener('input', () => {
+            const value = icon.value.trim().replace(/^fa-/, '');
+            if (!/^[A-Za-z0-9 _-]{0,64}$/.test(value)) return;
+            E.change(() => { group.Groupicon = value; });
+            iconPreview.replaceChildren(value ? E.icon(value) : E.icon('layer-group'));
+        });
+        const remove = h('button', { type: 'button', class: 'btn small icon', title: E.t('Dissolve group (rows stay)'), onclick: () => {
+            E.change(d => { d.VariablesList.forEach(r => { if (E.groupNumber(r.Group) === number) r.Group = 'keine Gruppe'; }); }, true);
+            E.s.extraGroups = E.s.extraGroups.filter(n => n !== number);
+            E.emit('structure');
+        } }, E.icon('object-ungroup'));
+        const body = h('div', { class: 'group-body', 'data-group': String(number) },
+            members.length ? members.map(([row, index]) => rowItem(row, index)) : h('div', { class: 'drop-hint', text: E.t('Drag rows here') }));
+        const card = h('div', { class: 'group-card', 'data-group': String(number) },
+            h('div', { class: 'group-head' },
+                h('span', { class: 'grip', title: E.t('Drag to move') }, E.icon('grip-dots-vertical')),
+                iconPreview, name, icon,
+                toggle(group, 'ShowGroupName', 'tag', 'Show group name'),
+                toggle(group, 'ShowAbove', 'arrow-up-to-line', 'Name above the group'),
+                toggle(group, 'line', 'horizontal-rule', 'Line below the group'),
+                toggle(group, 'stretch', 'arrows-left-right-to-line', 'Stretch elements'),
+                remove),
+            body);
+        card.querySelector('.grip').addEventListener('pointerdown', e => startDrag(e, card));
+        return card;
+    };
+
+    E.renderRows = function () {
+        if (!listEl) return;
+        const rows = E.rows();
+        const seen = new Set();
+        const parts = [];
+        rows.forEach((row, index) => {
+            const n = E.groupNumber(row.Group);
+            if (!n) { parts.push(rowItem(row, index)); return; }
+            if (seen.has(n)) return;
+            seen.add(n);
+            parts.push(groupCard(n, rows.map((r, i) => [r, i]).filter(([r]) => E.groupNumber(r.Group) === n)));
+        });
+        E.s.extraGroups.filter(n => !seen.has(n)).forEach(n => parts.push(groupCard(n, [])));
+        if (parts.length === 0) parts.push(h('p', { class: 'muted pad', text: E.t('No rows yet. Add one or start with a template.') }));
+        listEl.replaceChildren(...parts);
+    };
+
+    // ---------- Ziehen und Ablegen ----------
+    let drag = null;
+
+    // Die Listener hängen am Fenster: Verschieben im DOM nimmt dem Griff den Pointer-Capture
+    function startDrag(e, el) {
+        if (e.button !== 0 || drag) return;
+        e.preventDefault();
+        drag = { el, isGroup: el.classList.contains('group-card'), moved: false, pointer: e.pointerId };
+        el.classList.add('dragging');
+        window.addEventListener('pointermove', onMove);
+        window.addEventListener('pointerup', onUp);
+        window.addEventListener('pointercancel', onUp);
+    }
+
+    function onMove(e) {
+        if (!drag || e.pointerId !== drag.pointer) return;
+        e.preventDefault();
+        const scroller = listEl.closest('.tab-body');
+        const box = scroller.getBoundingClientRect();
+        if (e.clientY < box.top + 40) scroller.scrollTop -= 12;
+        if (e.clientY > box.bottom - 40) scroller.scrollTop += 12;
+        const hit = document.elementFromPoint(e.clientX, e.clientY);
+        if (!hit || drag.el.contains(hit)) return;
+        const overRow = hit.closest('.row-item');
+        const overCard = hit.closest('.group-card');
+        const overBody = hit.closest('.group-body');
+        if (drag.isGroup) {
+            // Gruppen nur auf oberster Ebene: vor oder hinter einen Eintrag der Liste
+            let top = overCard || overRow;
+            if (top && top.parentElement !== listEl) top = top.closest('.group-card');
+            if (!top || top.parentElement !== listEl) return;
+            place(listEl, top, e.clientY);
+        } else if (overRow && overRow.parentElement) {
+            place(overRow.parentElement, overRow, e.clientY);
+        } else if (overBody) {
+            const hint = overBody.querySelector('.drop-hint');
+            if (hint) hint.remove();
+            overBody.appendChild(drag.el);
+            drag.moved = true;
+        } else if (overCard) {
+            overCard.querySelector('.group-body').prepend(drag.el);
+            drag.moved = true;
+        }
+    }
+
+    function place(container, ref, y) {
+        const r = ref.getBoundingClientRect();
+        const before = y < r.top + r.height / 2;
+        const anchor = before ? ref : ref.nextSibling;
+        if (anchor !== drag.el && drag.el.nextSibling !== anchor) {
+            container.insertBefore(drag.el, anchor);
+            drag.moved = true;
+        }
+    }
+
+    function onUp(e) {
+        if (!drag || e.pointerId !== drag.pointer) return;
+        window.removeEventListener('pointermove', onMove);
+        window.removeEventListener('pointerup', onUp);
+        window.removeEventListener('pointercancel', onUp);
+        drag.el.classList.remove('dragging');
+        const moved = drag.moved;
+        drag = null;
+        if (moved) commitOrder();
+    }
+
+    /** Reihenfolge und Gruppen aus der Liste übernehmen; die gewählte Zeile bleibt gewählt. */
+    function commitOrder() {
+        const rows = E.rows();
+        const selectedRow = E.s.selected !== null ? rows[E.s.selected] : null;
+        const order = [];
+        for (const child of listEl.children) {
+            if (child.classList.contains('row-item')) {
+                order.push([parseInt(child.dataset.index, 10), 'keine Gruppe']);
+            } else if (child.classList.contains('group-card')) {
+                const group = 'Gruppe ' + child.dataset.group;
+                child.querySelectorAll('.row-item').forEach(item => order.push([parseInt(item.dataset.index, 10), group]));
+            }
+        }
+        if (order.length !== rows.length) { E.renderRows(); return; }
+        E.change(d => {
+            d.VariablesList = order.map(([i, group]) => Object.assign(rows[i], { Group: group }));
+        }, true);
+        if (selectedRow) E.select(E.rows().indexOf(selectedRow));
+    }
+
+    E.newGroup = function () {
+        const used = usedGroups();
+        E.s.extraGroups.forEach(n => used.add(n));
+        for (let n = 1; n <= 10; n++) {
+            if (!used.has(n)) {
+                E.s.extraGroups.push(n);
+                E.renderRows();
+                const card = listEl.querySelector('.group-card[data-group="' + n + '"] .group-name');
+                if (card) { card.focus(); card.select(); }
+                return;
+            }
+        }
+        E.toast(E.t('All 10 groups are in use.'), 'error');
+    };
+
+    E.buildRowsTab = function () {
+        const tab = document.getElementById('tab-rows');
+        const addMenu = h('div', { class: 'add-bar' },
+            ...E.TYPES.map(([type, icon, caption]) => h('button', { type: 'button', class: 'btn small', onclick: () => E.addRow(type), title: E.t('Add row') },
+                E.icon('plus'), ' ', E.icon(icon), ' ', E.t(caption))),
+            h('button', { type: 'button', class: 'btn small', onclick: E.newGroup }, E.icon('layer-group'), ' ', E.t('New group')));
+        listEl = h('div', { class: 'rows-list', id: 'rowsList' });
+        inspectorEl = h('div', { class: 'inspector', id: 'rowInspector' });
+        tab.replaceChildren(addMenu, listEl, h('p', { class: 'muted small', text: E.t('Tip: Alt + arrow keys move the focused row.') }), inspectorEl);
+        E.renderRows();
+        E.renderInspector(inspectorEl);
+    };
+
+    E.on('loaded', () => E.buildRowsTab());
+    // Beschriftung tippen: nur die Titel nachziehen, die Liste bleibt stehen (Fokus)
+    E.on('draft', () => {
+        if (!listEl) return;
+        listEl.querySelectorAll('.row-item').forEach(item => {
+            const row = E.rows()[parseInt(item.dataset.index, 10)];
+            const title = item.querySelector('.row-title');
+            if (row && title && title.textContent !== E.rowTitle(row)) title.textContent = E.rowTitle(row);
+        });
+    });
+    E.on('structure', () => { E.renderRows(); E.renderInspector(inspectorEl); });
+    E.on('objects', () => { E.renderRows(); });
+    E.on('select', () => {
+        if (!listEl) return;
+        listEl.querySelectorAll('.row-item').forEach(item => item.classList.toggle('selected', parseInt(item.dataset.index, 10) === E.s.selected));
+        E.renderInspector(inspectorEl);
+        if (E.s.selected !== null) {
+            const item = listEl.querySelector('.row-item[data-index="' + E.s.selected + '"]');
+            if (item) item.scrollIntoView({ block: 'nearest' });
+        }
+    });
+})(window.UDTE);

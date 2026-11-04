@@ -1,0 +1,128 @@
+{
+  "caption": "Window",
+  "icon": "window-frame",
+  "config": {
+    "BildPosition": "left",
+    "BildBreite": 70,
+    "ElementSpacing": 4,
+    "VariablesList": [
+      {
+        "Variable": 0,
+        "DisplayType": "text",
+        "Label": "State",
+        "Group": "keine Gruppe",
+        "ShowBorderLine": true
+      },
+      {
+        "Variable": 0,
+        "DisplayType": "text",
+        "Label": "Temperature",
+        "Group": "Gruppe 1"
+      },
+      {
+        "Variable": 0,
+        "DisplayType": "text",
+        "Label": "Humidity",
+        "Group": "Gruppe 1"
+      },
+      {
+        "Variable": 0,
+        "DisplayType": "button",
+        "Label": "Ventilation",
+        "Group": "keine Gruppe"
+      }
+    ],
+    "GroupNamesList": [
+      {
+        "Group": 1,
+        "GroupName": "Climate",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 2,
+        "GroupName": "Group 2",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 3,
+        "GroupName": "Group 3",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 4,
+        "GroupName": "Group 4",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 5,
+        "GroupName": "Group 5",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 6,
+        "GroupName": "Group 6",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 7,
+        "GroupName": "Group 7",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 8,
+        "GroupName": "Group 8",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 9,
+        "GroupName": "Group 9",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 10,
+        "GroupName": "Group 10",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      }
+    ]
+  }
+}

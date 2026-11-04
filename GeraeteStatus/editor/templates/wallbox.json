@@ -1,0 +1,135 @@
+{
+  "caption": "Wallbox",
+  "icon": "charging-station",
+  "config": {
+    "BildPosition": "left",
+    "BildBreite": 110,
+    "ElementSpacing": 6,
+    "VariablesList": [
+      {
+        "Variable": 0,
+        "DisplayType": "progress",
+        "Label": "Battery level",
+        "Group": "keine Gruppe",
+        "UseSecondVariableAsTarget": true,
+        "SecondVariableLabel": "Target"
+      },
+      {
+        "Variable": 0,
+        "DisplayType": "text",
+        "Label": "Charging power",
+        "Group": "Gruppe 1"
+      },
+      {
+        "Variable": 0,
+        "DisplayType": "text",
+        "Label": "Charged energy",
+        "Group": "Gruppe 1"
+      },
+      {
+        "Variable": 0,
+        "DisplayType": "button",
+        "Label": "Charging mode",
+        "Group": "Gruppe 2"
+      },
+      {
+        "Variable": 0,
+        "DisplayType": "slider",
+        "Label": "Target SOC",
+        "Group": "keine Gruppe"
+      }
+    ],
+    "GroupNamesList": [
+      {
+        "Group": 1,
+        "GroupName": "Charging",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 2,
+        "GroupName": "Mode",
+        "Groupicon": "",
+        "ShowGroupName": true,
+        "ShowAbove": true,
+        "line": false,
+        "stretch": true
+      },
+      {
+        "Group": 3,
+        "GroupName": "Group 3",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 4,
+        "GroupName": "Group 4",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 5,
+        "GroupName": "Group 5",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 6,
+        "GroupName": "Group 6",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 7,
+        "GroupName": "Group 7",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 8,
+        "GroupName": "Group 8",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 9,
+        "GroupName": "Group 9",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 10,
+        "GroupName": "Group 10",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,105 @@
+/* Universal Device Tile – Editor: Vorlagen, Export und Import. Alles landet nur im Entwurf; geprüft wird
+   es wie jede Eingabe beim Vorschau-Aufbau und beim Speichern. */
+(function (E) {
+    'use strict';
+    const h = E.h;
+
+    /** Einfacher Dialog: buttons = [[Beschriftung, Funktion, Klasse]]; die Funktion schließt ihn mit return true. */
+    E.dialog = function (title, body, buttons) {
+        const dialog = h('dialog', { class: 'modal' });
+        const close = () => { dialog.close(); dialog.remove(); };
+        dialog.append(
+            h('div', { class: 'dialog-head' }, h('h2', { text: title }),
+                h('button', { type: 'button', class: 'btn icon', title: E.t('Close'), onclick: close }, E.icon('xmark'))),
+            h('div', { class: 'dialog-body' }, typeof body === 'string' ? h('p', { text: body }) : body),
+            h('div', { class: 'dialog-foot' }, ...(buttons || [[E.t('Close'), () => true]]).map(([caption, fn, cls]) =>
+                h('button', { type: 'button', class: 'btn ' + (cls || ''), onclick: async () => { if (await fn()) close(); } }, caption))));
+        dialog.addEventListener('cancel', e => { e.preventDefault(); close(); });
+        document.body.appendChild(dialog);
+        dialog.showModal();
+        return dialog;
+    };
+
+    /** Konfiguration in den Entwurf übernehmen (Vorlage oder Import) und alles neu zeichnen. */
+    E.applyConfig = function (config, replaceAll) {
+        E.change(d => {
+            if (replaceAll) {
+                Object.keys(d).forEach(key => { if (key in config) d[key] = E.clone(config[key]); });
+            } else {
+                Object.assign(d, E.clone(config));
+            }
+        }, true);
+        E.s.extraGroups = [];
+        E.select(null);
+        E.emit('reset');
+        const ids = [];
+        JSON.stringify(config, (key, value) => { if (Number.isInteger(value) && value >= 10000 && value <= 59999) ids.push(value); return value; });
+        E.ensureObjects(ids);
+    };
+
+    const applyTemplate = template => {
+        E.dialog(E.tf('Use template “%s”?', template.caption),
+            E.t('Rows, groups and layout of the draft are replaced. The status variable and its associations stay. Then select the variables for the rows.'),
+            [[E.t('Cancel'), () => true], [E.t('Use template'), () => {
+                const config = E.clone(template.config);
+                config.VariablesList = (config.VariablesList || []).map(row => Object.assign(E.clone(E.s.rowDefaults), row));
+                E.applyConfig(config, false);
+                E.toast(E.t('Template applied. Nothing is saved yet.'));
+                return true;
+            }, 'primary']]);
+    };
+
+    const exportConfig = () => {
+        const text = JSON.stringify({ udt: 1, config: E.s.draft }, null, 2);
+        const area = h('textarea', { class: 'code', readonly: true, rows: '14' });
+        area.value = text;
+        E.dialog(E.t('Export'), h('div', {}, h('p', { class: 'muted', text: E.t('The configuration of this draft as JSON. Object IDs only fit this Symcon installation.') }), area), [
+            [E.t('Download'), () => {
+                const link = h('a', { href: URL.createObjectURL(new Blob([text], { type: 'application/json' })), download: 'udt-' + E.s.instance.id + '.json' });
+                document.body.appendChild(link); link.click(); link.remove();
+                return false;
+            }],
+            [E.t('Copy'), async () => {
+                try { await navigator.clipboard.writeText(text); E.toast(E.t('Copied.')); } catch (_) { area.select(); document.execCommand('copy'); }
+                return false;
+            }, 'primary']
+        ]);
+    };
+
+    const importConfig = () => {
+        const area = h('textarea', { class: 'code', rows: '14', placeholder: '{ "udt": 1, "config": { … } }' });
+        const file = h('input', { type: 'file', accept: 'application/json,.json' });
+        file.addEventListener('change', async () => { if (file.files[0]) area.value = await file.files[0].text(); });
+        E.dialog(E.t('Import'), h('div', {}, h('p', { class: 'muted', text: E.t('Paste an exported configuration or choose a file. It only goes into the draft; you can check it in the preview before saving.') }), file, area), [
+            [E.t('Cancel'), () => true],
+            [E.t('Import'), () => {
+                let data;
+                try { data = JSON.parse(area.value); } catch (_) { E.toast(E.t('That is not valid JSON.'), 'error'); return false; }
+                const config = data && typeof data === 'object' && data.config && typeof data.config === 'object' ? data.config : data;
+                if (!config || typeof config !== 'object' || Array.isArray(config)) { E.toast(E.t('No configuration found.'), 'error'); return false; }
+                const known = Object.keys(config).filter(key => key in E.s.draft);
+                if (known.length === 0) { E.toast(E.t('No configuration found.'), 'error'); return false; }
+                E.applyConfig(config, true);
+                E.toast(E.t('Imported into the draft. Nothing is saved yet.'));
+                return true;
+            }, 'primary']
+        ]);
+    };
+
+    const buildMenu = () => {
+        const list = document.getElementById('templateList');
+        list.replaceChildren(
+            h('div', { class: 'menu-title', text: E.t('Start with a template') }),
+            ...E.s.templates.map(t => h('button', { type: 'button', onclick: () => { close(); applyTemplate(t); } }, E.icon(t.icon || 'shapes'), ' ', t.caption)),
+            h('hr'),
+            h('button', { type: 'button', onclick: () => { close(); exportConfig(); } }, E.icon('file-export'), ' ', E.t('Export')),
+            h('button', { type: 'button', onclick: () => { close(); importConfig(); } }, E.icon('file-import'), ' ', E.t('Import')));
+    };
+    const menu = document.getElementById('templateMenu');
+    const close = () => menu.classList.remove('open');
+    document.getElementById('templateButton').addEventListener('click', e => { e.stopPropagation(); menu.classList.toggle('open'); });
+    document.addEventListener('click', e => { if (!menu.contains(e.target)) close(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+
+    E.on('loaded', buildMenu);
+})(window.UDTE);

@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="data:,">
+<title>Universal Device Tile – Editor</title>
+<link rel="stylesheet" href="?k=asset&amp;f=editor.css&amp;v=__UDT_EDITOR_VERSION__">
+<script src="/icons.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="title"><i class="fa-light fa-pen-ruler"></i> <span id="title"></span></div>
+  <div class="actions">
+    <div class="menu" id="templateMenu">
+      <button type="button" class="btn" data-t-title="Templates and transfer" id="templateButton"><i class="fa-light fa-swatchbook"></i> <span data-t="Templates"></span></button>
+      <div class="menu-list" id="templateList"></div>
+    </div>
+    <span class="dirty" id="dirty" hidden><i class="fa-solid fa-circle"></i> <span data-t="Unsaved changes"></span></span>
+    <button type="button" class="btn" id="discard" disabled><span data-t="Discard"></span></button>
+    <button type="button" class="btn primary" id="save" disabled><i class="fa-light fa-floppy-disk"></i> <span data-t="Save"></span></button>
+  </div>
+</header>
+<main class="layout">
+  <section class="stage">
+    <div class="stage-bar">
+      <div class="seg" id="sizes"></div>
+      <div class="seg" id="themes"></div>
+      <label class="sim"><i class="fa-light fa-flask"></i> <span data-t="Simulate status"></span>
+        <select id="simStatus"></select>
+      </label>
+    </div>
+    <div class="stage-area" id="stageArea">
+      <div class="tile-frame" id="tileFrame">
+        <div class="tile-title"><i class="fa-light fa-grid-2"></i><span id="tileTitle"></span><i class="fa-light fa-up-right-and-down-left-from-center"></i></div>
+        <iframe id="tile" title="Preview"></iframe>
+      </div>
+    </div>
+    <p class="hint" data-t="Click a row in the preview to edit it. Buttons and sliders do not switch anything in the preview."></p>
+  </section>
+  <aside class="side">
+    <nav class="tabs" id="tabs">
+      <button type="button" data-tab="rows" class="active"><i class="fa-light fa-list"></i> <span data-t="Rows"></span></button>
+      <button type="button" data-tab="status"><i class="fa-light fa-circle-info"></i> <span data-t="Status"></span></button>
+      <button type="button" data-tab="tile"><i class="fa-light fa-sliders"></i> <span data-t="Tile"></span></button>
+    </nav>
+    <div class="tab-body" id="tab-rows"></div>
+    <div class="tab-body" id="tab-status" hidden></div>
+    <div class="tab-body" id="tab-tile" hidden></div>
+  </aside>
+</main>
+<div class="toast" id="toast" hidden></div>
+<dialog id="dialog"></dialog>
+<script>window.UDTE = { texts: /*__UDT_EDITOR_TEXTS__*/{} };</script>
+<script src="?k=asset&amp;f=api.js&amp;v=__UDT_EDITOR_VERSION__"></script>
+<script src="?k=asset&amp;f=state.js&amp;v=__UDT_EDITOR_VERSION__"></script>
+<script src="?k=asset&amp;f=fields.js&amp;v=__UDT_EDITOR_VERSION__"></script>
+<script src="?k=asset&amp;f=picker.js&amp;v=__UDT_EDITOR_VERSION__"></script>
+<script src="?k=asset&amp;f=preview.js&amp;v=__UDT_EDITOR_VERSION__"></script>
+<script src="?k=asset&amp;f=inspector.js&amp;v=__UDT_EDITOR_VERSION__"></script>
+<script src="?k=asset&amp;f=rows.js&amp;v=__UDT_EDITOR_VERSION__"></script>
+<script src="?k=asset&amp;f=panels.js&amp;v=__UDT_EDITOR_VERSION__"></script>
+<script src="?k=asset&amp;f=templates.js&amp;v=__UDT_EDITOR_VERSION__"></script>
+<script src="?k=asset&amp;f=app.js&amp;v=__UDT_EDITOR_VERSION__"></script>
+</body>
+</html>
