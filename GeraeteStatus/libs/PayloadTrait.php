@@ -17,7 +17,7 @@ trait PayloadTrait
      */
     private function ReadVariablesList(): array
     {
-        $rows = json_decode($this->ReadPropertyString('VariablesList'), true);
+        $rows = json_decode($this->SettingString('VariablesList'), true);
         $list = [];
         foreach (is_array($rows) ? $rows : [] as $key => $row) {
             if (!is_array($row)) {
@@ -71,7 +71,10 @@ trait PayloadTrait
         $this->appendStatusPayload($result);
         $this->appendVariablesPayload($result);
         $this->appendTilePayload($result);
-        $this->RememberSentRows($result['variables'] ?? []);
+        if (!$this->IsPreview()) {
+            // die Vorschau des Editors lässt den Stand der offenen Kachel unangetastet
+            $this->RememberSentRows($result['variables'] ?? []);
+        }
 
         return $result;
     }
@@ -82,28 +85,28 @@ trait PayloadTrait
     private function appendStatusPayload(array &$result): void
     {
         // Status-Daten (werden immer oben angezeigt)
-        $statusId = $this->ReadPropertyInteger('Status');
+        $statusId = $this->SettingInteger('Status');
         // Neue Option: Statusbereich komplett ausblenden (Funktionalität bleibt erhalten)
-        $result['statusHidden'] = $this->ReadPropertyBoolean('StatusHide');
+        $result['statusHidden'] = $this->SettingBoolean('StatusHide');
         if ($statusId > 0 && IPS_VariableExists($statusId)) {
-            $result['status'] = GetValueFormatted($statusId);
-            $result['statusValue'] = GetValue($statusId);
-            $result['statusFontSize'] = $this->ReadPropertyInteger('StatusFontSize');
+            $result['status'] = $this->CurrentValueFormatted($statusId);
+            $result['statusValue'] = $this->CurrentValue($statusId);
+            $result['statusFontSize'] = $this->SettingInteger('StatusFontSize');
             // Alignment for Status
-            $result['statusAlignment'] = $this->ReadPropertyString('StatusAlignment');
+            $result['statusAlignment'] = $this->SettingString('StatusAlignment');
             
             // Neue Status-Konfigurationsoptionen
-            $result['statusShowIcon'] = $this->ReadPropertyBoolean('StatusShowIcon');
-            $result['statusShowLabel'] = $this->ReadPropertyBoolean('StatusShowLabel');
-            $result['statusShowValue'] = $this->ReadPropertyBoolean('StatusShowValue');
-            $result['statusLabel'] = $this->ReadPropertyString('StatusLabel');
+            $result['statusShowIcon'] = $this->SettingBoolean('StatusShowIcon');
+            $result['statusShowLabel'] = $this->SettingBoolean('StatusShowLabel');
+            $result['statusShowValue'] = $this->SettingBoolean('StatusShowValue');
+            $result['statusLabel'] = $this->SettingString('StatusLabel');
             
             // Status-Icon ermitteln
             $statusIcon = $this->GetIcon($statusId);
             $result['statusIcon'] = $statusIcon;
             
             // Verwende Profilassoziationen für Status-Konfiguration
-            $profilAssoziationen = json_decode($this->ReadPropertyString('ProfilAssoziazionen'), true);
+            $profilAssoziationen = json_decode($this->SettingString('ProfilAssoziazionen'), true);
             $statusBildauswahlSet = false; // Flag to track if statusBildauswahl was set
             
             // Check if ALL associations have Bildauswahl = "none" AND no default image is configured
@@ -119,12 +122,12 @@ trait PayloadTrait
             }
             
             // Hide image column only if ALL associations are "none" AND no default image is configured
-            $hasDefaultImage = $this->ReadPropertyInteger('DefaultImage') > 0 && IPS_MediaExists($this->ReadPropertyInteger('DefaultImage'));
+            $hasDefaultImage = $this->SettingInteger('DefaultImage') > 0 && IPS_MediaExists($this->SettingInteger('DefaultImage'));
             $hideImageColumn = $allAssociationsNone && !$hasDefaultImage;
             $result['hideImageColumn'] = $hideImageColumn;
             
             if (is_array($profilAssoziationen)) {
-                $currentValue = GetValue($statusId);
+                $currentValue = $this->CurrentValue($statusId);
                 $assoziation = $this->FindMatchingAssociation($profilAssoziationen, $currentValue);
                 if ($assoziation !== null) {
                         // Neue erweiterte Bildauswahl-Logik
@@ -208,7 +211,7 @@ trait PayloadTrait
             // 1) Bildauswahl: Standard-Bild wenn vorhanden, sonst 'none'
             $result['statusBildauswahl'] = $this->getDefaultImageOrNone();
             // 2) Spaltenanzeige: Wenn KEIN DefaultImage vorhanden ist → gesamte Bildspalte ausblenden
-            $hasDefaultImage = $this->ReadPropertyInteger('DefaultImage') > 0 && IPS_MediaExists($this->ReadPropertyInteger('DefaultImage'));
+            $hasDefaultImage = $this->SettingInteger('DefaultImage') > 0 && IPS_MediaExists($this->SettingInteger('DefaultImage'));
             $result['hideImageColumn'] = !$hasDefaultImage;
         }
         
@@ -218,7 +221,7 @@ trait PayloadTrait
         }
         // Ensure statusAlignment is always present
         if (!isset($result['statusAlignment'])) {
-            $result['statusAlignment'] = $this->ReadPropertyString('StatusAlignment');
+            $result['statusAlignment'] = $this->SettingString('StatusAlignment');
         }
     }
 
@@ -230,40 +233,40 @@ trait PayloadTrait
     {
         // Zentrale Fortschrittsbalken-Konfiguration
         $result['progressBarConfig'] = [
-            'height' => $this->ReadPropertyInteger('ProgressBarHeight'),
-            'borderRadius' => $this->ReadPropertyInteger('ProgressBarBorderRadius'),
+            'height' => $this->SettingInteger('ProgressBarHeight'),
+            'borderRadius' => $this->SettingInteger('ProgressBarBorderRadius'),
             // -1 = transparent (sprintf('%06X', -1) ergäbe #FFFFFFFFFFFFFFFF und im Frontend Weiß)
-            'backgroundColor' => $this->ReadPropertyInteger('ProgressBarBackgroundColor') < 0 ? 'transparent' : '#' . sprintf('%06X', $this->ReadPropertyInteger('ProgressBarBackgroundColor')),
-            'backgroundOpacity' => $this->ReadPropertyInteger('ProgressBarBackgroundOpacity') / 100,
-            'showText' => $this->ReadPropertyBoolean('ProgressBarShowText'),
-            'textPadding' => $this->ReadPropertyInteger('ProgressBarTextPadding')
+            'backgroundColor' => $this->SettingInteger('ProgressBarBackgroundColor') < 0 ? 'transparent' : '#' . sprintf('%06X', $this->SettingInteger('ProgressBarBackgroundColor')),
+            'backgroundOpacity' => $this->SettingInteger('ProgressBarBackgroundOpacity') / 100,
+            'showText' => $this->SettingBoolean('ProgressBarShowText'),
+            'textPadding' => $this->SettingInteger('ProgressBarTextPadding')
         ];
         
         // Zentrale Button-Konfiguration
         $result['buttonConfig'] = [
-            'height' => $this->ReadPropertyInteger('ButtonHeight')
+            'height' => $this->SettingInteger('ButtonHeight')
         ];
         
         // Bild-Konfiguration
         // Note: bildauswahl is now handled per-association in status rendering logic above
-        $result['BildBreite'] = $this->ReadPropertyFloat('BildBreite');
-        $result['BildPosition'] = $this->ReadPropertyString('BildPosition');
-        $result['ShowBorderLine'] = $this->ReadPropertyBoolean('ShowBorderLine');
-        $result['ImageAlignment'] = $this->ReadPropertyString('ImageAlignment');
-        $result['bildtransparenz'] = $this->ReadPropertyFloat('Bildtransparenz');
-        $result['kachelhintergrundfarbe'] = '#' . sprintf('%06X', $this->ReadPropertyInteger('Kachelhintergrundfarbe'));
+        $result['BildBreite'] = $this->SettingFloat('BildBreite');
+        $result['BildPosition'] = $this->SettingString('BildPosition');
+        $result['ShowBorderLine'] = $this->SettingBoolean('ShowBorderLine');
+        $result['ImageAlignment'] = $this->SettingString('ImageAlignment');
+        $result['bildtransparenz'] = $this->SettingFloat('Bildtransparenz');
+        $result['kachelhintergrundfarbe'] = '#' . sprintf('%06X', $this->SettingInteger('Kachelhintergrundfarbe'));
         
         // Element-Spacing-Konfiguration
-        $result['elementSpacing'] = $this->ReadPropertyInteger('ElementSpacing');
+        $result['elementSpacing'] = $this->SettingInteger('ElementSpacing');
         
  
         // Hintergrund: eigenes Bild oder Standardhintergrund, beides über den Bild-Hook statt als eingebettete
         // Bytes; '' = kein Hintergrund, damit eine offene Kachel ein entferntes Bild auch entfernt
-        $imageID = $this->ReadPropertyInteger('bgImage');
+        $imageID = $this->SettingInteger('bgImage');
         $result['image1Url'] = '';
         if ($imageID > 0 && IPS_MediaExists($imageID) && IPS_GetMedia($imageID)['MediaType'] === MEDIATYPE_IMAGE) {
             $result['image1Url'] = $this->BuildImageHookUrl($imageID);
-        } elseif ($this->ReadPropertyBoolean('BG_Off')) {
+        } elseif ($this->SettingBoolean('BG_Off')) {
             $result['image1Url'] = $this->BuildAssetHookUrl('kachelhintergrund1');
         }
 
@@ -284,7 +287,7 @@ trait PayloadTrait
      * @return string Asset-Name für das Standard-Bild oder 'none'
      */
     private function getDefaultImageOrNone(): string {
-        $defaultImageId = $this->ReadPropertyInteger('DefaultImage');
+        $defaultImageId = $this->SettingInteger('DefaultImage');
         if ($defaultImageId > 0 && IPS_MediaExists($defaultImageId)) {
             return 'img_default_' . $defaultImageId;
         }

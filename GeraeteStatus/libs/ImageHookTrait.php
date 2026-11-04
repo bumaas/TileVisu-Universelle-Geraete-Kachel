@@ -16,11 +16,11 @@ trait ImageHookTrait
         $assets = [];
         
         // Prüfe ob keine Statusvariable konfiguriert ist - dann brauchen wir Fallback-Assets
-        $statusId = $this->ReadPropertyInteger('Status');
+        $statusId = $this->SettingInteger('Status');
         $needsFallbackAssets = ($statusId <= 0 || !IPS_VariableExists($statusId));
         
         // Sammle alle benötigten Assets basierend auf ProfilAssoziazionen
-        $profilAssoziazionen = json_decode($this->ReadPropertyString('ProfilAssoziazionen'), true);
+        $profilAssoziazionen = json_decode($this->SettingString('ProfilAssoziazionen'), true);
         if (is_array($profilAssoziazionen)) {
             foreach ($profilAssoziazionen as $assoziation) {
                 $bildauswahl = $assoziation['Bildauswahl'] ?? 'none';
@@ -36,7 +36,7 @@ trait ImageHookTrait
             }
         }
         // Standard-Bild optional als Hook-URL mappen (nur für Konsistenz, Status nutzt ohnehin statusImageUrl)
-        $defaultImageId = $this->ReadPropertyInteger('DefaultImage');
+        $defaultImageId = $this->SettingInteger('DefaultImage');
         if ($defaultImageId > 0 && IPS_MediaExists($defaultImageId)) {
             $assets['img_default_' . $defaultImageId] = $this->BuildImageHookUrl($defaultImageId);
         }

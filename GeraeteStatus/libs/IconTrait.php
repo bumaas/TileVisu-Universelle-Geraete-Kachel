@@ -20,7 +20,7 @@ trait IconTrait
     private function GetIcon(int $id): string {
         try {
             $variable = IPS_GetVariable($id);
-            $Value = GetValue($id);
+            $Value = $this->CurrentValue($id);
             $icon = "";
         } catch (\Throwable $e) {
             $this->LogCaughtThrowable(__FUNCTION__, $e);
@@ -159,7 +159,7 @@ trait IconTrait
                 // Icon basierend auf USE_ICON_FALSE wählen
                 if ($useIconFalse) {
                     // Wertbasierte Icon-Auswahl
-                    $currentValue = GetValue($id);
+                    $currentValue = $this->CurrentValue($id);
                     $iconKey = $currentValue ? 'ICON_TRUE' : 'ICON_FALSE';
                 } else {
                     // Immer ICON_TRUE
@@ -314,7 +314,7 @@ trait IconTrait
     {
         $associations = $this->GetBooleanAssociations($id);
         if (is_array($associations) && count($associations) > 0) {
-            $currentValue = GetValue($id);
+            $currentValue = $this->CurrentValue($id);
             foreach ($associations as $assoc) {
                 if (isset($assoc['value']) && $assoc['value'] == $currentValue && isset($assoc['icon']) && !empty($assoc['icon'])) {
                     return $assoc['icon'];

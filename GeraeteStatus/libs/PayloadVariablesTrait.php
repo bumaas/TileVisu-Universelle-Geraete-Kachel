@@ -16,7 +16,7 @@ trait PayloadVariablesTrait
      */
     private function appendVariablesPayload(array &$result): void
     {
-        if (!is_array(json_decode($this->ReadPropertyString('VariablesList'), true))) {
+        if (!is_array(json_decode($this->SettingString('VariablesList'), true))) {
             return;
         }
         $variablesList = $this->ReadVariablesList();
@@ -37,12 +37,12 @@ trait PayloadVariablesTrait
      */
     private function IsProgressbarActive(): bool
     {
-        $profilAssoziationen = json_decode($this->ReadPropertyString('ProfilAssoziazionen'), true);
-        $statusId = $this->ReadPropertyInteger('Status');
+        $profilAssoziationen = json_decode($this->SettingString('ProfilAssoziazionen'), true);
+        $statusId = $this->SettingInteger('Status');
         if (!is_array($profilAssoziationen) || $statusId <= 0 || !IPS_VariableExists($statusId)) {
             return true;
         }
-        $matchedAssoz = $this->FindMatchingAssociation($profilAssoziationen, GetValue($statusId));
+        $matchedAssoz = $this->FindMatchingAssociation($profilAssoziationen, $this->CurrentValue($statusId));
         return $matchedAssoz === null ? true : (bool)($matchedAssoz['ProgressbarActive'] ?? true);
     }
 
@@ -143,8 +143,8 @@ trait PayloadVariablesTrait
 
 
         // Backend-basierte Progressbar-Deaktivierung: Überschreibe Werte wenn deaktiviert
-        $finalFormattedValue = GetValueFormatted($variable['Variable']);
-        $finalRawValue = GetValue($variable['Variable']);
+        $finalFormattedValue = $this->CurrentValueFormatted($variable['Variable']);
+        $finalRawValue = $this->CurrentValue($variable['Variable']);
 
         // Balken bei inaktivem Status: „-“ (dash, Vorgabe), aktueller Wert (value) oder Zeile ausblenden (hide)
         $isInactiveProgress = !$progressbarActive && (($variable['DisplayType'] ?? 'text') === 'progress');
@@ -233,8 +233,8 @@ trait PayloadVariablesTrait
             $secondLabel = !empty($variable['SecondVariableLabel']) ? $variable['SecondVariableLabel'] : IPS_GetName($variable['SecondVariable']);
 
             // Backend-basierte Deaktivierung auch für zweite Variable
-            $secondFinalFormattedValue = GetValueFormatted($variable['SecondVariable']);
-            $secondFinalRawValue = GetValue($variable['SecondVariable']);
+            $secondFinalFormattedValue = $this->CurrentValueFormatted($variable['SecondVariable']);
+            $secondFinalRawValue = $this->CurrentValue($variable['SecondVariable']);
 
             if ($inactiveDash) {
                 // Progressbar deaktiviert: Zeige "-" für zweite Variable und mache Text/Icon 50% transparent

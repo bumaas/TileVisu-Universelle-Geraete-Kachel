@@ -27,6 +27,7 @@ if (!defined('MM_UPDATE')) {
 }
 
 require_once __DIR__ . '/libs/CommonHelpers.php';
+require_once __DIR__ . '/libs/SettingsAccessTrait.php';
 require_once __DIR__ . '/libs/ImageHookTrait.php';
 require_once __DIR__ . '/libs/IconTrait.php';
 require_once __DIR__ . '/libs/PresentationTrait.php';
@@ -39,6 +40,7 @@ require_once __DIR__ . '/libs/TileHtmlTrait.php';
 
 class UniversalDeviceTile extends IPSModuleStrict
 {
+    use \UDT\SettingsAccessTrait;
     use \UDT\ImageHookTrait;
     use \UDT\IconTrait;
     use \UDT\PresentationTrait;

@@ -19,7 +19,7 @@ trait FormTrait
      */
     public function GetAllGroupNames(): array
     {
-        $groupNamesList = json_decode($this->ReadPropertyString('GroupNamesList'), true);
+        $groupNamesList = json_decode($this->SettingString('GroupNamesList'), true);
         
         $result = [];
         
@@ -46,7 +46,7 @@ trait FormTrait
                         'stretch' => $stretch,
                         'showGroupName' => $showGroupName,
                         'groupIcon' => $mappedIcon,
-                        'fontSize' => $this->ReadPropertyInteger('GroupNameSize') // Globale Schriftgröße für alle Gruppen
+                        'fontSize' => $this->SettingInteger('GroupNameSize') // Globale Schriftgröße für alle Gruppen
                     ];
                 }
             }
@@ -62,7 +62,7 @@ trait FormTrait
                     'stretch' => false,
                     'showGroupName' => false,
                     'groupIcon' => '',
-                    'fontSize' => $this->ReadPropertyInteger('GroupNameSize') // Globale Schriftgröße für alle Gruppen
+                    'fontSize' => $this->SettingInteger('GroupNameSize') // Globale Schriftgröße für alle Gruppen
                 ];
             }
         }
