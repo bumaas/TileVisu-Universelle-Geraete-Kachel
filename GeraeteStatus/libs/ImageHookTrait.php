@@ -304,19 +304,7 @@ trait ImageHookTrait
             $current = $version !== '' && $version === $this->GetMediaVersion($mid);
             $m = IPS_GetMedia($mid);
             if ($m['MediaType'] === MEDIATYPE_IMAGE) {
-                if (!empty($m['MediaFile']) && is_file($m['MediaFile'])) {
-                    $fileSize = (int)filesize($m['MediaFile']);
-                    if ($fileSize > $MAX_SIZE) {
-                        $this->ReportOversizeImage($mid, $fileSize, $MAX_SIZE); // $streamFile liefert den Platzhalter
-                    }
-                    $fh = fopen($m['MediaFile'], 'rb');
-                    if ($fh !== false) {
-                        $hdr = fread($fh, 12);
-                        fclose($fh);
-                        $mime = $detectMime($hdr ?: '');
-                        $streamFile($m['MediaFile'], $mime, $current ? 'private, max-age=31536000, immutable' : 'private, max-age=0, must-revalidate');
-                    }
-                }
+                // Inhalt nur über IPS_GetMediaContent, nie direkt aus der Mediendatei (Store-Regel: keine Dateizugriffe)
                 $b64 = IPS_GetMediaContent($mid);
                 if (!is_string($b64) || $b64 === '') {
                     http_response_code(404);
