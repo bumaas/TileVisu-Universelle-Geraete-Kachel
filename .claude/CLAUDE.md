@@ -25,7 +25,7 @@ Der Prüfstand (`tests/`) ist **nicht** Teil dieses Repos: `.gitignore` schließ
 
 - **Commits:** nach jeder abgeschlossenen Änderung, ein Thema je Commit, deutsche Botschaft, **ohne** Co-Authored-By-Zeile. Prüfstand vorher.
 - **Nie** `git checkout`/`git restore` auf Dateien: die Arbeitskopie kann nicht committete Arbeit enthalten.
-- **Push nur auf Zuruf.** Arbeitszweig ist `refactor/modularisierung`; auf GitHub wird `symcon-beta` nachgezogen (`git push origin HEAD:symcon-beta`), `main` und `release/*` nur auf ausdrücklichen Zuruf. Vorher `git log HEAD..origin/<Zweig>` prüfen, nie force-pushen.
+- **Push nur auf Zuruf.** Arbeitszweig ist `symcon-beta` (seit 04.11.2026 auch lokal, `refactor/modularisierung` gelöscht), Push mit `git push origin symcon-beta`; `main` und `release/*` nur auf ausdrücklichen Zuruf. Vorher `git log HEAD..origin/<Zweig>` prüfen, nie force-pushen.
 - **Release:** `version`, `build` und `date` in `library.json` hochsetzen, Changelog in beiden READMEs.
 - **Öffentliches Repo:** keine IP-Adressen, Ports, Instanz-IDs, Token, Pfade unter `/Users/` – auch nicht in Snapshots oder Doku.
 - **Keine Befehle an echte Geräte** aus Proben ohne Zusage des Nutzers.
