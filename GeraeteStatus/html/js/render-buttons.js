@@ -96,7 +96,9 @@
                         }
                         
                         if (variable.showValue) {
-                            textParts.push(`<span style="font-weight: normal;">${esc(variable.formattedValue)}</span>`);
+                            // Normal nur neben einer Beschriftung; steht der Wert allein, so stark wie eine Beschriftung
+                            const valueWeight = variable.showLabel ? 'normal' : '700';
+                            textParts.push(`<span style="font-weight: ${valueWeight};">${esc(variable.formattedValue)}</span>`);
                         }
                         
                         // Falls keine Checkbox aktiviert ist, zeige Label als Fallback (ohne Doppelpunkt) - fett
@@ -213,12 +215,14 @@
                             if (variable.showValue) {
                                 // Bei aktiven Buttons: aktueller Wert, bei inaktiven: Association-Name als Value
                                 const displayValue = isActive ? variable.formattedValue : association.name;
-                                buttonContentParts.push(`<span style="font-weight: normal;">${esc(displayValue)}</span>`);
+                                // Normal nur neben einer Beschriftung; steht der Wert allein, so stark wie eine Beschriftung
+                                const valueWeight = variable.showLabel ? 'normal' : '700';
+                                buttonContentParts.push(`<span style="font-weight: ${valueWeight};">${esc(displayValue)}</span>`);
                             }
                             
                             // Falls keine Checkbox aktiviert ist, zeige Association-Name als Fallback
                             if (!variable.showIcon && !variable.showLabel && !variable.showValue) {
-                                buttonContentParts.push(`<span>${esc(association.name || 'Wert ' + association.value)}</span>`);
+                                buttonContentParts.push(`<span style="font-weight: 700;">${esc(association.name || 'Wert ' + association.value)}</span>`);
                             }
                             
                             const isMultiIconOnly = variable.showIcon && !variable.showLabel && !variable.showValue && hasIconInt;
