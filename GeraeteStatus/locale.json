@@ -185,6 +185,10 @@
             "Second Variable (Progress only)": "Zweite Variable (nur Fortschritt)",
             "Spenden / Schenkung": "Spenden / Schenkung",
             "Use 2nd as marker": "2. als Marker verwenden",
+            "When the progress bar is inactive": "Bei inaktivem Fortschrittsbalken",
+            "Show “-”": "„-“ anzeigen",
+            "Show current value": "Aktuellen Wert anzeigen",
+            "Hide row": "Zeile ausblenden",
             "Variable": "Variable",
             "keine Gruppe": "keine Gruppe",
             "Image #%d is too large for the tile (%d bytes, limit %d bytes) and is shown as a placeholder. Use a smaller image or raise ScriptOutputBufferLimit.": "Bild #%d ist für die Kachel zu groß (%d Bytes, Grenze %d Bytes) und erscheint als Platzhalter. Ein kleineres Bild verwenden oder ScriptOutputBufferLimit erhöhen."

@@ -878,6 +878,7 @@
     "    [ 'caption' => 'Slider color 1', 'name' => 'SliderColor1', 'type' => 'SelectColor', 'allowTransparent' => true, 'save' => true, 'add' => 52650, 'value' => 52650, 'visible' => $visible('SliderColor1') ],",
     "    [ 'caption' => 'Slider color 2', 'name' => 'SliderColor2', 'type' => 'SelectColor', 'allowTransparent' => true, 'save' => true, 'add' => 30050, 'value' => 30050, 'visible' => $visible('SliderColor2') ]",
     "] ];",
+    "$form[] = [ 'caption' => 'When the progress bar is inactive', 'name' => 'InactiveDisplay', 'type' => 'Select', 'width' => '300px', 'options' => [ [ 'caption' => 'Show “-”', 'value' => 'dash' ], [ 'caption' => 'Show current value', 'value' => 'value' ], [ 'caption' => 'Hide row', 'value' => 'hide' ] ], 'save' => true, 'add' => 'dash', 'value' => 'dash', 'visible' => $visible('InactiveDisplay') ];",
     "$form[] = [ 'type' => 'Label', 'name' => 'SecondVariableHeading', 'caption' => 'Additional information in the progress bar', 'underline' => false, 'width' => '100%', 'visible' => $visible('SecondVariableHeading') ];",
     "$form[] = [ 'type' => 'RowLayout', 'items' => [",
     "    [ 'caption' => 'Second Variable', 'name' => 'SecondVariable', 'type' => 'SelectVariable', 'width' => '300px', 'validVariableTypes' => [], 'save' => true, 'add' => 0, 'visible' => $visible('SecondVariable') ],",

@@ -88,6 +88,7 @@ Die Konfiguration gliedert sich in mehrere Bereiche der Form:
   - Zentrale Liste der dargestellten Variablen (Drag & Drop für Reihenfolge).
   - Je Eintrag: Darstellungsart (Text, Fortschrittsbalken, Schieberegler, Schalter, Bild), Anzeigeoptionen, Gruppenzugehörigkeit, Farben, Skript-IDs, Objektziele zum Öffnen und Zweitvariablen für den Fortschrittsbalken.
   - Für Fortschrittsbalken kann eine zweite Variable als Zusatzinformation oder Marker genutzt werden.
+  - Bei inaktivem Fortschrittsbalken (Status mit „Fortschrittsbalken aktiv = aus“) zeigt die Zeile je nach Einstellung „-“ (Vorgabe, für Geräte, die ihren Wert am Ende nicht zurücksetzen), den aktuellen Wert (etwa eine Ist-Temperatur) oder wird ausgeblendet.
   - Für Schieberegler stehen eigene Schieberegler-Farben (Schieberegler-Farbe 1/2) zur Verfügung.
   - Für Schalter lassen sich optionale Skript-IDs, Objektziele zum Öffnen in der Kachelvisualisierungund feste Schalterbreiten hinterlegen (auch ohne Variable).
   - Für Bilder stehen Medienobjekt, Breite und Radius zur Verfügung (auch ohne Variable).
