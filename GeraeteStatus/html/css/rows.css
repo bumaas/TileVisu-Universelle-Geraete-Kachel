@@ -336,8 +336,12 @@
             right: calc(100% - var(--target-percent, 0%) + 5px);
         }
 
+        /* Icons per Flex auf die Textmitte: vertical-align hängt an den Schriftmaßen (Poppins sitzt tiefer als Arial) */
         .progress-main-text {
             flex: 1;
+            display: inline-flex;
+            align-items: center;
+            min-width: 0;
             text-align: left;
             margin-right: 8px;
             overflow: hidden;
@@ -346,17 +350,16 @@
 
         .progress-second-variable {
             flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
             text-align: right;
             margin-left: 8px;
         }
 
         /* Spezielle Ausrichtung für Icons in Progress-Balken */
         .progress-text .variable-icon {
-            vertical-align: text-bottom;
-            align-self: center;
             display: inline-flex;
             align-items: center;
-            transform: translateY(-1px); /* Icon 1px höher */
             margin-top: 0 !important; /* Überschreibe allgemeine Icon-Margins */
             margin-bottom: 0 !important; /* Überschreibe allgemeine Icon-Margins */
         }
