@@ -49,7 +49,7 @@
             }, 'primary']]);
     };
 
-    const exportConfig = () => {
+    const exportConfig = E.exportConfig = () => {
         const text = JSON.stringify({ udt: 1, config: E.s.draft }, null, 2);
         const area = h('textarea', { class: 'code', readonly: true, rows: '14' });
         area.value = text;

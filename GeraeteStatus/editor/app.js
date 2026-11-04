@@ -22,7 +22,7 @@
     const updateDirty = () => {
         const dirty = E.isDirty();
         dirtyMark.hidden = !dirty;
-        saveButton.disabled = !dirty;
+        saveButton.disabled = !dirty || !!E.locked;
         discardButton.disabled = !dirty;
         document.title = (dirty ? '● ' : '') + E.s.instance.name + ' – ' + E.t('Tile editor');
     };
@@ -32,9 +32,22 @@
         document.body.replaceChildren(h('div', { class: 'blocked' }, E.icon('lock-keyhole'), h('h1', { text: E.t('Tile editor') }), h('p', { text: message })));
     };
 
+    // Zugang weg (abgelaufen, Neustart, zu viele Fehlversuche): der Entwurf bleibt und lässt sich exportieren
     E.on('access', status => {
-        blocked(status === 429 ? E.t('Too many attempts. Wait a minute and open the editor again from the configuration.')
-            : E.t('Access has expired. Open the editor again with the button in the configuration of the tile.'));
+        const message = status === 429 ? E.t('Too many attempts. Wait a minute and open the editor again from the configuration.')
+            : E.t('Access has expired. Open the editor again with the button in the configuration of the tile.');
+        if (!E.s.draft) {
+            blocked(message);
+            return;
+        }
+        saveButton.disabled = true;
+        discardButton.disabled = true;
+        const buttons = [[E.t('Close'), () => true]];
+        if (E.isDirty()) {
+            buttons.unshift([E.t('Export'), () => { E.exportConfig(); return true; }, 'primary']);
+        }
+        E.dialog(E.t('Access expired'), h('div', {}, h('p', { text: message }),
+            E.isDirty() ? h('p', { text: E.t('Unsaved changes are kept in this page: export them and import them in the newly opened editor.') }) : null), buttons);
     });
 
     const takeSaved = data => {

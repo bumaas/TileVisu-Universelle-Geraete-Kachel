@@ -41,6 +41,9 @@
             + '.variable-item{cursor:pointer}';
     };
 
+    /* Das iframe hat bewusst kein sandbox: die Kachel läuft in der Visualisierung genauso mit der Herkunft
+       von Symcon, und Editor wie Brücke greifen direkt auf ihr Dokument zu (Thema, Hervorhebung, Stand). */
+
     /** Klicks in der Kachel wählen die Zeile im Editor; die Kachel selbst reagiert weiter wie gewohnt. */
     const bridge = '<script>document.addEventListener("click",function(e){var t=e.target;var i=t.closest&&t.closest(".variable-item");'
         + 'if(i){parent.postMessage({udte:"select",key:i.getAttribute("data-row-key")},"*");return;}'

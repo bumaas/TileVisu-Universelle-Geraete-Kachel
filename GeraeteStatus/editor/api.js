@@ -4,6 +4,9 @@
 (function (E) {
     'use strict';
 
+    // Das Formular öffnet den Editor als neues Fenster: kein Rückgriff auf die Konsole aus dieser Seite
+    try { window.opener = null; } catch (_) { /* nicht überschreibbar */ }
+
     E.t = function (text) {
         const value = E.texts && Object.prototype.hasOwnProperty.call(E.texts, text) ? E.texts[text] : '';
         return value || text;
@@ -26,11 +29,18 @@
     if (location.hash) {
         history.replaceState(null, '', location.pathname + location.search);
     }
+    const keep = next => {
+        code = next;
+        try { sessionStorage.setItem('udte-code-' + location.pathname, next); } catch (_) { /* nur bis zum Neuladen */ }
+    };
 
     E.hasCode = () => code !== '';
 
-    /** POST ?api=<name>; liefert {status, data}. Netzfehler werden als status 0 gemeldet. */
+    /** POST ?api=<name>; liefert {status, data}. Netzfehler werden als status 0 gemeldet; nach 401/429 ruht alles. */
     E.api = async function (name, body) {
+        if (E.locked) {
+            return { status: 401, data: { error: 'code' } };
+        }
         let response;
         try {
             response = await fetch('?api=' + encodeURIComponent(name), {
@@ -47,7 +57,11 @@
         try {
             data = await response.json();
         } catch (_) { /* leere oder kaputte Antwort */ }
-        if (response.status === 401 || response.status === 429) {
+        if (data && typeof data.code === 'string' && /^[0-9a-f]{20}$/.test(data.code)) {
+            keep(data.code); // der Code aus der Adresse gilt nach dem ersten Laden nicht mehr
+        }
+        if ((response.status === 401 || response.status === 429) && !E.locked) {
+            E.locked = true;
             E.emit && E.emit('access', response.status);
         }
         return { status: response.status, data };

@@ -39,6 +39,7 @@ require_once __DIR__ . '/libs/UpdateTrait.php';
 require_once __DIR__ . '/libs/TileHtmlTrait.php';
 require_once __DIR__ . '/libs/EditorSchema.php';
 require_once __DIR__ . '/libs/EditorTreeTrait.php';
+require_once __DIR__ . '/libs/EditorAccessTrait.php';
 require_once __DIR__ . '/libs/EditorHookTrait.php';
 
 class UniversalDeviceTile extends IPSModuleStrict
@@ -54,6 +55,7 @@ class UniversalDeviceTile extends IPSModuleStrict
     use \UDT\UpdateTrait;
     use \UDT\TileHtmlTrait;
     use \UDT\EditorTreeTrait;
+    use \UDT\EditorAccessTrait;
     use \UDT\EditorHookTrait;
 
     // Darstellung „Legacy“: Symcon verweist damit auf das klassische Variablenprofil
@@ -166,7 +168,7 @@ class UniversalDeviceTile extends IPSModuleStrict
         $this->UpdateGroupSelectOptionsInForm($form, $groupOptions);
         $this->UpdateGroupOptionsInDynamicFormScript($form, $groupOptions);
         $this->populateGroupNameColumn($form, $groupNames);
-        if ($this->EditorConnectURL() !== '') {
+        if ($this->ConnectBaseURL() !== '') {
             $form['elements'][1]['items'][1]['visible'] = true; // „Editor über Connect öffnen“
         }
 

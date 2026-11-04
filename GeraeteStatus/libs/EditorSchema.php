@@ -126,6 +126,28 @@ final class EditorSchema
         'ImageMedia' => 0, 'ImageWidth' => 40, 'ImageBorderRadius' => 6,
     ];
 
+    /** Objekt-IDs einer (vereinheitlichten) Konfiguration nach Art: variable|script|object|image => [IDs]. */
+    public static function References(array $config): array
+    {
+        $refs = [];
+        $take = static function (array $entry, array $rules) use (&$refs): void {
+            foreach ($rules as $field => $rule) {
+                if ($rule[0] === 'ref' && is_int($entry[$field] ?? null) && $entry[$field] > 0) {
+                    $refs[$rule[1]][] = $entry[$field];
+                }
+            }
+        };
+        $take($config, self::PROPERTIES);
+        foreach (self::LISTS as $name => [$fields]) {
+            foreach (is_array($config[$name] ?? null) ? $config[$name] : [] as $entry) {
+                if (is_array($entry)) {
+                    $take($entry, $fields);
+                }
+            }
+        }
+        return array_map(static fn(array $ids): array => array_values(array_unique($ids)), $refs);
+    }
+
     /** Namen aller Properties, die der Editor verwaltet. */
     public static function PropertyNames(): array
     {

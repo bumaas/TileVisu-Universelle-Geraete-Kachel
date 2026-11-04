@@ -8,9 +8,7 @@ namespace UDT;
  * Visueller Editor über den nativen Hook /hook/udteditor/<InstanceID> (RegisterHook in Create).
  *
  * Die Seite und ihre Teile enthalten keine Daten und sind ohne Anmeldung abrufbar. Alle Daten laufen über
- * POST ?api=… mit dem Zugangscode im Kopf X-UDT-Editor. Der Code entsteht beim Klick auf „Editor öffnen“
- * im Formular, steht nur im Fragment der Adresse (#c=…, erreicht nie den Server und nie ein Protokoll),
- * liegt nur im Instanz-Puffer und verfällt nach einer Stunde ohne Nutzung, spätestens nach acht Stunden.
+ * POST ?api=… mit dem Zugangscode im Kopf X-UDT-Editor (EditorAccessTrait).
  */
 trait EditorHookTrait
 {
@@ -28,43 +26,6 @@ trait EditorHookTrait
         'app.js' => 'text/javascript; charset=utf-8',
     ];
 
-    /** Adresse des Editors mit frischem Zugangscode (Formular-Knopf „Editor öffnen“). */
-    public function EditorURL(): string
-    {
-        return '/hook/udteditor/' . $this->InstanceID . '#c=' . $this->CreateEditorCode();
-    }
-
-    /** Dieselbe Adresse über Symcon Connect, leer ohne aktives Connect. */
-    public function EditorConnectURL(): string
-    {
-        foreach (IPS_GetInstanceListByModuleID(self::CONNECT_CONTROL_GUID) as $id) {
-            if (IPS_GetInstance($id)['InstanceStatus'] === 102) {
-                $url = (string)@CC_GetConnectURL($id);
-                if (str_starts_with($url, 'https://')) {
-                    return rtrim($url, '/') . $this->EditorURL();
-                }
-            }
-        }
-        return '';
-    }
-
-    private function CreateEditorCode(): string
-    {
-        $code = bin2hex(random_bytes(10));
-        $codes = $this->ActiveEditorCodes();
-        $codes[$code] = ['idle' => time() + 3600, 'max' => time() + 8 * 3600];
-        $this->SetBuffer('EditorCodes', (string)json_encode(array_slice($codes, -5, null, true)));
-        return $code;
-    }
-
-    /** Gültige Codes: Code => [idle, max] (Ablauf ohne Nutzung, spätester Ablauf). */
-    private function ActiveEditorCodes(): array
-    {
-        $codes = json_decode($this->GetBuffer('EditorCodes'), true);
-        $now = time();
-        return array_filter(is_array($codes) ? $codes : [], static fn($c): bool => is_array($c) && ($c['idle'] ?? 0) > $now && ($c['max'] ?? 0) > $now);
-    }
-
     private function IsEditorRequest(): bool
     {
         $path = (string)parse_url((string)($_SERVER['REQUEST_URI'] ?? ''), PHP_URL_PATH);
@@ -75,11 +36,11 @@ trait EditorHookTrait
     {
         $method = (string)($_SERVER['REQUEST_METHOD'] ?? 'GET');
         if ($method === 'GET') {
-            $kind = (string)($_GET['k'] ?? '');
+            $kind = self::EditorText($_GET['k'] ?? '');
             if ($kind === '') {
                 $this->ServeEditorPage();
             } elseif ($kind === 'asset') {
-                $this->ServeEditorAsset((string)($_GET['f'] ?? ''));
+                $this->ServeEditorAsset(self::EditorText($_GET['f'] ?? ''));
             } else {
                 $this->SendEditorText(404, 'text/plain; charset=utf-8', 'Not found');
             }
@@ -96,7 +57,8 @@ trait EditorHookTrait
             $this->SendEditorJson(403, ['error' => 'origin']);
             return;
         }
-        if (!$this->EditorAuthorized()) {
+        $code = $this->EditorAuthorized();
+        if ($code === null) {
             return;
         }
         $raw = (string)file_get_contents('php://input', false, null, 0, 2 * 1024 * 1024 + 1);
@@ -106,15 +68,15 @@ trait EditorHookTrait
             return;
         }
         try {
-            $api = (string)($_GET['api'] ?? '');
+            $api = self::EditorText($_GET['api'] ?? '');
             [$status, $answer] = match ($api) {
-                'load' => [200, $this->EditorLoad()],
+                'load' => [200, $this->EditorLoad() + ['code' => $this->RotateEditorCode($code)]],
                 'tile' => [200, ['html' => (string)IPS_GetVisualizationTile($this->InstanceID)]],
                 'preview' => $this->EditorPreview($body),
                 'save' => $this->EditorSave($body),
                 'associations' => [200, ['items' => $this->BuildAssociationList((int)($body['status'] ?? 0))]],
                 'tree' => [200, $this->EditorChildren((int)($body['parent'] ?? 0))],
-                'search' => [200, $this->EditorSearch((string)($body['q'] ?? ''), (string)($body['kind'] ?? ''))],
+                'search' => [200, $this->EditorSearch(self::EditorText($body['q'] ?? ''), self::EditorText($body['kind'] ?? ''))],
                 'objects' => [200, ['objects' => $this->EditorObjectsByIds(is_array($body['ids'] ?? null) ? $body['ids'] : [])]],
                 default => [404, ['error' => 'api']],
             };
@@ -123,31 +85,6 @@ trait EditorHookTrait
             [$status, $answer] = [500, ['error' => 'internal']];
         }
         $this->SendEditorJson($status, $answer);
-    }
-
-    /** Prüft den Code (verlängert ihn) und sperrt eine Adresse nach fünf Fehlversuchen für 60 s. */
-    private function EditorAuthorized(): bool
-    {
-        $address = (string)($_SERVER['REMOTE_ADDR'] ?? '');
-        $fails = json_decode($this->GetBuffer('EditorFails'), true);
-        $fails = array_filter(is_array($fails) ? $fails : [], static fn($f): bool => is_array($f) && ($f[1] ?? 0) > time());
-        if (($fails[$address][0] ?? 0) >= 5) {
-            $this->SendEditorJson(429, ['error' => 'blocked']);
-            return false;
-        }
-        $given = (string)($_SERVER['HTTP_X_UDT_EDITOR'] ?? '');
-        $codes = $this->ActiveEditorCodes();
-        foreach ($codes as $code => $times) {
-            if ($given !== '' && hash_equals((string)$code, $given)) {
-                $codes[$code]['idle'] = min((int)$times['max'], time() + 3600);
-                $this->SetBuffer('EditorCodes', (string)json_encode($codes));
-                return true;
-            }
-        }
-        $fails[$address] = [($fails[$address][0] ?? 0) + 1, time() + 60];
-        $this->SetBuffer('EditorFails', (string)json_encode($fails));
-        $this->SendEditorJson(401, ['error' => 'code']);
-        return false;
     }
 
     /** Gespeicherte Konfiguration in Editor-Form (Listen als Arrays) und die Meldungen zu ungültigen Werten. */
@@ -166,17 +103,21 @@ trait EditorHookTrait
         return md5((string)json_encode($config));
     }
 
-    /** Objekt-Prüfung für eingehende Konfigurationen: passende Art oder schon gespeichert (auch gelöschte). */
+    /** Text aus Anfrage oder Körper; Arrays (?k[]=1) und Zahlen werden zu ''. */
+    private static function EditorText(mixed $value): string
+    {
+        return is_string($value) ? $value : '';
+    }
+
+    /**
+     * Objekt-Prüfung für eingehende Konfigurationen: passende Art, oder dieselbe ID steht schon gespeichert
+     * im selben Feldtyp (auch gelöschte Objekte bleiben so speicherbar).
+     */
     private function EditorRefCheck(array $current): \Closure
     {
-        $known = [];
-        array_walk_recursive($current, static function ($value) use (&$known): void {
-            if (is_int($value) && $value > 0) {
-                $known[$value] = true;
-            }
-        });
+        $known = EditorSchema::References($current);
         return static function (string $kind, int $id) use ($known): bool {
-            if (isset($known[$id])) {
+            if (in_array($id, $known[$kind] ?? [], true)) {
                 return true;
             }
             return match ($kind) {
@@ -216,17 +157,25 @@ trait EditorHookTrait
 
     /**
      * Vorschau: der Kachelstand mit dem Entwurf und den simulierten Werten. Ändert nichts an Properties,
-     * am Puffer der offenen Kachel oder an Geräten. Die Bilder des Entwurfs gibt der Bild-Hook eine Stunde frei.
+     * am Puffer der offenen Kachel oder an Geräten. Die Bilder des Entwurfs gibt der Bild-Hook eine Stunde
+     * frei, aber nur mit dem Schlüssel aus den Vorschau-URLs.
      */
     private function EditorPreview(array $body): array
     {
         [$current] = $this->EditorCurrentConfig();
         [$draft, $errors] = EditorSchema::Normalize(is_array($body['config'] ?? null) ? $body['config'] : [], $this->EditorRefCheck($current));
         $this->previewSettings = $draft + $current;
-        $this->previewValues = $this->EditorSimulatedValues(is_array($body['simulate'] ?? null) ? $body['simulate'] : []);
-        $this->SetBuffer('EditorMedia', (string)json_encode(['ids' => $this->GetConfiguredMediaIds(), 'until' => time() + 3600]));
-        $payload = $this->BuildFullPayload();
-        $payload['assets'] = $this->GenerateAssets();
+        try {
+            $this->previewValues = $this->EditorSimulatedValues(is_array($body['simulate'] ?? null) ? $body['simulate'] : []);
+            $this->GrantEditorMedia($this->GetConfiguredMediaIds());
+            $payload = $this->BuildFullPayload();
+            $payload['assets'] = $this->GenerateAssets();
+        } finally {
+            // der Entwurf gilt nur für diesen Aufbau
+            $this->previewSettings = null;
+            $this->previewValues = [];
+            $this->editorMediaKey = '';
+        }
         return [200, ['payload' => $payload, 'errors' => $errors]];
     }
 
@@ -252,13 +201,6 @@ trait EditorHookTrait
             };
         }
         return $values;
-    }
-
-    /** Medien, die der Bild-Hook für eine Editor-Vorschau zusätzlich ausliefert (Entwurf, eine Stunde). */
-    private function EditorDraftMediaIds(): array
-    {
-        $media = json_decode($this->GetBuffer('EditorMedia'), true);
-        return (is_array($media) && ($media['until'] ?? 0) > time() && is_array($media['ids'] ?? null)) ? $media['ids'] : [];
     }
 
     /**
@@ -287,6 +229,7 @@ trait EditorHookTrait
         if ($changed !== []) {
             IPS_ApplyChanges($this->InstanceID);
         }
+        $this->SetBuffer('EditorMedia', ''); // gespeicherte Bilder liefert der Hook ohnehin, verworfene nicht mehr
         [$saved] = $this->EditorCurrentConfig();
         return [200, ['ok' => true, 'changed' => $changed, 'config' => $saved, 'base' => $this->EditorBase($saved)]];
     }
@@ -346,7 +289,7 @@ trait EditorHookTrait
             return;
         }
         $file = dirname(__DIR__) . '/editor/' . $name;
-        $current = (string)($_GET['v'] ?? '') === (string)$this->EditorAssetVersion();
+        $current = self::EditorText($_GET['v'] ?? '') === (string)$this->EditorAssetVersion();
         $this->SendEditorText(200, self::$editorAssets[$name], (string)@file_get_contents($file),
             $current ? 'public, max-age=31536000, immutable' : 'no-cache');
     }

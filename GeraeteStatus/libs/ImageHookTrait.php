@@ -68,8 +68,8 @@ trait ImageHookTrait
 
     /**
      * Die Bildmedien, die diese Kachel zeigt: Standardbild, Hintergrundbild, eigene Bilder der
-     * Status-Zuordnungen und Bildzeilen. Nur diese liefert der Bild-Hook aus (dazu eine Stunde lang die
-     * eines Editor-Entwurfs); mit Entwurf die des Entwurfs.
+     * Status-Zuordnungen und Bildzeilen. Nur diese liefert der Bild-Hook aus (dazu mit dem Vorschau-Schlüssel
+     * die eines Editor-Entwurfs); mit Entwurf die des Entwurfs.
      */
     private function GetConfiguredMediaIds(): array
     {
@@ -150,6 +150,9 @@ trait ImageHookTrait
         if ($token !== '') {
             $q .= '&token=' . rawurlencode($token);
         }
+        if ($mediaId > 0 && $this->IsPreview() && $this->editorMediaKey !== '') {
+            $q .= '&ek=' . $this->editorMediaKey; // Bilder des Entwurfs (EditorAccessTrait::GrantEditorMedia)
+        }
         return $base . '?' . $q;
     }
 
@@ -218,7 +221,8 @@ trait ImageHookTrait
             return;
         }
         $mid = isset($_GET['mid']) ? (int)$_GET['mid'] : 0;
-        if ($mid > 0 && !in_array($mid, $this->GetConfiguredMediaIds(), true) && !in_array($mid, $this->EditorDraftMediaIds(), true)) {
+        $editorKey = is_string($_GET['ek'] ?? null) ? $_GET['ek'] : '';
+        if ($mid > 0 && !in_array($mid, $this->GetConfiguredMediaIds(), true) && !$this->EditorMediaAllowed($mid, $editorKey)) {
             http_response_code(404);
             $this->SendDebug(__FUNCTION__, 'Medium ' . $mid . ' ist in dieser Kachel nicht konfiguriert', 0);
             return;
