@@ -103,6 +103,20 @@ Die Konfiguration gliedert sich in mehrere Bereiche der Form:
 
 
 ## Visualisierung und Bedienung
+
+**Beispiele für kleine Kacheln**
+
+![Universelle Geräte Kachel — Waschmaschine](https://raw.githubusercontent.com/da8ter/images/main/Universelle-Geraete-Kachel%20waschmaschine.png)
+![Universelle Geräte Kachel — Kaffeemaschine](https://raw.githubusercontent.com/da8ter/images/main/Universelle-Geraete-Kachel%20kaffeemaschine.png)
+![Universelle Geräte Kachel — Fenster](https://raw.githubusercontent.com/da8ter/images/main/Universelle-Geraete-Kachel%20fenster.png)
+
+**Beispiele für große Kacheln**
+
+![Universelle Geräte Kachel — Wallbox](https://raw.githubusercontent.com/da8ter/images/main/Universelle-Geraete-Kachel%20wallbox.png)
+![Universelle Geräte Kachel — PV-Anlage](https://raw.githubusercontent.com/da8ter/images/main/Universelle-Geraete-Kachel%20pv-anlage.png)
+![Universelle Geräte Kachel — PV-Anlage im hellen Design](https://raw.githubusercontent.com/da8ter/images/main/Universelle-Geraete-Kachel%20pv-anlage%20hell.png)
+![Universelle Geräte Kachel — Klima](https://raw.githubusercontent.com/da8ter/images/main/Universelle-Geraete-Kachel%20klima.png)
+
 - Die Kachel wird in der Kachel-Visualisierung angezeigt.
 - Schalter reagieren abhängig vom Modus:
   - Boolesche Schalter spiegeln den Variablenzustand und setzen beim Klick den angezeigten Gegenzustand (kein Umschalten auf dem Server: ein Doppelklick schaltet nicht zurück).
