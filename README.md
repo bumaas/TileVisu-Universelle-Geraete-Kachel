@@ -108,7 +108,7 @@ Die Konfiguration gliedert sich in mehrere Bereiche der Form:
 Der Editor bearbeitet die Kachel in einer eigenen Webseite mit Live-Vorschau. Das Konfigurationsformular bleibt vollständig nutzbar; beide schreiben dieselben Einstellungen.
 
 - **Öffnen:** In der Konfiguration der Instanz oben auf „Editor öffnen“ klicken. Ist Symcon Connect aktiv, öffnet „Editor über Connect öffnen“ denselben Editor über die Connect-Adresse.
-- **Vorschau:** Links steht die echte Kachel mit dem Entwurf, wahlweise in den Größen 1×1 bis maximiert und im hellen oder dunklen Design. Die Werte laufen live mit. Ein Klick auf eine Zeile in der Vorschau wählt sie zur Bearbeitung aus. Schalter und Regler schalten in der Vorschau nichts.
+- **Vorschau:** Links steht die echte Kachel mit dem Entwurf, wahlweise in den Größen 1×1 bis maximiert und im hellen oder dunklen Design. Der Greifer unten rechts zieht die Kachel auf jede andere Größe. Die Werte laufen live mit. Ein Klick auf eine Zeile in der Vorschau wählt sie zur Bearbeitung aus. Das Statusbild lässt sich in der Vorschau an den oberen, unteren, linken oder rechten Rand ziehen. Schalter und Regler schalten in der Vorschau nichts.
 - **Zeilen:** Neue Zeilen gibt es je Anzeigetyp (Text, Fortschrittsbalken, Schieberegler, Schalter, Bild). Am Griff gezogen, wandern Zeilen an eine andere Stelle oder in eine Gruppe hinein und wieder heraus; ganze Gruppen lassen sich genauso verschieben. Alt + Pfeiltasten verschieben die ausgewählte Zeile. Unter der Liste stehen nur die Felder, die zum Anzeigetyp passen, dazu ein Hinweis, wenn eine Variable fehlt oder keine Aktion hat.
 - **Gruppen:** Name, Icon (Font-Awesome-Name, z. B. `bolt`), „Name anzeigen“, „Name über der Gruppe“, „Linie unter der Gruppe“ und „Elemente auf volle Breite“ stehen direkt an der Gruppe.
 - **Status:** Statusvariable, Anzeigeoptionen, Standardbild und die Zuordnungen je Wert mit Bild oder Icon, Farben und „Fortschrittsbalken aktiv“. „Aus der Darstellung neu einlesen“ übernimmt neue Werte der Statusvariable und behält die Einstellungen der vorhandenen.
@@ -154,7 +154,7 @@ Die Funktionalität erfolgt über die Instanz-Konfiguration und den Editor. Für
 
 ## Changelog
 - **3.1.0** (in Vorbereitung)
-  - Neu: visueller Editor mit Live-Vorschau der echten Kachel, geöffnet über „Editor öffnen“ im Formular. Zeilen und Gruppen per Ziehen und Ablegen, Eigenschaften je Anzeigetyp, Objektauswahl mit Suche, Status simulieren und Testwerte nur in der Vorschau, Vorlagen sowie Export und Import. Gespeichert wird erst auf Klick, mit Rückfrage, wenn die Konfiguration inzwischen anderswo gespeichert wurde.
+  - Neu: visueller Editor mit Live-Vorschau der echten Kachel, geöffnet über „Editor öffnen“ im Formular. Zeilen, Gruppen und das Statusbild per Ziehen und Ablegen, frei ziehbare Vorschaugröße, Eigenschaften je Anzeigetyp, Objektauswahl mit Suche, Status simulieren und Testwerte nur in der Vorschau, Vorlagen sowie Export und Import. Gespeichert wird erst auf Klick, mit Rückfrage, wenn die Konfiguration inzwischen anderswo gespeichert wurde.
 - **3.0.0**
   - Voraussetzung Symcon 8.1: das Modul nutzt Module Strict und den nativen Webhook; der Eintrag im WebHook Control entfällt.
   - Wertänderungen aktualisieren nur die betroffenen Zeilen: wertabhängige Icons wechseln mit, mehrere Zeilen derselben Variable bleiben richtig, ein Statuswechsel baut die Kachel nicht mehr neu auf, Ziel-Marker stimmen auch bei inaktivem Balken.

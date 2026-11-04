@@ -348,7 +348,9 @@
             "Size drawn with the handle at the bottom right": "Größe, gezogen mit dem Greifer unten rechts",
             "Drag to resize the tile. Arrow keys: 10 px, with Shift 50 px. Double-click: 2×2.": "Ziehen ändert die Kachelgröße. Pfeiltasten: 10 px, mit Umschalt 50 px. Doppelklick: 2×2.",
             "Access expired": "Zugang abgelaufen",
-            "Unsaved changes are kept in this page: export them and import them in the newly opened editor.": "Ungespeicherte Änderungen bleiben in dieser Seite erhalten: exportieren und im neu geöffneten Editor importieren."
+            "Unsaved changes are kept in this page: export them and import them in the newly opened editor.": "Ungespeicherte Änderungen bleiben in dieser Seite erhalten: exportieren und im neu geöffneten Editor importieren.",
+            "Drag the image to the top, bottom, left or right edge. Click: status settings.": "Bild an den oberen, unteren, linken oder rechten Rand ziehen. Klick: Statuseinstellungen.",
+            "Image position: %s": "Bildposition: %s"
         },
         "en": {
             "Links": "Left",

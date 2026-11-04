@@ -70,6 +70,7 @@
         box.classList.toggle('maximized', size === 'max');
         box.style.width = width ? width + 'px' : '';
         box.style.height = height ? height + 'px' : '';
+        requestAnimationFrame(placeImageHandle);
         const badge = document.getElementById('sizeBadge');
         const rect = box.getBoundingClientRect();
         badge.textContent = Math.round(rect.width) + ' × ' + Math.round(rect.height);
@@ -134,7 +135,76 @@
         window.addEventListener('resize', () => { if (size === 'custom') applySize(); });
     };
 
+    /** Griff über dem Statusbild: liegt über #div1 der Kachel, solange das Bild sichtbar ist. */
+    const placeImageHandle = () => {
+        const handle = document.getElementById('imageHandle');
+        const d = doc();
+        const image = d && d.getElementById('div1');
+        const f = frame();
+        if (!image || image.classList.contains('hidden') || image.offsetWidth === 0) {
+            handle.hidden = true;
+            return;
+        }
+        const r = image.getBoundingClientRect();
+        Object.assign(handle.style, { left: (f.offsetLeft + r.left) + 'px', top: (f.offsetTop + r.top) + 'px', width: r.width + 'px', height: r.height + 'px' });
+        handle.hidden = false;
+    };
+
+    /** Statusbild an eine Kante ziehen: die nächste Kante der Kachel wird BildPosition. */
+    const setupImageDrag = () => {
+        const handle = document.getElementById('imageHandle');
+        const zones = document.getElementById('dropZones');
+        const labels = { top: 'top', bottom: 'bottom', left: 'left', right: 'right' };
+        zones.querySelectorAll('[data-edge]').forEach(z => { z.replaceChildren(h('span', { text: E.t(labels[z.dataset.edge]) })); });
+        let drag = null;
+        const edgeAt = (x, y) => {
+            const r = frame().getBoundingClientRect();
+            const d = { left: (x - r.left) / r.width, right: (r.right - x) / r.width, top: (y - r.top) / r.height, bottom: (r.bottom - y) / r.height };
+            return Object.keys(d).reduce((a, b) => (d[a] <= d[b] ? a : b));
+        };
+        const mark = edge => zones.querySelectorAll('[data-edge]').forEach(z => z.classList.toggle('active', z.dataset.edge === edge));
+        handle.addEventListener('pointerdown', e => {
+            if (e.button !== 0) return;
+            e.preventDefault();
+            drag = { x: e.clientX, y: e.clientY, pointer: e.pointerId, moved: false, edge: null };
+            window.addEventListener('pointermove', move);
+            window.addEventListener('pointerup', up);
+            window.addEventListener('pointercancel', up);
+        });
+        const move = e => {
+            if (!drag || e.pointerId !== drag.pointer) return;
+            if (!drag.moved && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 6) return;
+            if (!drag.moved) {
+                drag.moved = true;
+                const f = frame();
+                Object.assign(zones.style, { left: f.offsetLeft + 'px', top: f.offsetTop + 'px', width: f.offsetWidth + 'px', height: f.offsetHeight + 'px' });
+                zones.hidden = false;
+                document.body.classList.add('dragging-image');
+            }
+            drag.edge = edgeAt(e.clientX, e.clientY);
+            mark(drag.edge);
+        };
+        const up = e => {
+            if (!drag || e.pointerId !== drag.pointer) return;
+            window.removeEventListener('pointermove', move);
+            window.removeEventListener('pointerup', up);
+            window.removeEventListener('pointercancel', up);
+            const { moved, edge } = drag;
+            drag = null;
+            zones.hidden = true;
+            document.body.classList.remove('dragging-image');
+            if (!moved) {
+                E.emit('tab', 'status'); // Klick: Statuseinstellungen
+            } else if (edge && E.s.draft && E.s.draft.BildPosition !== edge) {
+                E.change(d => { d.BildPosition = edge; });
+                E.emit('reset');
+                E.toast(E.tf('Image position: %s', E.t(edge)));
+            }
+        };
+    };
+
     const highlight = () => {
+        placeImageHandle();
         const d = doc();
         if (!d) return;
         d.querySelectorAll('.udte-selected').forEach(el => el.classList.remove('udte-selected'));
@@ -190,7 +260,15 @@
         lastSent = '';
         const html = String(answer.data.html || '') + '<style id="udte-theme">' + themeCss() + '</style>' + bridge;
         const f = frame();
-        f.onload = () => { ready = true; applyTheme(); E.refreshPreview(); };
+        f.onload = () => {
+            ready = true;
+            applyTheme();
+            E.refreshPreview();
+            try {
+                f.contentWindow.addEventListener('scroll', placeImageHandle, { passive: true });
+                f.contentWindow.addEventListener('resize', placeImageHandle);
+            } catch (_) { /* ohne Zugriff kein Griff */ }
+        };
         f.srcdoc = html;
     };
 
@@ -248,6 +326,7 @@
     });
 
     setupGrip();
+    setupImageDrag();
 
     E.on('loaded', () => {
         document.getElementById('tileTitle').textContent = E.s.instance.name;
