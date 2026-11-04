@@ -344,7 +344,9 @@
             "Temperature": "Temperatur",
             "Today": "Heute",
             "Ventilation": "Lüften",
-            "Yield today": "Ertrag heute"
+            "Yield today": "Ertrag heute",
+            "Size drawn with the handle at the bottom right": "Größe, gezogen mit dem Greifer unten rechts",
+            "Drag to resize the tile. Arrow keys: 10 px, with Shift 50 px. Double-click: 2×2.": "Ziehen ändert die Kachelgröße. Pfeiltasten: 10 px, mit Umschalt 50 px. Doppelklick: 2×2."
         },
         "en": {
             "Links": "Left",

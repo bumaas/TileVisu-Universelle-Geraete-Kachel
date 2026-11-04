@@ -79,9 +79,24 @@ button, input, select, textarea { font: inherit; color: inherit; }
 /* Kachel */
 .tile-frame {
     position: relative; border-radius: 22px; overflow: hidden; box-shadow: 0 0 0 1px rgba(127, 127, 127, .2), 0 12px 40px rgba(0, 0, 0, .25);
-    display: flex; flex-direction: column; resize: both; min-width: 180px; min-height: 160px; max-width: 100%;
+    display: flex; flex-direction: column; min-width: 180px; min-height: 160px; max-width: 100%; flex: none;
 }
-.tile-frame.maximized { width: 100%; height: 100%; min-height: 480px; resize: none; }
+.tile-frame.maximized { width: 100%; height: 100%; min-height: 480px; }
+.tile-frame.maximized .resize-grip { display: none; }
+.resize-grip {
+    position: absolute; right: 0; bottom: 0; width: 30px; height: 30px; cursor: nwse-resize; touch-action: none; z-index: 3;
+    display: flex; align-items: flex-end; justify-content: flex-end; padding: 0 7px 6px 0; color: var(--accent);
+    background: linear-gradient(135deg, transparent 50%, rgba(127, 127, 127, .22) 50%); border-bottom-right-radius: 22px;
+}
+.resize-grip i, .resize-grip svg { transform: rotate(-45deg); font-size: 13px; }
+.resize-grip:hover, .resize-grip:focus-visible { background: linear-gradient(135deg, transparent 50%, rgba(0, 205, 171, .35) 50%); }
+.size-badge {
+    position: absolute; right: 36px; bottom: 8px; font: 12px/1 ui-monospace, Menlo, monospace; padding: 4px 6px; border-radius: 6px;
+    background: rgba(0, 0, 0, .6); color: #fff; opacity: 0; transition: opacity .15s; pointer-events: none; z-index: 3;
+}
+.tile-frame:hover .size-badge, body.resizing .size-badge { opacity: 1; }
+body.resizing { cursor: nwse-resize; user-select: none; }
+body.resizing iframe { pointer-events: none; }
 .tile-title { display: flex; align-items: center; gap: 10px; padding: 0 20px; height: 48px; flex: none; font-weight: 600; font-size: 16px; }
 .tile-title span { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tile-title i:last-child { opacity: .6; font-size: 14px; }

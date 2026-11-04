@@ -15,6 +15,7 @@
     ];
 
     let size = 'l';
+    let custom = { w: 430, h: 430 }; // frei gezogene Größe (Greifer unten rechts)
     let theme = 'dark';
     let ready = false;
     let timer = null;
@@ -25,6 +26,8 @@
     try {
         size = localStorage.getItem('udte-size') || size;
         theme = localStorage.getItem('udte-theme') || theme;
+        const saved = JSON.parse(localStorage.getItem('udte-custom') || 'null');
+        if (saved && saved.w > 0 && saved.h > 0) custom = { w: saved.w | 0, h: saved.h | 0 };
     } catch (_) { /* ohne Speicher */ }
 
     const frame = () => document.getElementById('tile');
@@ -55,11 +58,77 @@
     };
 
     const applySize = () => {
-        const [, , width, height] = SIZES.find(s => s[0] === size) || SIZES[2];
+        let [, , width, height] = SIZES.find(s => s[0] === size) || SIZES[2];
+        if (size === 'custom') {
+            width = custom.w;
+            height = custom.h;
+        }
         const box = document.getElementById('tileFrame');
         box.classList.toggle('maximized', size === 'max');
         box.style.width = width ? width + 'px' : '';
         box.style.height = height ? height + 'px' : '';
+        const badge = document.getElementById('sizeBadge');
+        const rect = box.getBoundingClientRect();
+        badge.textContent = Math.round(rect.width) + ' × ' + Math.round(rect.height);
+    };
+
+    const remember = () => {
+        try {
+            localStorage.setItem('udte-size', size);
+            localStorage.setItem('udte-custom', JSON.stringify(custom));
+        } catch (_) { /* ohne Speicher */ }
+    };
+
+    /** Greifer unten rechts: die Kachel steht mittig, deshalb wächst die Breite um das Doppelte der Bewegung. */
+    const setupGrip = () => {
+        const grip = document.getElementById('resizeGrip');
+        const box = document.getElementById('tileFrame');
+        const area = document.getElementById('stageArea');
+        const limit = (w, h) => {
+            const maxW = Math.max(180, area.clientWidth - 32);
+            return { w: Math.round(Math.min(maxW, Math.max(180, w)) / 5) * 5, h: Math.round(Math.min(1600, Math.max(160, h)) / 5) * 5 };
+        };
+        const resizeTo = (w, h) => {
+            custom = limit(w, h);
+            size = 'custom';
+            applySize();
+            buildBar();
+        };
+        let start = null;
+        grip.addEventListener('pointerdown', e => {
+            if (e.button !== 0) return;
+            e.preventDefault();
+            const rect = box.getBoundingClientRect();
+            start = { cx: rect.left + rect.width / 2, top: rect.top, pointer: e.pointerId };
+            document.body.classList.add('resizing');
+            window.addEventListener('pointermove', move);
+            window.addEventListener('pointerup', up);
+            window.addEventListener('pointercancel', up);
+        });
+        const move = e => {
+            if (!start || e.pointerId !== start.pointer) return;
+            resizeTo(2 * (e.clientX - start.cx), e.clientY - start.top);
+        };
+        const up = e => {
+            if (!start || e.pointerId !== start.pointer) return;
+            start = null;
+            document.body.classList.remove('resizing');
+            window.removeEventListener('pointermove', move);
+            window.removeEventListener('pointerup', up);
+            window.removeEventListener('pointercancel', up);
+            remember();
+        };
+        grip.addEventListener('keydown', e => {
+            const step = e.shiftKey ? 50 : 10;
+            const rect = box.getBoundingClientRect();
+            const d = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] }[e.key];
+            if (!d) return;
+            e.preventDefault();
+            resizeTo(rect.width + d[0], rect.height + d[1]);
+            remember();
+        });
+        grip.addEventListener('dblclick', () => { size = 'l'; remember(); buildBar(); applySize(); });
+        window.addEventListener('resize', () => { if (size === 'custom') applySize(); });
     };
 
     const highlight = () => {
@@ -126,8 +195,12 @@
         const sizes = document.getElementById('sizes');
         sizes.replaceChildren(...SIZES.map(([id, caption]) => h('button', {
             type: 'button', class: id === size ? 'active' : '', title: E.t('Tile size'),
-            onclick: () => { size = id; try { localStorage.setItem('udte-size', id); } catch (_) {} buildBar(); applySize(); }
-        }, id === 'max' ? E.t(caption) : caption)));
+            onclick: () => { size = id; remember(); buildBar(); applySize(); }
+        }, id === 'max' ? E.t(caption) : caption)),
+            h('button', {
+                type: 'button', class: size === 'custom' ? 'active' : '', title: E.t('Size drawn with the handle at the bottom right'),
+                onclick: () => { size = 'custom'; remember(); buildBar(); applySize(); }
+            }, E.icon('up-right-and-down-left-from-center'), ' ', custom.w + '×' + custom.h));
         const themes = document.getElementById('themes');
         themes.replaceChildren(...[['dark', 'moon', 'Dark'], ['light', 'sun', 'Light']].map(([id, icon, caption]) => h('button', {
             type: 'button', class: id === theme ? 'active' : '', title: E.t(caption),
@@ -170,6 +243,8 @@
             E.toast(E.t('Operation is switched off in the preview.'));
         }
     });
+
+    setupGrip();
 
     E.on('loaded', () => {
         document.getElementById('tileTitle').textContent = E.s.instance.name;
