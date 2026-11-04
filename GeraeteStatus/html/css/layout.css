@@ -28,9 +28,6 @@
             background: var(--background-image, none) center / cover no-repeat;
         }
 
-        body {
-            font-family: Arial, sans-serif;
-        }
 
         .hidden {
             display: none;
