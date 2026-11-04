@@ -28,7 +28,6 @@
             background: var(--background-image, none) center / cover no-repeat;
         }
 
-
         .hidden {
             display: none;
         }

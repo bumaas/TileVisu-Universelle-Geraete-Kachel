@@ -90,7 +90,7 @@
                                 // Doppelpunkt nur wenn auch Value angezeigt wird - Label fett
                                 textParts.push(`<span style="font-weight: 700;">${esc(displayLabel)}:&nbsp;</span>`);
                             } else {
-                                // Kein Doppelpunkt wenn nur Label - Label fett
+                                // Kein Doppelpunkt wenn nur Label - normale Stärke wie die Schalter der Kachel-Visu
                                 textParts.push(`<span style="font-weight: 400;">${esc(displayLabel)}</span>`);
                             }
                         }
@@ -99,7 +99,7 @@
                             textParts.push(`<span style="font-weight: normal;">${esc(variable.formattedValue)}</span>`);
                         }
                         
-                        // Falls keine Checkbox aktiviert ist, zeige Label als Fallback (ohne Doppelpunkt) - fett
+                        // Falls keine Checkbox aktiviert ist, zeige Label als Fallback (ohne Doppelpunkt) - normale Stärke
                         if (!variable.showIcon && !variable.showLabel && !variable.showValue) {
                             textParts.push(`<span style="font-weight: 400;">${esc(variable.label || (isActive ? getUiText('on', 'On') : getUiText('off', 'Off')))}</span>`);
                         }
