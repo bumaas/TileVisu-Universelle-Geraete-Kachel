@@ -41,18 +41,69 @@
         E.s.selected = null;
         E.s.selectedGroup = null;
         E.s.extraGroups = [];
+        past.length = 0;
+        future.length = 0;
+        E.emit('history');
         E.emit('loaded', data);
         E.emit('draft');
     };
 
     /** Entwurf ändern; structural = Zeilen hinzugefügt, entfernt, verschoben oder umgruppiert, Anzeigetyp oder Ziel geändert. */
     E.change = function (mutate, structural) {
+        const before = snapshot();
         mutate(E.s.draft);
+        remember(before, structural);
         E.emit('draft');
         if (structural) {
             E.emit('structure');
         }
     };
+
+    // Rückgängig/Wiederholen: Schnappschüsse des Entwurfs (samt angelegter leerer Gruppen), höchstens 50.
+    // Tippen in einem Feld zählt als ein Schritt, solange zwischen zwei Änderungen weniger als 1,5 s liegen.
+    const past = [];
+    const future = [];
+    let lastField = null;
+    let lastTime = 0;
+    const snapshot = () => JSON.stringify({ draft: E.s.draft, groups: E.s.extraGroups });
+    const push = state => {
+        past.push(state);
+        if (past.length > 50) past.shift();
+        future.length = 0;
+        E.emit('history');
+    };
+    function remember(before, structural) {
+        if (snapshot() === before) return; // nichts geändert
+        const el = document.activeElement;
+        const field = !structural && el && el.matches && el.matches('input, textarea, select') ? el : null;
+        const now = Date.now();
+        const typing = field !== null && field === lastField && now - lastTime < 1500;
+        lastField = field;
+        lastTime = now;
+        if (!typing) push(before);
+    }
+    /** Stand vor einer Änderung außerhalb von E.change merken (z. B. vor „Verwerfen“). */
+    E.checkpoint = () => { lastField = null; push(snapshot()); };
+    const restore = (from, to) => {
+        if (!from.length) return false;
+        to.push(snapshot());
+        const state = JSON.parse(from.pop());
+        E.s.draft = state.draft;
+        E.s.extraGroups = state.groups || [];
+        lastField = null;
+        const selected = E.s.selected;
+        const group = E.s.selectedGroup;
+        E.emit('reset');
+        E.emit('structure');
+        if (group) E.selectGroup(group); else E.select(selected);
+        E.emit('draft');
+        E.emit('history');
+        return true;
+    };
+    E.undo = () => restore(past, future);
+    E.redo = () => restore(future, past);
+    E.canUndo = () => past.length > 0;
+    E.canRedo = () => future.length > 0;
 
     E.isDirty = () => E.s.draft !== null && JSON.stringify(E.s.draft) !== JSON.stringify(E.s.saved);
 
@@ -120,13 +171,17 @@
         return (info.name || ('#' + id)) + (info.path ? ' · ' + info.path : '');
     };
 
-    E.toast = function (text, kind) {
+    /** Kurze Meldung unten; action = [Beschriftung, Funktion] als Knopf in der Meldung (z. B. „Rückgängig“). */
+    E.toast = function (text, kind, action) {
         const el = document.getElementById('toast');
-        el.textContent = text;
+        el.replaceChildren(document.createTextNode(text));
+        if (action) {
+            el.appendChild(E.h('button', { type: 'button', class: 'toast-action', onclick: () => { el.hidden = true; action[1](); } }, action[0]));
+        }
         el.className = 'toast' + (kind ? ' ' + kind : '');
         el.hidden = false;
         clearTimeout(E.toast.timer);
-        E.toast.timer = setTimeout(() => { el.hidden = true; }, kind === 'error' ? 6000 : 3000);
+        E.toast.timer = setTimeout(() => { el.hidden = true; }, kind === 'error' || action ? 6000 : 3000);
     };
 
     /** Element bauen: E.h('div', {class: 'x', onclick: fn}, kind1, 'Text', …). */

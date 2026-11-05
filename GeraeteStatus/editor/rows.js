@@ -35,7 +35,7 @@
         const row = E.rows()[index];
         E.change(d => { d.VariablesList.splice(index, 1); }, true);
         E.select(null);
-        E.toast(E.tf('Row “%s” removed. “Discard” brings it back until you save.', E.rowTitle(row)));
+        E.toast(E.tf('Row “%s” removed.', E.rowTitle(row)), '', [E.t('Undo'), () => E.undo()]);
     };
 
     const moveRow = (index, delta) => {

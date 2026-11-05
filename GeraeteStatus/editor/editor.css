@@ -340,6 +340,8 @@ textarea.code { font: 12px/1.4 ui-monospace, Menlo, monospace; margin-top: 8px; 
     position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--text); color: var(--bg);
     padding: 10px 16px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0, 0, 0, .3); z-index: 50; max-width: calc(100vw - 32px);
 }
+.toast-action { margin-left: 14px; padding: 0; border: 0; background: none; color: inherit; font: inherit; font-weight: 600; text-decoration: underline; cursor: pointer; }
+.history { display: flex; gap: 4px; }
 .toast.error { background: var(--danger); color: #fff; }
 .toast.ok { background: var(--accent); color: var(--accent-text); }
 .blocked { margin: 12vh auto; max-width: 460px; text-align: center; padding: 24px; }

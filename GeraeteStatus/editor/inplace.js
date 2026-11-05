@@ -338,7 +338,7 @@
         } else if (data.udte === 'remove') {
             if (data.kind === 'status') {
                 E.change(d => { d.StatusHide = true; }, true);
-                E.toast(E.t('Status area hidden. “Discard” brings it back until you save.'));
+                E.toast(E.t('Status area hidden.'), '', [E.t('Undo'), () => E.undo()]);
             } else if (E.rows()[key]) {
                 E.deleteRow(key);
             }

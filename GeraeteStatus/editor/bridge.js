@@ -383,6 +383,14 @@
             cancel({});
         }
     };
+    // Tastenkürzel des Editors auch, wenn die Vorschau den Fokus hat (Rückgängig, Speichern …)
+    document.addEventListener('keydown', function (e) {
+        if (drag && drag.active) return;
+        var mod = e.metaKey || e.ctrlKey;
+        if (!(mod && /^[zys]$/i.test(e.key))) return;
+        e.preventDefault();
+        post({ udte: 'key', key: e.key, mod: mod, shift: e.shiftKey, alt: e.altKey });
+    });
     document.addEventListener('pointerdown', function (e) {
         if (e.button !== 0 || drag || e.pointerType === 'touch' || !e.target.closest || !container) return;
         var t = e.target;

@@ -118,17 +118,12 @@
 
     saveButton.addEventListener('click', () => save(false));
     discardButton.addEventListener('click', () => {
-        E.dialog(E.t('Discard changes?'), E.t('The draft goes back to the saved configuration.'), [
+        E.dialog(E.t('Discard changes?'), E.t('The draft goes back to the saved configuration. Undo brings it back.'), [
             [E.t('Cancel'), () => true],
-            [E.t('Discard'), () => { takeSaved({ config: E.s.saved, base: E.s.base }); E.select(null); return true; }, 'danger']
+            [E.t('Discard'), () => { E.checkpoint(); takeSaved({ config: E.s.saved, base: E.s.base }); E.select(null); return true; }, 'danger']
         ]);
     });
-    document.addEventListener('keydown', e => {
-        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') {
-            e.preventDefault();
-            if (E.isDirty()) save(false);
-        }
-    });
+    E.saveDraft = () => { if (E.isDirty() && !E.locked) save(false); }; // Strg+S/⌘S (keys.js)
     window.addEventListener('beforeunload', e => {
         if (E.isDirty()) { e.preventDefault(); e.returnValue = ''; }
     });

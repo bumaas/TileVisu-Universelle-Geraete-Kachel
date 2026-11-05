@@ -445,6 +445,8 @@
             E.emit('tab', 'rows');
         } else if (data.udte === 'status') {
             E.emit('tab', 'status');
+        } else if (data.udte === 'key') {
+            E.handleKey({ key: String(data.key || ''), mod: !!data.mod, shift: !!data.shift, alt: !!data.alt, fromPreview: true });
         } else if (data.ident !== undefined || data.type === 'openObject') {
             E.toast(E.t('Operation is switched off in the preview.'));
         }
