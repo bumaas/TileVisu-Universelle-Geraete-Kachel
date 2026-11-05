@@ -42,22 +42,89 @@
             + '#udte-add{display:flex;align-items:center;justify-content:center;width:100%;height:30px;margin:6px 0 0;padding:0;'
             + 'border:1.5px dashed currentColor;border-radius:8px;background:transparent;color:var(--content-color);opacity:.35;'
             + 'font:300 22px/1 sans-serif;cursor:pointer}'
-            + '#udte-add:hover,#udte-add:focus-visible{opacity:1;color:var(--accent-color);outline:none}';
+            + '#udte-add:hover,#udte-add:focus-visible{opacity:1;color:var(--accent-color);outline:none}'
+            + '#udte-drop-line{position:fixed;z-index:50;background:var(--accent-color);border-radius:2px;pointer-events:none}'
+            + '.udte-drag-source{opacity:.35}'
+            + 'html.udte-dragging,html.udte-dragging *{user-select:none!important;cursor:grabbing!important}';
     };
 
     /* Das iframe hat bewusst kein sandbox: die Kachel läuft in der Visualisierung genauso mit der Herkunft
        von Symcon, und Editor wie Brücke greifen direkt auf ihr Dokument zu (Thema, Hervorhebung, Stand). */
 
-    /** Klicks in der Kachel wählen die Zeile im Editor; die Kachel selbst reagiert weiter wie gewohnt.
-        Unter der Zeilenliste (außerhalb von #variables-container, das die Kachel neu zeichnet) steht „+“. */
-    const bridge = () => '<script>(function(){var c=document.getElementById("variables-container");'
-        + 'if(c&&!document.getElementById("udte-add")){var b=document.createElement("button");b.type="button";b.id="udte-add";'
-        + 'b.title=' + JSON.stringify(E.t('Add row')).replace(/</g, '\\u003c') + ';b.setAttribute("aria-label",b.title);b.textContent="+";'
-        + 'c.insertAdjacentElement("afterend",b);}'
-        + 'document.addEventListener("click",function(e){var t=e.target;if(!t.closest)return;'
-        + 'if(t.closest("#udte-add")){parent.postMessage({udte:"add"},"*");return;}'
-        + 'var i=t.closest(".variable-item");if(i){parent.postMessage({udte:"select",key:i.getAttribute("data-row-key")},"*");return;}'
-        + 'parent.postMessage({udte:t.closest("#status-container,#image,#div1")?"status":"blank"},"*");},true);})();<\/script>';
+    /** Brücke in der Kachel (bridge.js, gleiche Version wie dieser Teil): Klicks, Doppelklicks, „+“, Ziehen. */
+    const bridge = () => {
+        const own = document.querySelector('script[src*="f=preview.js"]');
+        const src = own ? new URL(own.getAttribute('src').replace('f=preview.js', 'f=bridge.js'), location.href).href : '';
+        const settings = JSON.stringify({ add: E.t('Add row') }).replace(/</g, '\\u003c');
+        const attr = src.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+        return '<script>window.UDTE_BRIDGE=' + settings + ';<\/script>' + (src ? '<script src="' + attr + '"><\/script>' : '');
+    };
+
+    /** Beschriftung direkt in der Vorschau ändern: Eingabefeld über dem Text der Zeile (Doppelklick). */
+    const editLabel = (key, x, y) => {
+        const d = doc();
+        const row = E.rows()[key];
+        const item = d && d.querySelector('.variable-item[data-row-key="' + key + '"]');
+        if (!row || !item) return;
+        const live = ((E.s.payload && E.s.payload.variables) || []).find(v => String(v.key) === String(key)) || {};
+        const clean = text => text.replace(/[\s ]+$/, '').replace(/:$/, '').trim();
+        const spans = [...item.querySelectorAll('span')];
+        const main = spans.find(s => live.label && clean(s.textContent) === live.label) || null;
+        const second = live.secondVariable && live.secondVariable.label;
+        const hit = d.elementFromPoint(x, y);
+        const hitSpan = hit && hit.closest && hit.closest('span');
+        let field = 'Label';
+        let anchor = main;
+        if (hitSpan && hitSpan !== main && second && clean(hitSpan.textContent) === second) {
+            field = 'SecondVariableLabel';
+            anchor = hitSpan;
+        }
+        const r = (anchor || item).getBoundingClientRect();
+        const f = frame().getBoundingClientRect();
+        const input = h('input', {
+            type: 'text', class: 'label-edit', maxlength: '200', spellcheck: 'false',
+            placeholder: (field === 'Label' ? live.label : second) || E.t('Label'),
+            'aria-label': field === 'Label' ? E.t('Label') : E.t('Label of the second variable')
+        });
+        input.value = row[field] || '';
+        Object.assign(input.style, {
+            left: Math.max(4, f.left + r.left - 4) + 'px', top: (f.top + r.top + r.height / 2 - 16) + 'px',
+            width: Math.max(160, Math.min(f.width - 16, r.width + 60)) + 'px'
+        });
+        let done = false;
+        const close = commit => {
+            if (done) return;
+            done = true;
+            const value = input.value.trim();
+            input.remove();
+            if (commit && value !== (row[field] || '')) {
+                E.change(() => { row[field] = value; }, true);
+                E.toast(value === '' ? E.t('Label removed: the tile shows the name of the variable.') : E.tf('Label: %s', value));
+            }
+        };
+        input.addEventListener('keydown', e => {
+            if (e.key === 'Enter') { e.preventDefault(); close(true); }
+            if (e.key === 'Escape') { e.preventDefault(); close(false); }
+        });
+        input.addEventListener('blur', () => close(true));
+        document.body.appendChild(input);
+        input.focus();
+        input.select();
+    };
+
+    /** Zeile, die in der Kachel gezogen wurde, vor oder hinter die Zielzeile legen; sie übernimmt deren Gruppe. */
+    const moveRow = (from, to, after) => {
+        const rows = E.rows();
+        const moving = rows[from];
+        const target = rows[to];
+        if (!moving || !target || moving === target) return;
+        E.change(() => {
+            rows.splice(from, 1);
+            moving.Group = target.Group;
+            rows.splice(rows.indexOf(target) + (after ? 1 : 0), 0, moving);
+        }, true);
+        E.select(rows.indexOf(moving));
+    };
 
     /** Auswahl des Anzeigetyps unter dem „+“ der Vorschau; die neue Zeile kommt ans Ende der Liste. */
     const addMenu = document.getElementById('addMenu');
@@ -267,7 +334,12 @@
         }
     };
 
+    // Während in der Kachel gezogen wird, bleibt ihr Stand stehen (neu gezeichnete Zeilen brächen das Ziehen ab)
+    let holding = false;
+    let held = null;
+
     const push = payload => {
+        if (holding) { held = payload; return; }
         const win = frame().contentWindow;
         if (!ready || !win || typeof win.handleMessage !== 'function') return;
         win.handleMessage(E.clone(payload));
@@ -370,7 +442,20 @@
             return;
         }
         closeAddMenu();
-        if (data.udte === 'select') {
+        if (data.udte === 'dragstart') {
+            holding = true;
+        } else if (data.udte === 'dragend') {
+            holding = false;
+            if (held) { const payload = held; held = null; push(payload); }
+        } else if (data.udte === 'move') {
+            moveRow(parseInt(data.from, 10), parseInt(data.to, 10), !!data.after);
+            E.emit('tab', 'rows');
+        } else if (data.udte === 'edit') {
+            const key = parseInt(data.key, 10);
+            E.select(key);
+            E.emit('tab', 'rows');
+            editLabel(key, Number(data.x), Number(data.y));
+        } else if (data.udte === 'select') {
             E.select(parseInt(data.key, 10));
             E.emit('tab', 'rows');
         } else if (data.udte === 'status') {

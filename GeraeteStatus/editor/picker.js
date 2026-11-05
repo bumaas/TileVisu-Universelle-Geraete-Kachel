@@ -16,6 +16,8 @@
         }
     };
 
+    const NEAR_KEY = 'udte-near-' + location.pathname; // Ordner der letzten Wahl, je Kachel
+
     const KIND_TITLE = {
         variable: 'Select variable', script: 'Select script', image: 'Select image', object: 'Select object'
     };
@@ -37,6 +39,9 @@
 
         const choose = info => {
             E.s.objects[String(info.id)] = Object.assign({}, E.s.objects[String(info.id)], info);
+            if (info.parent > 0) {
+                try { localStorage.setItem(NEAR_KEY, String(info.parent)); } catch (_) { /* nur für diese Sitzung */ }
+            }
             close();
             done(info.id);
             E.ensureObjects([info.id]).then(() => E.emit('objects'));
@@ -101,13 +106,62 @@
             }
         };
 
+        /** Wo die Auswahl beginnt: beim Ordner des aktuellen Objekts, sonst der letzten Wahl, sonst bei den
+            Variablen der Zeilen über der gewählten (beim Einrichten eines Geräts liegen sie nebeneinander). */
+        const parentOf = id => {
+            const info = id > 0 ? E.s.objects[String(id)] : null;
+            return info && info.parent > 0 ? info.parent : 0;
+        };
+        const contextParent = () => {
+            if (parentOf(current)) return parentOf(current);
+            let stored = 0;
+            try { stored = parseInt(localStorage.getItem(NEAR_KEY) || '0', 10) || 0; } catch (_) { /* ohne Speicher */ }
+            if (stored > 0) return stored;
+            const rows = E.rows();
+            const ids = [];
+            for (let i = E.s.selected === null ? -1 : Math.min(E.s.selected, rows.length - 1); i >= 0; i--) ids.push(rows[i].Variable | 0);
+            rows.forEach(r => ids.push(r.Variable | 0));
+            ids.push(E.s.draft.Status | 0);
+            return ids.map(parentOf).find(p => p > 0) || 0;
+        };
+
+        let near = null;
+        const showDefault = async () => {
+            if (near === null) {
+                // Kurzinfos (mit Elternteil) für die Kandidaten holen, die der Editor noch nicht kennt
+                await E.ensureObjects([current, E.s.draft.Status | 0, ...E.rows().map(r => r.Variable | 0)]);
+                near = contextParent();
+            }
+            if (near > 0) await E.ensureObjects([near]);
+            const info = near > 0 ? E.s.objects[String(near)] : null;
+            if (!info) {
+                fill(list, 0, 0);
+                return;
+            }
+            const nearBody = h('div', {});
+            const allBody = h('div', {});
+            const up = h('button', { type: 'button', class: 'btn small', title: E.t('One level up'), onclick: () => { near = info.parent | 0; showDefault(); } },
+                E.icon('arrow-turn-up'), ' ', E.t('Up'));
+            list.replaceChildren(
+                h('div', { class: 'tree-section' }, h('h3', {}, h('span', { text: E.t('Next to the last selection') })),
+                    h('div', { class: 'near-head' }, E.icon(TYPE_ICON[info.type] || 'folder', 'type'),
+                        h('span', { class: 'grow' }, h('strong', { text: info.name || ('#' + info.id) }),
+                            info.path ? h('span', { class: 'path', text: ' · ' + info.path }) : null), up)),
+                nearBody,
+                h('div', { class: 'tree-section' }, h('h3', { text: E.t('All objects') })),
+                allBody);
+            await Promise.all([fill(nearBody, near, 0), fill(allBody, 0, 0)]);
+            const mark = list.querySelector('.node.current');
+            if (mark) mark.scrollIntoView({ block: 'nearest' });
+        };
+
         let timer = null;
         search.addEventListener('input', () => {
             clearTimeout(timer);
             timer = setTimeout(async () => {
                 const q = search.value.trim();
                 if (q.length < 2) {
-                    fill(list, 0, 0);
+                    showDefault();
                     return;
                 }
                 list.replaceChildren(h('div', { class: 'muted pad', text: E.t('Searching…') }));
@@ -121,7 +175,7 @@
             }, 250);
         });
 
-        fill(list, 0, 0);
+        showDefault();
         dialog.showModal();
         search.focus();
     };

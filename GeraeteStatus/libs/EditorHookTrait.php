@@ -17,6 +17,7 @@ trait EditorHookTrait
         'api.js' => 'text/javascript; charset=utf-8',
         'state.js' => 'text/javascript; charset=utf-8',
         'preview.js' => 'text/javascript; charset=utf-8',
+        'bridge.js' => 'text/javascript; charset=utf-8', // läuft in der Vorschau-Kachel, eingesetzt von preview.js
         'picker.js' => 'text/javascript; charset=utf-8',
         'iconpicker.js' => 'text/javascript; charset=utf-8',
         'iconterms.js' => 'text/javascript; charset=utf-8', // lädt iconpicker.js erst bei Bedarf

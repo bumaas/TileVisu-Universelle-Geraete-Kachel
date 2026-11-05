@@ -23,6 +23,7 @@ trait EditorTreeTrait
             'type' => (int)$object['ObjectType'],
             'icon' => (string)$object['ObjectIcon'],
             'children' => (bool)$object['HasChildren'],
+            'parent' => (int)$object['ParentID'], // Objektauswahl beginnt bei den Nachbarn der letzten Wahl
         ];
         if ($info['name'] === '' && $info['type'] === 1) {
             $info['name'] = (string)(IPS_GetInstance($id)['ModuleInfo']['ModuleName'] ?? ''); // wie die Konsole

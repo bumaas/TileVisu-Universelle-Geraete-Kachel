@@ -302,7 +302,6 @@
             "Unsaved changes": "Ungespeicherte Änderungen",
             "Save": "Speichern",
             "Simulate status": "Status simulieren",
-            "Click a row in the preview to edit it. Buttons and sliders do not switch anything in the preview.": "Eine Zeile in der Vorschau anklicken, um sie zu bearbeiten. Schalter und Regler schalten in der Vorschau nichts.",
             "Rows": "Zeilen",
             "Select variable": "Variable auswählen",
             "Select script": "Skript auswählen",
@@ -360,7 +359,14 @@
             "All icons": "Alle Icons",
             "%d icons": "%d Icons",
             "No icons found.": "Keine Icons gefunden.",
-            "Search icons": "Icons suchen (deutsch oder englisch)"
+            "Search icons": "Icons suchen (deutsch oder englisch)",
+            "One level up": "Eine Ebene höher",
+            "Up": "Höher",
+            "Next to the last selection": "Neben der letzten Auswahl",
+            "All objects": "Alle Objekte",
+            "Label removed: the tile shows the name of the variable.": "Beschriftung entfernt: Die Kachel zeigt den Namen der Variable.",
+            "Label: %s": "Beschriftung: %s",
+            "Click a row in the preview to edit it, double-click to change its label, drag it to move it. Buttons and sliders do not switch anything in the preview.": "Zeile in der Vorschau anklicken zum Bearbeiten, doppelklicken für die Beschriftung, ziehen zum Verschieben. Schalter und Regler schalten in der Vorschau nichts."
         },
         "en": {
             "Links": "Left",
