@@ -161,6 +161,7 @@
             const maxW = Math.max(180, area.clientWidth - 32);
             return { w: Math.round(Math.min(maxW, Math.max(180, w)) / 5) * 5, h: Math.round(Math.min(1600, Math.max(160, h)) / 5) * 5 };
         };
+        E.setPreviewSize = (w, h) => { resizeTo(w, h); remember(); }; // inplace.js: Höhe an den Inhalt
         const resizeTo = (w, h) => {
             custom = limit(w, h);
             size = 'custom';
@@ -390,7 +391,8 @@
             h('button', {
                 type: 'button', class: size === 'custom' ? 'active' : '', title: E.t('Size drawn with the handle at the bottom right'),
                 onclick: () => { size = 'custom'; remember(); buildBar(); applySize(); }
-            }, E.icon('up-right-and-down-left-from-center'), ' ', custom.w + '×' + custom.h));
+            }, E.icon('up-right-and-down-left-from-center'), ' ', custom.w + '×' + custom.h),
+            h('button', { type: 'button', title: E.t('Fit height to content'), onclick: () => E.fitPreview && E.fitPreview() }, E.icon('arrows-up-down')));
         const themes = document.getElementById('themes');
         themes.replaceChildren(...[['dark', 'moon', 'Dark'], ['light', 'sun', 'Light']].map(([id, icon, caption]) => h('button', {
             type: 'button', class: id === theme ? 'active' : '', title: E.t(caption),

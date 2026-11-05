@@ -44,6 +44,7 @@
                 const config = E.clone(template.config);
                 config.VariablesList = (config.VariablesList || []).map(row => Object.assign(E.clone(E.s.rowDefaults), row));
                 E.applyConfig(config, false);
+                if (E.fitPreviewSoon) E.fitPreviewSoon(); // Höhe der Vorschau an die Vorlage anpassen
                 E.toast(E.t('Template applied. Nothing is saved yet.'));
                 return true;
             }, 'primary']]);

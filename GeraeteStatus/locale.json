@@ -371,7 +371,8 @@
             "Status “%s”: %s": "Status „%s“: %s",
             "The icon of a row comes from the presentation of its variable.": "Das Icon einer Zeile kommt aus der Darstellung ihrer Variable.",
             "Without image": "Ohne Bild",
-            "The tile has no image yet: select a default image, or keep it without image.": "Die Kachel hat noch kein Bild: Standardbild auswählen oder ohne Bild lassen."
+            "The tile has no image yet: select a default image, or keep it without image.": "Die Kachel hat noch kein Bild: Standardbild auswählen oder ohne Bild lassen.",
+            "Fit height to content": "Höhe an den Inhalt anpassen"
         },
         "en": {
             "Links": "Left",

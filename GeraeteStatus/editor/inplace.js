@@ -207,6 +207,30 @@
         return payload;
     };
 
+    /** Höhe der Vorschau an den Inhalt anpassen (Breite bleibt): unterster Punkt von Status, Zeilen, „+“ und Bild,
+        dazu der Rand der Kachel und ihre Titelzeile. Nach einer Vorlage einmal, sobald sie gezeichnet ist. */
+    let fitPending = false;
+    E.fitPreview = function () {
+        const d = E.previewDoc();
+        const box = document.getElementById('tileFrame');
+        if (!d || !d.body || box.classList.contains('maximized') || !E.setPreviewSize) return;
+        const win = d.defaultView;
+        let bottom = 0;
+        d.querySelectorAll('#status-container, #udte-status-placeholder, #variables-container, #udte-add, #div1 img, #div1 .fontawesome-icon-container').forEach(el => {
+            if (el.offsetParent !== null) bottom = Math.max(bottom, el.getBoundingClientRect().bottom + win.scrollY);
+        });
+        if (!bottom) return;
+        const title = box.querySelector('.tile-title');
+        const margin = parseFloat(win.getComputedStyle(d.body).marginBottom) || 0;
+        E.setPreviewSize(box.getBoundingClientRect().width, Math.ceil(bottom + margin + (title ? title.offsetHeight : 0) + 4));
+    };
+    E.fitPreviewSoon = () => { fitPending = true; };
+    E.on('pushed', () => {
+        if (!fitPending) return;
+        fitPending = false;
+        requestAnimationFrame(E.fitPreview); // nach den Platzhaltern (gleiches Ereignis, früher angemeldet)
+    });
+
     /** „Auswählen“ am Platzhalter: Objektauswahl für die Zeile (Variable oder Bild) oder die Statusvariable. */
     const pickTarget = (kind, key) => {
         if (kind === 'status') {
