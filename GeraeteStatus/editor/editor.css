@@ -342,6 +342,12 @@ textarea.code { font: 12px/1.4 ui-monospace, Menlo, monospace; margin-top: 8px; 
 }
 .toast-action { margin-left: 14px; padding: 0; border: 0; background: none; color: inherit; font: inherit; font-weight: 600; text-decoration: underline; cursor: pointer; }
 .history { display: flex; gap: 4px; }
+.device-rows { display: flex; flex-direction: column; gap: 10px; min-width: min(520px, 80vw); }
+.device-list { display: flex; flex-direction: column; gap: 2px; max-height: 50vh; overflow: auto; border: 1px solid var(--line); border-radius: 8px; padding: 4px; }
+.device-var { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; cursor: pointer; }
+.device-var:hover { background: var(--panel-2); }
+.device-var .muted { max-width: 30%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chip-type { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--panel-2); white-space: nowrap; }
 .toast.error { background: var(--danger); color: #fff; }
 .toast.ok { background: var(--accent); color: var(--accent-text); }
 .blocked { margin: 12vh auto; max-width: 460px; text-align: center; padding: 24px; }

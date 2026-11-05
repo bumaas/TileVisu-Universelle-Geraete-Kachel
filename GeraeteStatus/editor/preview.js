@@ -99,7 +99,8 @@
             ...E.TYPES.map(([type, icon, caption]) => h('button', {
                 type: 'button', role: 'menuitem',
                 onclick: () => { closeAddMenu(); E.emit('tab', 'rows'); E.addRow(type); }
-            }, E.icon(icon), ' ', E.t(caption))));
+            }, E.icon(icon), ' ', E.t(caption))),
+            h('hr'), h('button', { type: 'button', role: 'menuitem', onclick: () => { closeAddMenu(); E.emit('tab', 'rows'); E.addRowsFromDevice(); } }, E.icon('microchip'), ' ', E.t('From a device…')));
         addMenu.hidden = false;
         const f = frame().getBoundingClientRect();
         const r = plus.getBoundingClientRect();

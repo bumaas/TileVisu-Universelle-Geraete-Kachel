@@ -112,7 +112,7 @@
         };
         open(...fromTile(x, y), E.rowTitle(row), [
             { icon: 'magnifying-glass', label: image ? E.t('Select image…') : E.t('Select variable…'),
-                run: () => E.pick(image ? 'image' : 'variable', row[field] | 0, id => set(() => { row[field] = id; })) },
+                run: () => E.pick(image ? 'image' : 'variable', row[field] | 0, id => { set(() => { row[field] = id; }); if (!image) E.suggestType(row); }) },
             image ? null : { icon: 'pen', label: E.t('Change label'), run: () => E.inplace.editLabel(key, x, y) },
             '-',
             { icon: E.typeIcon(type), label: E.t('Display type'), items: E.TYPES.map(([id, , caption]) => ({

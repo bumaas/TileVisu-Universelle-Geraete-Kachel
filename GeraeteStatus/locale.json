@@ -431,7 +431,18 @@
             "Undo": "Rückgängig",
             "Redo": "Wiederholen",
             "Ctrl": "Strg",
-            "Shift": "Umschalt"
+            "Shift": "Umschalt",
+            "This variable fits the display type “%s”.": "Diese Variable passt zum Anzeigetyp „%s“.",
+            "Change": "Umstellen",
+            "This device has no variables.": "Dieses Gerät hat keine Variablen.",
+            "The display type is suggested per variable and can be changed later. Hidden variables are not ticked.": "Der Anzeigetyp ist je Variable vorgeschlagen und lässt sich später ändern. Versteckte Variablen sind nicht angehakt.",
+            "As group “%s”": "Als Gruppe „%s“",
+            "No free group left": "Keine Gruppe mehr frei",
+            "Rows from “%s”": "Zeilen aus „%s“",
+            "Add rows": "Zeilen hinzufügen",
+            "%d rows added.": "%d Zeilen hinzugefügt.",
+            "From a device…": "Aus Gerät …",
+            "Select device": "Gerät auswählen"
         },
         "en": {
             "Links": "Left",

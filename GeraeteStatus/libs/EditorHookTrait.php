@@ -21,6 +21,7 @@ trait EditorHookTrait
         'inplace.js' => 'text/javascript; charset=utf-8',
         'contextmenu.js' => 'text/javascript; charset=utf-8',
         'keys.js' => 'text/javascript; charset=utf-8',
+        'device.js' => 'text/javascript; charset=utf-8',
         'picker.js' => 'text/javascript; charset=utf-8',
         'iconpicker.js' => 'text/javascript; charset=utf-8',
         'iconterms.js' => 'text/javascript; charset=utf-8', // lädt iconpicker.js erst bei Bedarf

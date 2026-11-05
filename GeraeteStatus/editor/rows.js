@@ -22,7 +22,7 @@
         E.select(index);
         const kind = type === 'image' ? 'image' : (type === 'button' ? null : 'variable');
         if (kind) {
-            E.pick(kind, 0, id => E.change(() => { row[kind === 'image' ? 'ImageMedia' : 'Variable'] = id; }, true));
+            E.pick(kind, 0, id => { E.change(() => { row[kind === 'image' ? 'ImageMedia' : 'Variable'] = id; }, true); if (kind === 'variable') E.suggestType(row); });
         }
     };
 
@@ -257,7 +257,8 @@
                 E.icon('plus'), ' ', E.t('Row'), ' ', E.icon('chevron-down')),
             h('div', { class: 'menu-list left' }, h('div', { class: 'menu-title', text: E.t('Add row') }),
                 ...E.TYPES.map(([type, icon, caption]) => h('button', { type: 'button', onclick: () => { menu.classList.remove('open'); E.addRow(type); } },
-                    E.icon(icon), ' ', E.t(caption)))));
+                    E.icon(icon), ' ', E.t(caption))),
+                h('hr'), h('button', { type: 'button', onclick: () => { menu.classList.remove('open'); E.addRowsFromDevice(); } }, E.icon('microchip'), ' ', E.t('From a device…'))));
         document.addEventListener('click', e => { if (!menu.contains(e.target)) menu.classList.remove('open'); });
         const bar = h('div', { class: 'list-bar' }, menu,
             h('button', { type: 'button', class: 'btn small', onclick: E.newGroup }, E.icon('plus'), ' ', E.t('Group')),

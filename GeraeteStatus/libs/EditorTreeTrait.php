@@ -35,10 +35,45 @@ trait EditorTreeTrait
             $info['varType'] = (int)IPS_GetVariable($id)['VariableType'];
             $info['value'] = mb_substr((string)GetValueFormatted($id), 0, 60);
             $info['action'] = HasAction($id);
+            $info['suggest'] = $this->EditorSuggestType($id, $info['varType'], $info['action']);
+            $info['hidden'] = (bool)$object['ObjectIsHidden']; // „Zeilen aus Gerät“ lässt versteckte Variablen zunächst weg
         } elseif ($info['type'] === 5) {
             $info['mediaType'] = (int)IPS_GetMedia($id)['MediaType'];
         }
         return $info;
+    }
+
+    /**
+     * Anzeigetyp, der zur Variable passt: Schalter und Auswahl mit Aktion → Button, Regler-Darstellung mit Aktion →
+     * Regler (ohne Aktion → Balken), Prozentwerte ohne Aktion → Balken, sonst Text. Nur ein Vorschlag des Editors.
+     */
+    private function EditorSuggestType(int $id, int $varType, bool $action): string
+    {
+        $presentation = function_exists('IPS_GetVariablePresentation') ? @IPS_GetVariablePresentation($id) : [];
+        $presentation = is_array($presentation) ? $presentation : [];
+        $guid = (string)($presentation['PRESENTATION'] ?? '');
+        $is = static fn(string $name): bool => defined($name) && strcasecmp($guid, (string)constant($name)) === 0;
+        $numeric = $varType === 1 || $varType === 2;
+        if ($guid === '' || $is('VARIABLE_PRESENTATION_LEGACY')) {
+            $variable = IPS_GetVariable($id);
+            $name = (string)($variable['VariableCustomProfile'] ?: $variable['VariableProfile']);
+            $profile = $name !== '' && IPS_VariableProfileExists($name) ? IPS_GetVariableProfile($name) : [];
+            if ($varType === 0 || count($profile['Associations'] ?? []) > 0) {
+                return $action ? 'button' : 'text';
+            }
+            if ($numeric && $action && (float)($profile['MaxValue'] ?? 0) > (float)($profile['MinValue'] ?? 0)) {
+                return 'slider';
+            }
+            return $numeric && trim((string)($profile['Suffix'] ?? '')) === '%' ? 'progress' : 'text';
+        }
+        if ($is('VARIABLE_PRESENTATION_SWITCH') || $is('VARIABLE_PRESENTATION_ENUMERATION')) {
+            return $action ? 'button' : 'text';
+        }
+        if ($numeric && ($is('VARIABLE_PRESENTATION_SLIDER') || $is('VARIABLE_PRESENTATION_SHUTTER'))) {
+            return $action ? 'slider' : 'progress';
+        }
+        $percent = trim((string)($presentation['SUFFIX'] ?? '')) === '%' || ($presentation['PERCENTAGE'] ?? false) === true;
+        return $numeric && !$action && $percent ? 'progress' : 'text';
     }
 
     /** Pfad der Eltern („Erdgeschoss › Küche“), höchstens acht Ebenen. */
@@ -89,6 +124,7 @@ trait EditorTreeTrait
             'variable' => IPS_GetVariableList(),
             'script' => IPS_GetScriptList(),
             'image' => IPS_GetMediaListByType(1),
+            'instance' => IPS_GetInstanceList(),
             default => IPS_GetObjectList(),
         };
         $hits = [];

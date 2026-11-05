@@ -12,6 +12,7 @@
             case 'variable': return info.type === 2;
             case 'script': return info.type === 3;
             case 'image': return info.type === 5 && info.mediaType === 1;
+            case 'instance': return info.type === 1;
             default: return true;
         }
     };
@@ -19,7 +20,7 @@
     const NEAR_KEY = 'udte-near-' + location.pathname; // Ordner der letzten Wahl, je Kachel
 
     const KIND_TITLE = {
-        variable: 'Select variable', script: 'Select script', image: 'Select image', object: 'Select object'
+        variable: 'Select variable', script: 'Select script', image: 'Select image', object: 'Select object', instance: 'Select device'
     };
 
     E.pick = function (kind, current, done) {
@@ -131,6 +132,9 @@
                 // Kurzinfos (mit Elternteil) für die Kandidaten holen, die der Editor noch nicht kennt
                 await E.ensureObjects([current, E.s.draft.Status | 0, ...E.rows().map(r => r.Variable | 0)]);
                 near = contextParent();
+                // Gerät wählen: bei den Nachbarn des Geräts beginnen, nicht in ihm
+                const at = near > 0 && kind === 'instance' ? E.s.objects[String(near)] : null;
+                if (at && at.type === 1 && at.parent > 0) near = at.parent;
             }
             if (near > 0) await E.ensureObjects([near]);
             const info = near > 0 ? E.s.objects[String(near)] : null;

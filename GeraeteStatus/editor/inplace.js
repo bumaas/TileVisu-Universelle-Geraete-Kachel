@@ -269,7 +269,7 @@
         if (!row) return;
         E.select(key);
         const field = kind === 'image' ? 'ImageMedia' : 'Variable';
-        E.pick(kind === 'image' ? 'image' : 'variable', row[field] | 0, id => E.change(() => { row[field] = id; }, true));
+        E.pick(kind === 'image' ? 'image' : 'variable', row[field] | 0, id => { E.change(() => { row[field] = id; }, true); if (kind !== 'image') E.suggestType(row); });
     };
 
     /** Rahmen der gewählten Gruppe in der Vorschau (durchgehend, in ihrer Farbe), um Name oben und Kasten; zieht mit,

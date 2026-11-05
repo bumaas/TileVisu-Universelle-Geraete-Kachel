@@ -70,7 +70,7 @@
         const parts = [head, typeRow, problem ? h('p', { class: 'warn', text: problem }) : null];
 
         const target = [];
-        if (show('Variable')) target.push(f.object(E.t('Variable'), get('Variable'), set('Variable', true), 'variable'));
+        if (show('Variable')) target.push(f.object(E.t('Variable'), get('Variable'), id => { set('Variable', true)(id); if (id) E.suggestType(row); }, 'variable'));
         if (show('ScriptID')) target.push(f.object(E.t('Script (instead of a variable)'), get('ScriptID'), set('ScriptID', true), 'script'));
         if (show('OpenObjectId') && E.s.openObject) target.push(f.object(E.t('Open object (instead of a variable)'), get('OpenObjectId'), set('OpenObjectId', true), 'object'));
         if (show('ImageMedia')) {
