@@ -248,7 +248,7 @@
             E.emit('tab', 'status');
             E.pick('variable', E.s.draft.Status | 0, async id => {
                 E.change(d => { d.Status = id; }, true);
-                if (id) await E.reloadAssociations(false);
+                if (id) await E.reloadAssociations(true); // Bilder der Vorlage auf die Werte der Variable übertragen
             });
             return;
         }

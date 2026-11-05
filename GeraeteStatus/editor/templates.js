@@ -39,9 +39,16 @@
 
     const applyTemplate = template => {
         E.dialog(E.tf('Use template “%s”?', template.caption),
-            E.t('Rows, groups and layout of the draft are replaced. The status variable and its associations stay. Then select the variables for the rows.'),
+            Array.isArray(template.config.ProfilAssoziazionen)
+                ? E.t('Rows, groups and layout of the draft are replaced. The status variable stays; its associations get the images of the template. Then select the variables for the rows.')
+                : E.t('Rows, groups and layout of the draft are replaced. The status variable and its associations stay. Then select the variables for the rows.'),
             [[E.t('Cancel'), () => true], [E.t('Use template'), () => {
                 const config = E.clone(template.config);
+                // Bilder der Vorlage auf vorhandene Zuordnungen übertragen, statt diese zu ersetzen
+                const current = E.s.draft.ProfilAssoziazionen || [];
+                if (Array.isArray(config.ProfilAssoziazionen) && (E.s.draft.Status | 0) > 0 && current.length) {
+                    config.ProfilAssoziazionen = E.mergeAssociations(current, config.ProfilAssoziazionen);
+                }
                 config.VariablesList = (config.VariablesList || []).map(row => Object.assign(E.clone(E.s.rowDefaults), row));
                 E.applyConfig(config, false);
                 if (E.fitPreviewSoon) E.fitPreviewSoon(); // Höhe der Vorschau an die Vorlage anpassen

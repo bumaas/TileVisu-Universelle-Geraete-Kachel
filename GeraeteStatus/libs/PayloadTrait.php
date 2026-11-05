@@ -219,6 +219,9 @@ trait PayloadTrait
             $result['statusBildauswahl'] = $this->getDefaultImageOrNone();
             // 2) Spaltenanzeige: Wenn KEIN DefaultImage vorhanden ist → gesamte Bildspalte ausblenden
             $result['hideImageColumn'] = !$this->hasDefaultImage();
+            if ($this->IsPreview()) {
+                $this->previewFirstAssociation($result);
+            }
         }
         
         // UNIVERSAL GUARANTEE: statusBildauswahl MUST ALWAYS be set
@@ -311,6 +314,37 @@ trait PayloadTrait
             return 'symcon_icon_' . $icon;
         }
         return 'none';
+    }
+
+    /**
+     * Nur Editor-Vorschau ohne Statusvariable: das Bild der ersten Zuordnung (etwa aus einer Vorlage), damit es
+     * schon vor der Wahl der Statusvariable zu sehen ist. Die echte Kachel zeigt ohne Statusvariable kein Zuordnungsbild.
+     */
+    private function previewFirstAssociation(array &$result): void
+    {
+        $list = json_decode($this->SettingString('ProfilAssoziazionen'), true);
+        $first = is_array($list) ? ($list[0] ?? null) : null;
+        if (!is_array($first)) {
+            return;
+        }
+        $choice = (string)($first['Bildauswahl'] ?? 'none');
+        if ($choice === 'symcon_icon' && !empty($first['SymconIcon'])) {
+            $color = (int)($first['IconColor'] ?? -1);
+            $transparent = $color === -1 || $color === 16777215;
+            $result['statusBildauswahl'] = 'symcon_icon_' . $first['SymconIcon'];
+            $result['statusIconColor'] = $transparent ? '' : '#' . sprintf('%06X', $color);
+            $result['isStatusIconColorTransparent'] = $transparent;
+        } elseif ($choice === 'custom' && (int)($first['EigenesBild'] ?? 0) > 0) {
+            $result['statusBildauswahl'] = 'img_custom_' . (int)$first['EigenesBild'];
+            $result['statusImageUrl'] = $this->BuildImageHookUrl((int)$first['EigenesBild']);
+        } elseif (!in_array($choice, ['none', 'custom', 'symcon_icon'], true)) {
+            $result['statusBildauswahl'] = $choice;
+            $result['statusImageUrl'] = $this->BuildAssetHookUrl($choice);
+        } else {
+            return;
+        }
+        $result['hideImageColumn'] = false;
+        $result['editorAssociation'] = 0;
     }
 
     /** Gibt es einen Rückfall fürs Statusbild (Standard-Bild oder Standard-Icon)? Dann bleibt die Bildspalte. */

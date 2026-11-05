@@ -249,7 +249,7 @@ trait EditorHookTrait
             }
             // Beschriftungen in der Sprache des Systems (die Vorlage nennt sie englisch)
             $config = $data['config'];
-            foreach (['VariablesList' => 'Label', 'GroupNamesList' => 'GroupName'] as $list => $field) {
+            foreach (['VariablesList' => 'Label', 'GroupNamesList' => 'GroupName', 'ProfilAssoziazionen' => 'AssoziationName'] as $list => $field) {
                 foreach ($config[$list] ?? [] as $i => $entry) {
                     if (is_string($entry[$field] ?? null) && $entry[$field] !== '') {
                         $config[$list][$i][$field] = $this->Translate($entry[$field]);

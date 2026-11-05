@@ -12,7 +12,30 @@
     const prop = name => () => E.s.draft[name];
     const setProp = (name, structural) => value => E.change(d => { d[name] = value; }, structural);
 
-    /** Zuordnungen der Statusvariable neu einlesen; Einstellungen gleicher Werte bleiben erhalten. */
+    // Werte vergleichen wie die Kachel: false = 0, true = 1, "2" = 2
+    const asNumber = v => (typeof v === 'boolean' ? Number(v) : (v === '' || v === null || v === undefined || isNaN(Number(v)) ? null : Number(v)));
+    const sameValue = (a, b) => JSON.stringify(a) === JSON.stringify(b) || (asNumber(a) !== null && asNumber(a) === asNumber(b));
+    const LOOK = ['Bildauswahl', 'EigenesBild', 'SymconIcon', 'IconColor', 'StatusColor', 'ProgressbarActive'];
+
+    /**
+     * Einstellungen (Bild, Icon, Farben, Balken) aus presets auf items übertragen: vom gleichen Wert, sonst von der
+     * nächstkleineren Zuordnung – so wählt auch die Kachel aus. Name und Wert bleiben die von items.
+     */
+    E.mergeAssociations = function (items, presets) {
+        return items.map(item => {
+            let source = presets.find(p => sameValue(p.AssoziationValue, item.AssoziationValue));
+            const n = asNumber(item.AssoziationValue);
+            if (!source && n !== null) {
+                source = presets.filter(p => asNumber(p.AssoziationValue) !== null && asNumber(p.AssoziationValue) <= n)
+                    .sort((a, b) => asNumber(b.AssoziationValue) - asNumber(a.AssoziationValue))[0];
+            }
+            const merged = Object.assign({}, item);
+            if (source) LOOK.forEach(key => { if (key in source) merged[key] = source[key]; });
+            return merged;
+        });
+    };
+
+    /** Zuordnungen der Statusvariable neu einlesen; mit keep übernehmen sie Bilder und Farben der bisherigen. */
     E.reloadAssociations = async function (keep) {
         const statusId = E.s.draft.Status | 0;
         const answer = await E.api('associations', { status: statusId });
@@ -21,10 +44,7 @@
             return;
         }
         const old = keep ? (E.s.draft.ProfilAssoziazionen || []) : [];
-        const fresh = (answer.data.items || []).map(item => {
-            const same = old.find(a => JSON.stringify(a.AssoziationValue) === JSON.stringify(item.AssoziationValue));
-            return same ? Object.assign({}, item, same, { AssoziationName: item.AssoziationName }) : item;
-        });
+        const fresh = E.mergeAssociations(answer.data.items || [], old);
         E.s.assocDetail = null;
         E.change(d => { d.ProfilAssoziazionen = fresh; }, true);
         if (fresh.length === 0) {
@@ -116,7 +136,7 @@
         E.s.assocDetail = null;
         tab.replaceChildren(
             f.section(E.t('Status variable'),
-                f.object(E.t('Status'), prop('Status'), async id => { E.s.assocDetail = null; E.change(dd => { dd.Status = id; }, true); if (id) await E.reloadAssociations(false); }, 'variable'),
+                f.object(E.t('Status'), prop('Status'), async id => { E.s.assocDetail = null; E.change(dd => { dd.Status = id; }, true); if (id) await E.reloadAssociations(true); }, 'variable'),
                 h('div', { class: 'field' }, h('label', { text: E.t('Show') }), f.chips(
                     [E.t('Icon'), prop('StatusShowIcon'), setProp('StatusShowIcon')],
                     [E.t('Label'), prop('StatusShowLabel'), setProp('StatusShowLabel')],

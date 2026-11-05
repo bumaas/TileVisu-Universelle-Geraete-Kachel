@@ -4,8 +4,28 @@
   "config": {
     "BildPosition": "left",
     "BildBreite": 120,
-    "DefaultIcon": "washing-machine",
-    "DefaultIconColor": 3900150,
+    "ProfilAssoziazionen": [
+      {
+        "AssoziationName": "Off",
+        "AssoziationValue": 0,
+        "Bildauswahl": "wm_aus",
+        "EigenesBild": 0,
+        "SymconIcon": "",
+        "IconColor": -1,
+        "StatusColor": -1,
+        "ProgressbarActive": false
+      },
+      {
+        "AssoziationName": "On",
+        "AssoziationValue": 1,
+        "Bildauswahl": "wm_an",
+        "EigenesBild": 0,
+        "SymconIcon": "",
+        "IconColor": -1,
+        "StatusColor": -1,
+        "ProgressbarActive": true
+      }
+    ],
     "ElementSpacing": 6,
     "VariablesList": [
       {

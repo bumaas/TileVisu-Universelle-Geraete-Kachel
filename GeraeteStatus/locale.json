@@ -392,7 +392,9 @@
             "For progress bars and buttons": "Für Fortschrittsbalken und Schalter",
             "Editor: automatic (like the system)": "Editor: automatisch (wie das System)",
             "Editor: light": "Editor: hell",
-            "Editor: dark": "Editor: dunkel"
+            "Editor: dark": "Editor: dunkel",
+            "Tumble dryer": "Wäschetrockner",
+            "Rows, groups and layout of the draft are replaced. The status variable stays; its associations get the images of the template. Then select the variables for the rows.": "Zeilen, Gruppen und Aufteilung des Entwurfs werden ersetzt. Die Statusvariable bleibt, ihre Zuordnungen bekommen die Bilder der Vorlage. Danach die Variablen der Zeilen wählen."
         },
         "en": {
             "Links": "Left",
