@@ -4,6 +4,8 @@
   "config": {
     "BildPosition": "left",
     "BildBreite": 120,
+    "DefaultImage": 0,
+    "DefaultIcon": "",
     "ProfilAssoziazionen": [
       {
         "AssoziationName": "Off",
