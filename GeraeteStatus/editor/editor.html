@@ -8,11 +8,13 @@
 <title>Universal Device Tile – Editor</title>
 <link rel="stylesheet" href="?k=asset&amp;f=editor.css&amp;v=__UDT_EDITOR_VERSION__">
 <script src="/icons.js" crossorigin="anonymous"></script>
+<script>try { var udteTheme = localStorage.getItem('udte-editor-theme'); if (udteTheme === 'light' || udteTheme === 'dark') document.documentElement.setAttribute('data-theme', udteTheme); } catch (e) {}</script>
 </head>
 <body>
 <header class="topbar">
   <div class="title"><i class="fa-light fa-pen-ruler"></i> <span id="title"></span></div>
   <div class="actions">
+    <div class="seg" id="editorTheme"></div>
     <div class="menu" id="templateMenu">
       <button type="button" class="btn" data-t-title="Templates and transfer" id="templateButton"><i class="fa-light fa-swatchbook"></i> <span data-t="Templates"></span></button>
       <div class="menu-list" id="templateList"></div>

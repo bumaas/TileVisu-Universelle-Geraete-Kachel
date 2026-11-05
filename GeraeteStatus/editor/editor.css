@@ -5,12 +5,18 @@
     --focus: 0 0 0 3px rgba(0, 168, 143, .35); --radius: 8px;
     color-scheme: light;
 }
+/* Erscheinungsbild: automatisch wie das System, oder fest hell/dunkel (data-theme, Schalter in der Kopfleiste) */
 @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not([data-theme="light"]) {
         --bg: #111214; --panel: #1b1c20; --panel-2: #24262b; --line: #33363d; --text: #eceef2; --muted: #9aa0ad;
         --accent: #00cdab; --accent-text: #06221d; --danger: #ff6b61; --warn-bg: #3a2f14; --warn-text: #ffd98a;
         color-scheme: dark;
     }
+}
+:root[data-theme="dark"] {
+    --bg: #111214; --panel: #1b1c20; --panel-2: #24262b; --line: #33363d; --text: #eceef2; --muted: #9aa0ad;
+    --accent: #00cdab; --accent-text: #06221d; --danger: #ff6b61; --warn-bg: #3a2f14; --warn-text: #ffd98a;
+    color-scheme: dark;
 }
 * { box-sizing: border-box; }
 html, body { height: 100%; }

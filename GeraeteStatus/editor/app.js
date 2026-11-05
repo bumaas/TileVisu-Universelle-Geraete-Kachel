@@ -8,6 +8,23 @@
     document.querySelectorAll('[data-t-title]').forEach(el => { el.title = E.t(el.getAttribute('data-t-title')); });
     document.getElementById('tile').title = E.t('Preview');
 
+    // Erscheinungsbild des Editors: automatisch (System), hell oder dunkel; die Vorschau-Kachel hat ihr eigenes Thema
+    const themeBar = document.getElementById('editorTheme');
+    const drawTheme = () => {
+        let current = 'auto';
+        try { current = localStorage.getItem('udte-editor-theme') || 'auto'; } catch (_) { /* ohne Speicher */ }
+        const choices = [['auto', 'circle-half-stroke', E.t('Editor: automatic (like the system)')], ['light', 'sun', E.t('Editor: light')], ['dark', 'moon', E.t('Editor: dark')]];
+        themeBar.replaceChildren(...choices.map(([id, icon, title]) => h('button', {
+                type: 'button', class: id === current ? 'active' : '', title, 'aria-label': title, 'aria-pressed': String(id === current),
+                onclick: () => {
+                    try { if (id === 'auto') localStorage.removeItem('udte-editor-theme'); else localStorage.setItem('udte-editor-theme', id); } catch (_) { /* nur bis zum Neuladen */ }
+                    if (id === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', id);
+                    drawTheme();
+                }
+            }, E.icon(icon))));
+    };
+    drawTheme();
+
     const saveButton = document.getElementById('save');
     const discardButton = document.getElementById('discard');
     const dirtyMark = document.getElementById('dirty');

@@ -389,7 +389,10 @@
             "Image transparency": "Bildtransparenz",
             "Values from 0 to 1": "Werte von 0 bis 1",
             "Corner radius": "Eckenradius",
-            "For progress bars and buttons": "Für Fortschrittsbalken und Schalter"
+            "For progress bars and buttons": "Für Fortschrittsbalken und Schalter",
+            "Editor: automatic (like the system)": "Editor: automatisch (wie das System)",
+            "Editor: light": "Editor: hell",
+            "Editor: dark": "Editor: dunkel"
         },
         "en": {
             "Links": "Left",

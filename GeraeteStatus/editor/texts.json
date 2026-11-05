@@ -1,5 +1,8 @@
 [
  "Preview",
+ "Editor: automatic (like the system)",
+ "Editor: light",
+ "Editor: dark",
  "Tile editor",
  "Too many attempts. Wait a minute and open the editor again from the configuration.",
  "Access has expired. Open the editor again with the button in the configuration of the tile.",
