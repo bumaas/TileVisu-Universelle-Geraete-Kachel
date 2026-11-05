@@ -94,12 +94,53 @@
         ]);
     };
 
+    /** Eigene Vorlage aus dem Entwurf: Name und Icon; der Server entfernt Variablen, Skripte und Medien. */
+    const saveTemplate = () => {
+        let icon = 'star';
+        const name = h('input', { type: 'text', maxlength: '60', value: E.s.instance.name || '' });
+        const body = h('div', {},
+            h('div', { class: 'field' }, h('label', { text: E.t('Name') }), name),
+            E.f.icon(E.t('Icon'), () => icon, value => { icon = value || 'star'; }),
+            h('p', { class: 'muted', text: E.t('Variables, scripts and media are not saved; the rows become placeholders. The template is available in all tiles.') }));
+        E.dialog(E.t('Save as template'), body, [[E.t('Cancel'), () => true], [E.t('Save'), async () => {
+            const answer = await E.api('saveTemplate', { caption: name.value, icon, config: E.s.draft });
+            if (answer.status !== 200) {
+                E.toast((answer.data.errors || [E.t('Saving failed.')]).join(' '), 'error');
+                return false;
+            }
+            E.s.templates = answer.data.templates || E.s.templates;
+            buildMenu();
+            E.toast(E.tf('Template “%s” saved.', name.value.trim()), 'ok');
+            return true;
+        }, 'primary']]);
+        setTimeout(() => { name.focus(); name.select(); }, 50);
+    };
+
+    const deleteTemplate = template => {
+        E.dialog(E.tf('Delete template “%s”?', template.caption), E.t('The template is removed for all tiles.'), [[E.t('Cancel'), () => true], [E.t('Delete'), async () => {
+            const answer = await E.api('deleteTemplate', { id: template.id });
+            if (answer.status === 200) {
+                E.s.templates = answer.data.templates || E.s.templates;
+                buildMenu();
+                E.toast(E.tf('Template “%s” deleted.', template.caption));
+            }
+            return true;
+        }, 'primary danger']]);
+    };
+
     const buildMenu = () => {
         const list = document.getElementById('templateList');
+        const own = E.s.templates.filter(t => t.user);
         list.replaceChildren(
             h('div', { class: 'menu-title', text: E.t('Start with a template') }),
-            ...E.s.templates.map(t => h('button', { type: 'button', onclick: () => { close(); applyTemplate(t); } }, E.icon(t.icon || 'shapes'), ' ', t.caption)),
+            ...E.s.templates.filter(t => !t.user).map(t => h('button', { type: 'button', onclick: () => { close(); applyTemplate(t); } }, E.icon(t.icon || 'shapes'), ' ', t.caption)),
+            own.length ? h('div', { class: 'menu-title', text: E.t('Own templates') }) : null,
+            ...own.map(t => h('div', { class: 'menu-row' },
+                h('button', { type: 'button', class: 'grow', onclick: () => { close(); applyTemplate(t); } }, E.iconSvg(t.icon || 'star'), ' ', t.caption),
+                h('button', { type: 'button', class: 'menu-delete', title: E.t('Delete template'), 'aria-label': E.t('Delete template'),
+                    onclick: e => { e.stopPropagation(); close(); deleteTemplate(t); } }, E.icon('trash')))),
             h('hr'),
+            h('button', { type: 'button', onclick: () => { close(); saveTemplate(); } }, E.icon('bookmark'), ' ', E.t('Save as template…')),
             h('button', { type: 'button', onclick: () => { close(); exportConfig(); } }, E.icon('file-export'), ' ', E.t('Export')),
             h('button', { type: 'button', onclick: () => { close(); importConfig(); } }, E.icon('file-import'), ' ', E.t('Import')));
     };

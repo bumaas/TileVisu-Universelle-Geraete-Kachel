@@ -82,6 +82,8 @@ trait EditorHookTrait
                 'tree' => [200, $this->EditorChildren((int)($body['parent'] ?? 0))],
                 'search' => [200, $this->EditorSearch(self::EditorText($body['q'] ?? ''), self::EditorText($body['kind'] ?? ''))],
                 'objects' => [200, ['objects' => $this->EditorObjectsByIds(is_array($body['ids'] ?? null) ? $body['ids'] : [])]],
+                'saveTemplate' => $this->EditorSaveTemplate($body),
+                'deleteTemplate' => $this->EditorDeleteTemplate($body),
                 default => [404, ['error' => 'api']],
             };
         } catch (\Throwable $e) {
@@ -259,7 +261,7 @@ trait EditorHookTrait
             $templates[] = ['id' => basename($file, '.json'), 'caption' => $this->Translate((string)($data['caption'] ?? basename($file, '.json'))),
                 'icon' => (string)($data['icon'] ?? 'shapes'), 'config' => $config];
         }
-        return $templates;
+        return array_merge($templates, $this->AllUserTemplates()); // dahinter die eigenen aller Kacheln
     }
 
     /** Version aller Editor-Teile (jüngster Dateistand): ein Modul-Update ergibt neue Adressen. */

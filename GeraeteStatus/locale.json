@@ -394,7 +394,20 @@
             "Editor: light": "Editor: hell",
             "Editor: dark": "Editor: dunkel",
             "Tumble dryer": "Wäschetrockner",
-            "Rows, groups and layout of the draft are replaced. The status variable stays; its associations get the images of the template. Then select the variables for the rows.": "Zeilen, Gruppen und Aufteilung des Entwurfs werden ersetzt. Die Statusvariable bleibt, ihre Zuordnungen bekommen die Bilder der Vorlage. Danach die Variablen der Zeilen wählen."
+            "Rows, groups and layout of the draft are replaced. The status variable stays; its associations get the images of the template. Then select the variables for the rows.": "Zeilen, Gruppen und Aufteilung des Entwurfs werden ersetzt. Die Statusvariable bleibt, ihre Zuordnungen bekommen die Bilder der Vorlage. Danach die Variablen der Zeilen wählen.",
+            "Name": "Name",
+            "Variables, scripts and media are not saved; the rows become placeholders. The template is available in all tiles.": "Variablen, Skripte und Medien werden nicht mitgespeichert, die Zeilen werden zu Platzhaltern. Die Vorlage steht in allen Kacheln bereit.",
+            "Save as template": "Als Vorlage speichern",
+            "Save as template…": "Als Vorlage speichern …",
+            "Template “%s” saved.": "Vorlage „%s“ gespeichert.",
+            "Delete template “%s”?": "Vorlage „%s“ löschen?",
+            "The template is removed for all tiles.": "Die Vorlage verschwindet aus allen Kacheln.",
+            "Template “%s” deleted.": "Vorlage „%s“ gelöscht.",
+            "Own templates": "Eigene Vorlagen",
+            "Delete template": "Vorlage löschen",
+            "Enter a name (at most 60 characters).": "Einen Namen eingeben (höchstens 60 Zeichen).",
+            "A tile can hold at most 50 templates.": "Eine Kachel kann höchstens 50 Vorlagen speichern.",
+            "The templates of this tile are too large.": "Die Vorlagen dieser Kachel sind zu groß."
         },
         "en": {
             "Links": "Left",

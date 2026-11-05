@@ -41,6 +41,7 @@ require_once __DIR__ . '/libs/EditorSchema.php';
 require_once __DIR__ . '/libs/EditorTreeTrait.php';
 require_once __DIR__ . '/libs/EditorAccessTrait.php';
 require_once __DIR__ . '/libs/EditorHookTrait.php';
+require_once __DIR__ . '/libs/EditorTemplateStoreTrait.php';
 
 class UniversalDeviceTile extends IPSModuleStrict
 {
@@ -57,6 +58,7 @@ class UniversalDeviceTile extends IPSModuleStrict
     use \UDT\EditorTreeTrait;
     use \UDT\EditorAccessTrait;
     use \UDT\EditorHookTrait;
+    use \UDT\EditorTemplateStoreTrait;
 
     // Darstellung „Legacy“: Symcon verweist damit auf das klassische Variablenprofil
     private const LEGACY_PRESENTATION_GUID = '4153A8D4-5C33-C65F-C1F3-7B61AAF99B1C';
@@ -134,6 +136,7 @@ class UniversalDeviceTile extends IPSModuleStrict
         $this->SetVisualizationType(1);
 
         $this->RegisterAttributeString('HookToken', '');
+        $this->RegisterAttributeString('UserTemplates', '[]'); // eigene Vorlagen des Editors
 
         // Bild-Hook nativ (Symcon 8.1+): flüchtig, deshalb bei jedem Create, also jedem Systemstart
         $this->RegisterHook('udtimages/' . $this->InstanceID);
