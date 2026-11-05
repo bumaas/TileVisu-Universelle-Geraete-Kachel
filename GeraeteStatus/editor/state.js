@@ -21,6 +21,7 @@
         templates: [],
         instance: { id: 0, name: '' },
         selected: null,     // Index der gewählten Zeile
+        selectedGroup: null, // Nummer der gewählten Gruppe (1–10)
         simulate: {},       // Variablen-ID => Vorschauwert
         extraGroups: [],    // angelegte Gruppen ohne Zeilen (nur im Editor)
         payload: null       // letzter Vorschau-Stand
@@ -38,6 +39,7 @@
         E.s.templates = data.templates || [];
         E.s.instance = data.instance || E.s.instance;
         E.s.selected = null;
+        E.s.selectedGroup = null;
         E.s.extraGroups = [];
         E.emit('loaded', data);
         E.emit('draft');
@@ -61,7 +63,15 @@
 
     E.select = function (index) {
         E.s.selected = (index === null || index === undefined || index < 0 || index >= E.rows().length) ? null : index;
+        E.s.selectedGroup = null;
         E.emit('select', E.s.selected);
+    };
+
+    /** Gruppe auswählen (1–10): Rahmen in der Vorschau, Karte in der Liste; hebt die Zeilenauswahl auf. */
+    E.selectGroup = function (number) {
+        E.s.selected = null;
+        E.s.selectedGroup = number > 0 ? number : null;
+        E.emit('select', null);
     };
 
     /** Gruppen 1–10 (GroupNamesList, Index 0 = Gruppe 1), fehlende mit Vorgaben ergänzt. */

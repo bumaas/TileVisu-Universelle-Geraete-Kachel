@@ -45,9 +45,12 @@
             + 'border:1.5px dashed currentColor;border-radius:8px;background:transparent;color:var(--content-color);opacity:.35;'
             + 'font:300 22px/1 sans-serif;cursor:pointer}'
             + '#udte-add:hover,#udte-add:focus-visible{opacity:1;color:var(--accent-color);outline:none}'
-            + '#udte-drop-line{position:fixed;z-index:50;background:var(--accent-color);border-radius:2px;pointer-events:none}'
-            + '.udte-drag-source{opacity:.35}'
+            + '.udte-drag-source{opacity:.6;outline:2px dashed var(--accent-color);outline-offset:3px;border-radius:6px;box-shadow:0 8px 22px rgba(0,0,0,.35)}'
+            + '.udte-drag-part{opacity:.6}.udte-empty-group{opacity:.3}'
+            + '.udte-drop-group{outline:1.5px solid var(--accent-color);outline-offset:5px;border-radius:8px}'
+            + '#udte-group-outline{position:absolute;z-index:40;pointer-events:none;border:2px dashed var(--accent-color);border-radius:8px}'
             + '.group-name-label,.group-name-above{cursor:grab}'
+            + 'html.udte-dragging .udte-selected{outline:none}html.udte-dragging #udte-group-outline{display:none}'
             + 'html.udte-dragging,html.udte-dragging *{user-select:none!important;cursor:grabbing!important}';
     };
 
@@ -263,6 +266,30 @@
         const d = doc();
         if (!d) return;
         d.querySelectorAll('.udte-selected').forEach(el => el.classList.remove('udte-selected'));
+        const outline = d.getElementById('udte-group-outline');
+        if (outline) outline.remove();
+        if (E.s.selectedGroup) {
+            // Gruppe: gestrichelter Rahmen um Name (oben) und Kasten, im Fluss der Kachel (scrollt mit)
+            const member = E.rows().findIndex(r => E.groupNumber(r.Group) === E.s.selectedGroup);
+            const item = member >= 0 && d.querySelector('.variable-item[data-row-key="' + member + '"]');
+            const box = item && item.closest('.variable-group');
+            if (box) {
+                const above = box.previousElementSibling && box.previousElementSibling.classList.contains('group-name-above') ? box.previousElementSibling : null;
+                const rects = [box, above].filter(Boolean).map(el => el.getBoundingClientRect());
+                const win = d.defaultView;
+                const top = Math.min(...rects.map(r => r.top)) + win.scrollY - 5;
+                const left = Math.min(...rects.map(r => r.left)) + win.scrollX - 5;
+                const frameEl = d.createElement('div');
+                frameEl.id = 'udte-group-outline';
+                Object.assign(frameEl.style, {
+                    top: top + 'px', left: left + 'px',
+                    width: (Math.max(...rects.map(r => r.right)) + win.scrollX + 5 - left) + 'px',
+                    height: (Math.max(...rects.map(r => r.bottom)) + win.scrollY + 5 - top) + 'px'
+                });
+                d.body.appendChild(frameEl);
+                box.scrollIntoView({ block: 'nearest' });
+            }
+        }
         if (E.s.selected !== null) {
             const el = d.querySelector('.variable-item[data-row-key="' + E.s.selected + '"]');
             if (el) {
@@ -382,10 +409,15 @@
         closeAddMenu();
         if (data.udte === 'dragstart') {
             holding = true;
-        } else if (data.udte === 'dragend') {
+        } else if (data.udte === 'dragcancel') {
+            // die Brücke hat die alte Reihenfolge selbst wiederhergestellt; nur einen inzwischen angekommenen Stand nachreichen
             holding = false;
             if (held) { const payload = held; held = null; push(payload); }
-        } else if (['move', 'moveGroup', 'edit', 'editGroup', 'editGroupIcon', 'rowIcon'].includes(data.udte)) {
+        } else if (data.udte === 'drop') {
+            holding = false;
+            held = null; // der neue Stand kommt mit der Änderung, ein angehaltener zeigte die alte Reihenfolge
+            E.emit('bridge', data);
+        } else if (['selectGroup', 'edit', 'editGroup', 'editGroupIcon', 'rowIcon'].includes(data.udte)) {
             E.emit('bridge', data); // Bearbeiten in der Vorschau: inplace.js
         } else if (data.udte === 'select') {
             E.select(parseInt(data.key, 10));

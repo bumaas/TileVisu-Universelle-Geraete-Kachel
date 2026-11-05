@@ -1,7 +1,8 @@
 /* Universal Device Tile – Editor: Brücke in der Vorschau-Kachel (läuft im iframe, nicht im Editor).
-   Sie meldet dem Editor Klicks (Zeile wählen, Status), Doppelklicks (Beschriftung, Gruppenname, Icons),
-   das „+“ unter der Zeilenliste und Zeilen oder Gruppen, die in der Kachel verschoben werden. Die Kachel
-   selbst bleibt unverändert: ihre Bedienung geht wie immer an requestAction, das der Editor verwirft. */
+   Sie meldet dem Editor Klicks (Zeile oder Gruppe wählen, Status), Doppelklicks (Beschriftung,
+   Gruppenname, Icons) und das „+“ unter der Zeilenliste. Beim Ziehen sortiert sie die Kachel live: das
+   gezogene Objekt rückt an die Stelle, an der es landen wird, die anderen gleiten zur Seite. Beim
+   Loslassen meldet sie die neue Reihenfolge samt Gruppen; der Editor zeichnet danach regulär neu. */
 (function () {
     'use strict';
     var config = window.UDTE_BRIDGE || {};
@@ -10,8 +11,8 @@
     var GROUP_NAME = '.group-name-label, .group-name-above';
     // Hier beginnt kein Ziehen: Bedienelemente der Kachel behalten ihre Zeigerereignisse
     var CONTROLS = 'input,button,select,textarea,a,.slider-container,[role=slider]';
-
     var container = document.getElementById('variables-container');
+
     if (container && !document.getElementById('udte-add')) {
         var add = document.createElement('button');
         add.type = 'button';
@@ -22,31 +23,35 @@
         container.insertAdjacentElement('afterend', add);
     }
 
-    /** Gruppe zu einem Gruppennamen oder einer Zeile darin: Kasten, Name darüber (falls dort) und eine Zeile als Schlüssel. */
+    var visible = function (el) { return el && el.offsetParent !== null; };
+    var hasClass = function (el, name) { return !!(el && el.classList && el.classList.contains(name)); };
+
+    /** Gruppe zu einem Gruppennamen, Kasten oder einer Zeile darin: Name oben, Kasten, Linie und eine Zeile als Schlüssel. */
     var groupOf = function (el) {
-        var name = el.closest(GROUP_NAME);
-        var box = null;
-        var above = null;
-        if (name) {
-            above = name.classList.contains('group-name-above') ? name : null;
-            box = above ? name.nextElementSibling : name.parentElement;
-        } else {
-            var items = el.closest('.variable-group-items');
-            box = items && items.parentElement;
-            var before = box && box.previousElementSibling;
-            above = before && before.classList.contains('group-name-above') ? before : null;
+        var box = el.closest('.variable-group');
+        if (!box) {
+            var name = el.closest('.group-name-above');
+            box = name && name.nextElementSibling;
         }
-        if (!box || !box.classList.contains('variable-group')) return null;
+        if (!hasClass(box, 'variable-group')) return null;
+        var before = box.previousElementSibling;
+        var after = box.nextElementSibling;
         var first = box.querySelector(ROW);
-        return first ? { box: box, above: above, key: first.getAttribute('data-row-key') } : null;
+        return first ? {
+            box: box, above: hasClass(before, 'group-name-above') ? before : null,
+            line: hasClass(after, 'group-line') ? after : null, key: first.getAttribute('data-row-key')
+        } : null;
     };
-    var groupRect = function (g) {
-        var r = g.box.getBoundingClientRect();
-        if (!g.above) return r;
-        var a = g.above.getBoundingClientRect();
-        var left = Math.min(a.left, r.left);
-        var right = Math.max(a.right, r.right);
-        return { left: left, right: right, top: a.top, bottom: r.bottom, width: right - left, height: r.bottom - a.top };
+    var nodesOf = function (g) { return [g.above, g.box, g.line].filter(Boolean); };
+    var unionRect = function (nodes) {
+        var r = null;
+        nodes.forEach(function (n) {
+            var b = n.getBoundingClientRect();
+            r = r ? { left: Math.min(r.left, b.left), top: Math.min(r.top, b.top), right: Math.max(r.right, b.right), bottom: Math.max(r.bottom, b.bottom) } : { left: b.left, top: b.top, right: b.right, bottom: b.bottom };
+        });
+        r.width = r.right - r.left;
+        r.height = r.bottom - r.top;
+        return r;
     };
     var clearSelection = function () {
         var selection = window.getSelection && window.getSelection();
@@ -66,6 +71,8 @@
         if (t.closest('#udte-add')) { post({ udte: 'add' }); return; }
         var item = t.closest(ROW);
         if (item) { post({ udte: 'select', key: item.getAttribute('data-row-key') }); return; }
+        var g = t.closest(GROUP_NAME) && groupOf(t);
+        if (g) { post({ udte: 'selectGroup', key: g.key }); return; }
         post({ udte: t.closest('#status-container,#image,#div1') ? 'status' : 'blank' });
     }, true);
 
@@ -88,110 +95,247 @@
         post({ udte: t.closest('.variable-icon') ? 'rowIcon' : 'edit', key: item.getAttribute('data-row-key'), x: e.clientX, y: e.clientY });
     }, true);
 
-    // Ziehen ab 6 px: eine Zeile (an der Zeile) oder eine ganze Gruppe (am Gruppennamen oder mit Umschalt)
+    // ---------------------------------------------------------------- Live-Sortieren
+
     var drag = null;
-    var line = null;
-    var visibleRows = function () {
-        return Array.prototype.filter.call(document.querySelectorAll(ROW), function (el) { return el.offsetParent !== null; });
+
+    /** Stand der Reihenfolge: jede Zeile mit dem Schlüssel einer Zeile ihrer Gruppe (Gruppe zu Beginn des Ziehens). */
+    var snapshot = function () {
+        return Array.prototype.map.call(container.querySelectorAll(ROW), function (el) {
+            var box = el.closest('.variable-group');
+            return { key: parseInt(el.getAttribute('data-row-key'), 10), group: box ? drag.groupKeys.get(box) : null };
+        });
     };
-    var horizontal = function (el) {
-        var near = [el.previousElementSibling, el.nextElementSibling].filter(function (n) { return n && n.matches && n.matches(ROW); });
-        var top = el.getBoundingClientRect().top;
-        return near.some(function (n) { return Math.abs(n.getBoundingClientRect().top - top) < 4; });
+
+    /** Zeile als Einheit im Fluss: in einer Gruppe ihre Hülle, sonst die Zeile selbst. */
+    var unitOf = function (item) { return hasClass(item.parentElement, 'variable-group-item') ? item.parentElement : item; };
+
+    /** Steht die Einheit mit anderen in einer Zeile (nebeneinander)? Aus der Lage, nicht aus dem HTML. */
+    var sideBySide = function (unit) {
+        var r = unit.getBoundingClientRect();
+        return Array.prototype.some.call(unit.parentElement.children, function (other) {
+            if (other === unit || !visible(other)) return false;
+            var o = other.getBoundingClientRect();
+            return Math.abs(o.top - r.top) < Math.min(r.height, o.height) / 2;
+        });
     };
-    /** Ziele: beim Zeilenziehen jede andere Zeile, beim Gruppenziehen jede freie Zeile und jede andere Gruppe als Ganzes. */
-    var candidates = function () {
-        var list = [];
-        var seen = [];
-        visibleRows().forEach(function (el) {
-            if (drag.mode === 'row') {
-                if (el !== drag.item) list.push({ key: el.getAttribute('data-row-key'), r: el.getBoundingClientRect(), side: horizontal(el) });
+
+    /** Elemente, die beim Verschieben gleiten (oberste Ebene und Zeilen in Gruppen). */
+    var animated = function () {
+        return Array.prototype.filter.call(container.querySelectorAll(':scope > *, .variable-group-item'), visible);
+    };
+    /** FLIP: alte Lage merken, verschieben, mit einer Verschiebung von der alten Lage aus hineingleiten. */
+    var flip = function (change) {
+        var before = new Map();
+        animated().forEach(function (el) { before.set(el, el.getBoundingClientRect()); });
+        change();
+        var deltas = new Map();
+        animated().forEach(function (el) {
+            var old = before.get(el);
+            if (!old) return;
+            var now = el.getBoundingClientRect();
+            deltas.set(el, [old.left - now.left, old.top - now.top]);
+        });
+        deltas.forEach(function (d, el) {
+            var box = hasClass(el, 'variable-group-item') ? el.closest('.variable-group') : null;
+            var outer = box && deltas.get(box);
+            var dx = d[0] - (outer ? outer[0] : 0);
+            var dy = d[1] - (outer ? outer[1] : 0);
+            if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
+            el.style.transition = 'none';
+            el.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+        });
+        requestAnimationFrame(function () {
+            deltas.forEach(function (d, el) {
+                if (!el.style.transform) return;
+                el.style.transition = 'transform 150ms ease';
+                el.style.transform = '';
+                setTimeout(function () { el.style.transition = ''; }, 170);
+            });
+        });
+    };
+
+    /** Gruppen, die beim Ziehen leer geworden sind, werden blass (sie verschwinden beim Loslassen). */
+    var markGroups = function () {
+        Array.prototype.forEach.call(container.querySelectorAll('.variable-group'), function (box) {
+            var g = { box: box, above: hasClass(box.previousElementSibling, 'group-name-above') ? box.previousElementSibling : null, line: hasClass(box.nextElementSibling, 'group-line') ? box.nextElementSibling : null };
+            var empty = !box.querySelector(ROW);
+            nodesOf(g).forEach(function (n) { n.classList.toggle('udte-empty-group', empty); });
+            box.classList.toggle('udte-drop-group', drag && drag.mode === 'row' && box.contains(drag.item));
+        });
+    };
+
+    /** Ziel unter dem Zeiger: Einheit, Ort (Gruppe oder oberste Ebene) und ob davor oder dahinter. */
+    var targetAt = function (x, y) {
+        var el = document.elementFromPoint(x, y);
+        if (!el || !el.closest) return null;
+        if (el.closest('#udte-add')) return { kind: 'end' };
+        var ownGroup = drag.mode === 'group' ? drag.group.box : null;
+        if (drag.mode === 'row') {
+            if (el.closest(GROUP_NAME)) {
+                var named = groupOf(el);
+                return named ? { kind: 'beforeGroup', group: named } : null;
+            }
+            var hit = el.closest('.variable-group-item') || el.closest(ROW);
+            if (!hit) return null;
+            var unit = hasClass(hit, 'variable-group-item') ? hit : unitOf(hit);
+            if (unit === unitOf(drag.item) || unit.contains(drag.item)) return null;
+            var r = unit.getBoundingClientRect();
+            var side = sideBySide(unit);
+            return { kind: 'unit', unit: unit, after: side ? x > r.left + r.width / 2 : y > r.top + r.height / 2 };
+        }
+        // Gruppe: Ziele auf oberster Ebene (freie Zeilen und andere Gruppen als Ganzes)
+        var g = (el.closest('.variable-group') || el.closest('.group-name-above') || el.closest('.group-line')) ? groupOf(el.closest('.group-line') ? el.closest('.group-line').previousElementSibling : el) : null;
+        if (g && g.box === ownGroup) return null;
+        var nodes = g ? nodesOf(g) : null;
+        if (!nodes) {
+            var free = el.closest(ROW);
+            if (!free || free.parentElement !== container) return null;
+            nodes = [free];
+        }
+        var u = unionRect(nodes);
+        return { kind: 'top', nodes: nodes, after: y > u.top + u.height / 2 };
+    };
+
+    /** Liegt das Gezogene schon so, wie das Ziel es will? Dann nichts tun (verhindert Hin-und-her). */
+    var placed = function (t) {
+        if (drag.mode === 'row') {
+            var unit = unitOf(drag.item);
+            if (t.kind === 'end') return unit.parentElement === container && !unit.nextElementSibling;
+            if (t.kind === 'beforeGroup') return unit.parentElement === container && unit.nextElementSibling === nodesOf(t.group)[0];
+            var inGroup = hasClass(t.unit, 'variable-group-item');
+            if (inGroup !== hasClass(unit, 'variable-group-item')) return false;
+            return t.after ? t.unit.nextElementSibling === unit : t.unit.previousElementSibling === unit;
+        }
+        var own = nodesOf(drag.group);
+        if (t.kind === 'end') return !own[own.length - 1].nextElementSibling;
+        return t.after ? t.nodes[t.nodes.length - 1].nextElementSibling === own[0] : t.nodes[0].previousElementSibling === own[own.length - 1];
+    };
+
+    var moveTo = function (t) {
+        flip(function () {
+            if (drag.mode === 'group') {
+                var own = nodesOf(drag.group);
+                var anchor = t.kind === 'end' ? null : (t.after ? t.nodes[t.nodes.length - 1].nextElementSibling : t.nodes[0]);
+                own.forEach(function (n) { container.insertBefore(n, anchor); });
                 return;
             }
-            var g = groupOf(el);
-            if (!g) { list.push({ key: el.getAttribute('data-row-key'), r: el.getBoundingClientRect(), side: false }); return; }
-            if (g.box === drag.group.box || seen.indexOf(g.box) >= 0) return;
-            seen.push(g.box);
-            list.push({ key: g.key, r: groupRect(g), side: false });
+            var item = drag.item;
+            var unit = unitOf(item);
+            var wrapper = hasClass(unit, 'variable-group-item') ? unit : null;
+            if (t.kind === 'unit' && hasClass(t.unit, 'variable-group-item')) {
+                if (!wrapper) {
+                    wrapper = drag.wrapper || document.createElement('div');
+                    wrapper.className = 'variable-group-item';
+                    wrapper.appendChild(item);
+                }
+                t.unit.parentElement.insertBefore(wrapper, t.after ? t.unit.nextElementSibling : t.unit);
+                return;
+            }
+            // oberste Ebene: aus der Hülle heraus (die leere Hülle bleibt für den Rückweg gemerkt)
+            if (wrapper) {
+                drag.wrapper = wrapper;
+                wrapper.remove();
+            }
+            var anchor2 = t.kind === 'end' ? null : (t.kind === 'beforeGroup' ? nodesOf(t.group)[0] : (t.after ? t.unit.nextElementSibling : t.unit));
+            container.insertBefore(item, anchor2);
         });
-        return list;
+        markGroups();
     };
-    var target = function (x, y) {
-        var best = null;
-        candidates().forEach(function (c) {
-            var r = c.r;
-            var dx = x < r.left ? r.left - x : (x > r.right ? x - r.right : 0);
-            var dy = y < r.top ? r.top - y : (y > r.bottom ? y - r.bottom : 0);
-            c.d = dx * dx + dy * dy;
-            if (!best || c.d < best.d) best = c;
-        });
-        if (!best) return null;
-        best.after = best.side ? x > best.r.left + best.r.width / 2 : y > best.r.top + best.r.height / 2;
-        return best;
-    };
+
     var sources = function () {
-        return drag.mode === 'row' ? [drag.item] : [drag.group.box, drag.group.above].filter(Boolean);
+        return drag.mode === 'row' ? [drag.item] : nodesOf(drag.group);
+    };
+
+    /** Alte Plätze merken (Elternteil und Nachfolger) und beim Abbrechen wiederherstellen: die Kachel zeichnet
+        bei unverändertem Stand nicht neu, die live verschobenen Elemente blieben sonst stehen. */
+    var remember = function () {
+        var nodes = drag.mode === 'row' ? [unitOf(drag.item), drag.item].filter(function (n, i, all) { return all.indexOf(n) === i; }) : nodesOf(drag.group);
+        drag.origin = nodes.map(function (n) { return [n, n.parentNode, n.nextSibling]; });
+    };
+    var restore = function () {
+        flip(function () {
+            var created = drag.wrapper && !drag.origin.some(function (o) { return o[0] === drag.wrapper; }) ? drag.wrapper : null;
+            if (!created && drag.mode === 'row' && hasClass(drag.item.parentElement, 'variable-group-item') && !drag.origin.some(function (o) { return o[0] === drag.item.parentElement; })) {
+                created = drag.item.parentElement;
+            }
+            drag.origin.slice().reverse().forEach(function (o) { o[1].insertBefore(o[0], o[2]); });
+            if (created && !created.contains(drag.item)) created.remove();
+        });
     };
     var finish = function () {
         document.documentElement.classList.remove('udte-dragging');
-        if (drag) sources().forEach(function (el) { el.classList.remove('udte-drag-source'); });
-        if (line) { line.remove(); line = null; }
+        document.removeEventListener('keydown', keydown, true);
         window.removeEventListener('pointermove', move, true);
         window.removeEventListener('pointerup', up, true);
         window.removeEventListener('pointercancel', cancel, true);
+        if (drag && drag.active) {
+            sources().forEach(function (el) { el.classList.remove('udte-drag-source', 'udte-drag-part'); });
+            Array.prototype.forEach.call(container.querySelectorAll('.udte-drop-group, .udte-empty-group'), function (el) { el.classList.remove('udte-drop-group', 'udte-empty-group'); });
+        }
         drag = null;
+    };
+    var start = function (e) {
+        drag.active = true;
+        // Fangen erst jetzt: beim Drücken gefangen, ginge jeder einfache Klick an <html> statt an die Zeile
+        try { document.documentElement.setPointerCapture(e.pointerId); } catch (_) { /* Loslassen außerhalb bricht ab */ }
+        drag.groupKeys = new Map();
+        Array.prototype.forEach.call(container.querySelectorAll('.variable-group'), function (box) {
+            var first = box.querySelector(ROW);
+            if (first) drag.groupKeys.set(box, parseInt(first.getAttribute('data-row-key'), 10));
+        });
+        drag.before = JSON.stringify(snapshot());
+        remember();
+        sources().forEach(function (el, i) { el.classList.add(drag.mode === 'row' || hasClass(el, 'variable-group') ? 'udte-drag-source' : 'udte-drag-part'); });
+        document.documentElement.classList.add('udte-dragging');
+        document.addEventListener('keydown', keydown, true);
+        clearSelection();
+        post({ udte: 'dragstart' });
     };
     var move = function (e) {
         if (!drag || e.pointerId !== drag.pointer) return;
         if (!drag.active) {
             if (Math.abs(e.clientX - drag.x) + Math.abs(e.clientY - drag.y) < 6) return;
-            drag.active = true;
-            // Fangen erst jetzt: beim Drücken gefangen, ginge jeder einfache Klick an <html> statt an die Zeile
-            try { document.documentElement.setPointerCapture(e.pointerId); } catch (_) { /* Loslassen außerhalb bricht ab */ }
-            sources().forEach(function (el) { el.classList.add('udte-drag-source'); });
-            document.documentElement.classList.add('udte-dragging');
-            clearSelection();
-            line = document.createElement('div');
-            line.id = 'udte-drop-line';
-            document.body.appendChild(line);
-            post({ udte: 'dragstart' });
+            start(e);
         }
         e.preventDefault();
-        var t = drag.target = target(e.clientX, e.clientY);
-        if (!t) { line.style.display = 'none'; return; }
-        if (t.side) {
-            var x = t.after ? t.r.right : t.r.left;
-            line.style.cssText = 'display:block;left:' + (x - 1.5) + 'px;top:' + t.r.top + 'px;width:3px;height:' + t.r.height + 'px';
-        } else {
-            var y = t.after ? t.r.bottom : t.r.top;
-            line.style.cssText = 'display:block;left:' + t.r.left + 'px;top:' + (y - 1.5) + 'px;width:' + t.r.width + 'px;height:3px';
-        }
+        var t = targetAt(e.clientX, e.clientY);
+        if (t && !placed(t)) moveTo(t);
     };
     var up = function (e) {
         if (!drag || e.pointerId !== drag.pointer) return;
         var d = drag;
-        finish();
-        if (!d.active) return;
+        if (!d.active) { finish(); return; }
         suppressClick = true;
         setTimeout(function () { suppressClick = false; }, 0);
-        post({ udte: 'dragend' });
-        if (!d.target) return;
-        if (d.mode === 'row') post({ udte: 'move', from: d.item.getAttribute('data-row-key'), to: d.target.key, after: d.target.after });
-        else post({ udte: 'moveGroup', key: d.group.key, to: d.target.key, after: d.target.after });
+        var after = snapshot();
+        var changed = JSON.stringify(after) !== d.before;
+        var focus = d.mode === 'row' ? parseInt(d.item.getAttribute('data-row-key'), 10) : parseInt(d.group.key, 10);
+        if (!changed) restore();
+        finish();
+        post(changed ? { udte: 'drop', mode: d.mode, rows: after, focus: focus } : { udte: 'dragcancel' });
     };
     var cancel = function (e) {
-        if (!drag || e.pointerId !== drag.pointer) return;
+        if (!drag || (e.pointerId !== undefined && e.pointerId !== drag.pointer)) return;
         var active = drag.active;
+        if (active) restore();
         finish();
-        if (active) post({ udte: 'dragend' });
+        if (active) post({ udte: 'dragcancel' });
+    };
+    var keydown = function (e) {
+        if (e.key === 'Escape' && drag && drag.active) {
+            e.preventDefault();
+            try { document.documentElement.releasePointerCapture(drag.pointer); } catch (_) { /* schon frei */ }
+            cancel({});
+        }
     };
     document.addEventListener('pointerdown', function (e) {
-        if (e.button !== 0 || drag || e.pointerType === 'touch' || !e.target.closest) return;
+        if (e.button !== 0 || drag || e.pointerType === 'touch' || !e.target.closest || !container) return;
         var t = e.target;
         var item = t.closest(ROW);
         var group = (t.closest(GROUP_NAME) || (item && e.shiftKey)) ? groupOf(t) : null;
         if (!group && (!item || t.closest(CONTROLS))) return;
-        drag = { mode: group ? 'group' : 'row', item: item, group: group, x: e.clientX, y: e.clientY, pointer: e.pointerId, active: false, target: null };
+        drag = { mode: group ? 'group' : 'row', item: item, group: group, x: e.clientX, y: e.clientY, pointer: e.pointerId, active: false };
         window.addEventListener('pointermove', move, true);
         window.addEventListener('pointerup', up, true);
         window.addEventListener('pointercancel', cancel, true);

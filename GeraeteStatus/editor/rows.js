@@ -103,6 +103,10 @@
                 remove),
             body);
         card.querySelector('.grip').addEventListener('pointerdown', e => startDrag(e, card));
+        // Klick auf den Kopf (nicht auf Feld oder Knopf) wählt die Gruppe, wie ein Klick auf ihren Namen in der Vorschau
+        card.querySelector('.group-head').addEventListener('click', e => {
+            if (!e.target.closest('input, button')) E.selectGroup(number);
+        });
         return card;
     };
 
@@ -252,6 +256,9 @@
     E.on('select', () => {
         if (!listEl) return;
         listEl.querySelectorAll('.row-item').forEach(item => item.classList.toggle('selected', parseInt(item.dataset.index, 10) === E.s.selected));
+        listEl.querySelectorAll('.group-card').forEach(card => card.classList.toggle('selected', parseInt(card.dataset.group, 10) === E.s.selectedGroup));
+        const card = E.s.selectedGroup && listEl.querySelector('.group-card[data-group="' + E.s.selectedGroup + '"]');
+        if (card) card.scrollIntoView({ block: 'nearest' });
         E.renderInspector(inspectorEl);
         if (E.s.selected !== null) {
             const item = listEl.querySelector('.row-item[data-index="' + E.s.selected + '"]');

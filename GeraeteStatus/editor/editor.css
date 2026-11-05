@@ -149,6 +149,7 @@ body.resizing iframe { pointer-events: none; }
 .grip { cursor: grab; color: var(--muted); padding: 4px 2px; touch-action: none; }
 .dragging { opacity: .55; outline: 2px dashed var(--accent); }
 .group-card { border: 1px solid var(--line); border-radius: 10px; background: var(--panel-2); padding: 6px; }
+.group-card.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
 .group-head { display: flex; align-items: center; gap: 3px; flex-wrap: wrap; margin-bottom: 6px; }
 .group-head .btn.icon { padding: 4px 5px; }
 .group-head .group-name { flex: 1; min-width: 70px; }

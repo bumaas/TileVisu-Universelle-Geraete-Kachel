@@ -79,35 +79,27 @@
         input.select();
     };
 
-    /** Zeile, die in der Kachel gezogen wurde, vor oder hinter die Zielzeile legen; sie übernimmt deren Gruppe. */
-    const moveRow = (from, to, after) => {
+    /** Reihenfolge aus der live sortierten Kachel übernehmen: rows = [{key, group}] in Kachel-Reihenfolge, group =
+        Schlüssel einer Zeile der Gruppe zu Beginn des Ziehens (null = ohne Gruppe). Zeilen, die die Kachel nicht
+        zeigt, bleiben hinter ihrem bisherigen Vorgänger. */
+    const applyOrder = (entries, focus, mode) => {
         const rows = E.rows();
-        const moving = rows[from];
-        const target = rows[to];
-        if (!moving || !target || moving === target) return;
+        const orig = rows.slice();
+        if (!Array.isArray(entries) || entries.some(e => !orig[e.key] || (e.group !== null && !orig[e.group]))) return;
+        const plan = entries.map(e => ({ row: orig[e.key], group: e.group === null ? 'keine Gruppe' : orig[e.group].Group }));
+        const result = plan.map(p => p.row);
+        orig.forEach((row, i) => {
+            if (result.includes(row)) return;
+            const prev = orig.slice(0, i).reverse().find(r => result.includes(r));
+            result.splice(prev ? result.indexOf(prev) + 1 : 0, 0, row);
+        });
+        const focused = orig[focus];
         E.change(() => {
-            rows.splice(from, 1);
-            moving.Group = target.Group;
-            rows.splice(rows.indexOf(target) + (after ? 1 : 0), 0, moving);
+            plan.forEach(p => { p.row.Group = p.group; });
+            rows.splice(0, rows.length, ...result);
         }, true);
-        E.select(rows.indexOf(moving));
-    };
-
-    /** Ganze Gruppe (key = eine ihrer Zeilen) vor oder hinter das Ziel legen; ist das Ziel selbst in einer
-        Gruppe, vor deren erste oder hinter deren letzte Zeile (die Kachel zeichnet eine Gruppe am Stück). */
-    const moveGroup = (key, to, after) => {
-        const rows = E.rows();
-        const number = rows[key] ? E.groupNumber(rows[key].Group) : 0;
-        const target = rows[to];
-        if (!number || !target || E.groupNumber(target.Group) === number) return;
-        const block = rows.filter(r => E.groupNumber(r.Group) === number);
-        const rest = rows.filter(r => E.groupNumber(r.Group) !== number);
-        const targetGroup = E.groupNumber(target.Group);
-        const members = targetGroup ? rest.filter(r => E.groupNumber(r.Group) === targetGroup) : [target];
-        const anchor = after ? members[members.length - 1] : members[0];
-        rest.splice(rest.indexOf(anchor) + (after ? 1 : 0), 0, ...block);
-        E.change(() => { rows.splice(0, rows.length, ...rest); }, true);
-        E.select(rows.indexOf(block[0]));
+        if (mode === 'group' && focused) E.selectGroup(E.groupNumber(focused.Group));
+        else E.select(rows.indexOf(focused));
     };
 
     const pickGroupIcon = key => {
@@ -140,10 +132,11 @@
     E.on('bridge', data => {
         const key = parseInt(data.key, 10);
         E.emit('tab', 'rows');
-        if (data.udte === 'move') {
-            moveRow(parseInt(data.from, 10), parseInt(data.to, 10), !!data.after);
-        } else if (data.udte === 'moveGroup') {
-            moveGroup(key, parseInt(data.to, 10), !!data.after);
+        if (data.udte === 'drop') {
+            applyOrder(data.rows, parseInt(data.focus, 10), data.mode);
+        } else if (data.udte === 'selectGroup') {
+            const row = E.rows()[key];
+            if (row && E.groupNumber(row.Group)) E.selectGroup(E.groupNumber(row.Group));
         } else if (data.udte === 'edit') {
             E.select(key);
             editLabel(key, Number(data.x), Number(data.y));
