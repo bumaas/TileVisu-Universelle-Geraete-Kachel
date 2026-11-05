@@ -4,6 +4,8 @@
   "config": {
     "BildPosition": "left",
     "BildBreite": 70,
+    "DefaultIcon": "window-frame",
+    "DefaultIconColor": 6333946,
     "ElementSpacing": 4,
     "VariablesList": [
       {

@@ -224,6 +224,22 @@
           "caption": "Default Image"
         },
         {
+          "type": "RowLayout",
+          "items": [
+            {
+              "type": "ValidationTextBox",
+              "name": "DefaultIcon",
+              "caption": "Default icon (Font Awesome name, without default image)"
+            },
+            {
+              "type": "SelectColor",
+              "name": "DefaultIconColor",
+              "caption": "Default icon color",
+              "allowTransparent": true
+            }
+          ]
+        },
+        {
           "type": "List",
           "name": "ProfilAssoziazionen",
           "caption": "Profile associations",

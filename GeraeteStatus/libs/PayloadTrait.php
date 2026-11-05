@@ -10,6 +10,9 @@ namespace UDT;
  */
 trait PayloadTrait
 {
+    /** Hat appendStatusPayload auf das Standard-Icon zurückgegriffen? (für dessen Farbe) */
+    private bool $defaultIconUsed = false;
+
     /**
      * Die Variablenliste mit festen Typen: Objekt-IDs als int, Texte als string. Ältere oder per Skript
      * gesetzte Listen tragen IDs auch als String oder Float, unter strict_types würde das werfen. Die
@@ -84,6 +87,7 @@ trait PayloadTrait
      */
     private function appendStatusPayload(array &$result): void
     {
+        $this->defaultIconUsed = false;
         // Status-Daten (werden immer oben angezeigt)
         $statusId = $this->SettingInteger('Status');
         // Neue Option: Statusbereich komplett ausblenden (Funktionalität bleibt erhalten)
@@ -122,8 +126,7 @@ trait PayloadTrait
             }
             
             // Hide image column only if ALL associations are "none" AND no default image is configured
-            $hasDefaultImage = $this->SettingInteger('DefaultImage') > 0 && IPS_MediaExists($this->SettingInteger('DefaultImage'));
-            $hideImageColumn = $allAssociationsNone && !$hasDefaultImage;
+            $hideImageColumn = $allAssociationsNone && !$this->hasDefaultImage();
             $result['hideImageColumn'] = $hideImageColumn;
             
             if (is_array($profilAssoziationen)) {
@@ -215,13 +218,19 @@ trait PayloadTrait
             // 1) Bildauswahl: Standard-Bild wenn vorhanden, sonst 'none'
             $result['statusBildauswahl'] = $this->getDefaultImageOrNone();
             // 2) Spaltenanzeige: Wenn KEIN DefaultImage vorhanden ist → gesamte Bildspalte ausblenden
-            $hasDefaultImage = $this->SettingInteger('DefaultImage') > 0 && IPS_MediaExists($this->SettingInteger('DefaultImage'));
-            $result['hideImageColumn'] = !$hasDefaultImage;
+            $result['hideImageColumn'] = !$this->hasDefaultImage();
         }
         
         // UNIVERSAL GUARANTEE: statusBildauswahl MUST ALWAYS be set
         if (!isset($result['statusBildauswahl'])) {
             $result['statusBildauswahl'] = 'none';
+        }
+        // Rückfall auf das Standard-Icon: dessen Farbe (-1 = Akzentfarbe der Kachel)
+        if ($this->defaultIconUsed && str_starts_with($result['statusBildauswahl'], 'symcon_icon_')) {
+            $color = $this->SettingInteger('DefaultIconColor');
+            $transparent = $color === -1 || $color === 16777215;
+            $result['statusIconColor'] = $transparent ? '' : '#' . sprintf('%06X', $color);
+            $result['isStatusIconColorTransparent'] = $transparent;
         }
         // Ensure statusAlignment is always present
         if (!isset($result['statusAlignment'])) {
@@ -295,6 +304,19 @@ trait PayloadTrait
         if ($defaultImageId > 0 && IPS_MediaExists($defaultImageId)) {
             return 'img_default_' . $defaultImageId;
         }
+        // Standard-Icon (Font-Awesome-Name) nur ohne Standard-Bild; die Farbe setzt appendStatusPayload am Ende
+        $icon = trim($this->SettingString('DefaultIcon'));
+        if ($icon !== '') {
+            $this->defaultIconUsed = true;
+            return 'symcon_icon_' . $icon;
+        }
         return 'none';
+    }
+
+    /** Gibt es einen Rückfall fürs Statusbild (Standard-Bild oder Standard-Icon)? Dann bleibt die Bildspalte. */
+    private function hasDefaultImage(): bool
+    {
+        $id = $this->SettingInteger('DefaultImage');
+        return ($id > 0 && IPS_MediaExists($id)) || trim($this->SettingString('DefaultIcon')) !== '';
     }
 }

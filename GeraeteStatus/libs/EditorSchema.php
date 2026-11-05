@@ -30,6 +30,8 @@ final class EditorSchema
         'StatusLabel' => ['string', self::MAX_TEXT],
         'StatusAlignment' => ['enum', self::ALIGN],
         'DefaultImage' => ['ref', 'image'],
+        'DefaultIcon' => ['icon'],
+        'DefaultIconColor' => ['color'],
         'ProgressBarHeight' => ['int', 10, 40],
         'ProgressBarBorderRadius' => ['int', 0, 20],
         'ProgressBarBackgroundColor' => ['color'],

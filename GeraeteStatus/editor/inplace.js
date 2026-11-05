@@ -116,7 +116,8 @@
         const assoc = Number.isInteger(index) ? (E.s.draft.ProfilAssoziazionen || [])[index] : null;
         E.emit('tab', 'status');
         if (!assoc) {
-            E.toast(E.t('No status association matches the value shown.'));
+            // ohne Zuordnung (z. B. noch keine Statusvariable): das Standard-Icon
+            E.pickIcon(E.s.draft.DefaultIcon || '', value => E.change(d => { d.DefaultIcon = value; }, true));
             return;
         }
         const current = assoc.Bildauswahl === 'symcon_icon' ? (assoc.SymconIcon || '') : '';

@@ -4,6 +4,8 @@
   "config": {
     "BildPosition": "top",
     "BildBreite": 90,
+    "DefaultIcon": "solar-panel",
+    "DefaultIconColor": 16096779,
     "ElementSpacing": 5,
     "VariablesList": [
       {

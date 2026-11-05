@@ -372,7 +372,11 @@
             "The icon of a row comes from the presentation of its variable.": "Das Icon einer Zeile kommt aus der Darstellung ihrer Variable.",
             "Without image": "Ohne Bild",
             "The tile has no image yet: select a default image, or keep it without image.": "Die Kachel hat noch kein Bild: Standardbild auswählen oder ohne Bild lassen.",
-            "Fit height to content": "Höhe an den Inhalt anpassen"
+            "Fit height to content": "Höhe an den Inhalt anpassen",
+            "Default icon": "Standard-Icon",
+            "Default icon color": "Farbe des Standard-Icons",
+            "The default icon is shown instead when there is no default image.": "Ohne Standard-Bild erscheint stattdessen das Standard-Icon.",
+            "Default icon (Font Awesome name, without default image)": "Standard-Icon (Font-Awesome-Name, ohne Standard-Bild)"
         },
         "en": {
             "Links": "Left",

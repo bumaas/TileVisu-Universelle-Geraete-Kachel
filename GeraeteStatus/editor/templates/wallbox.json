@@ -4,6 +4,8 @@
   "config": {
     "BildPosition": "left",
     "BildBreite": 110,
+    "DefaultIcon": "charging-station",
+    "DefaultIconColor": 2278750,
     "ElementSpacing": 6,
     "VariablesList": [
       {

@@ -83,6 +83,8 @@ class UniversalDeviceTile extends IPSModuleStrict
         $this->RegisterPropertyString('StatusLabel', '');
         $this->RegisterPropertyString('StatusAlignment', 'left');
         $this->RegisterPropertyInteger('DefaultImage', 0);
+        $this->RegisterPropertyString('DefaultIcon', '');       // greift ohne Standard-Bild
+        $this->RegisterPropertyInteger('DefaultIconColor', -1); // -1 = Akzentfarbe
 
         // Neue universelle Variablenliste für konfigurierbare Variablen
         $this->RegisterPropertyString('VariablesList', '[]');
