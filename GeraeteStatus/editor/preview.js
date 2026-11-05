@@ -122,6 +122,8 @@
         const frameBox = document.getElementById('tileFrame');
         frameBox.style.background = t.card;
         frameBox.style.color = t.content;
+        frameBox.style.setProperty('--tile-accent', t.accent); // Knöpfe über der Kachel in deren Farben
+        frameBox.style.setProperty('--tile-card', t.card);
         const d = doc();
         const style = d && d.getElementById('udte-theme');
         if (style) style.textContent = themeCss();

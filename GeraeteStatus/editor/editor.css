@@ -114,7 +114,7 @@ body.resizing { cursor: nwse-resize; user-select: none; }
 .image-placeholder-actions .btn { min-height: 24px; padding: 2px 10px; font-size: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, .35); }
 /* feste Farben: der Editor folgt dem System (hell/dunkel), die Vorschau ihrem eigenen Thema */
 .image-placeholder-actions .btn:not(.primary) { background: rgba(0, 0, 0, .65); color: #fff; border-color: rgba(255, 255, 255, .4); }
-.image-placeholder-actions .btn.primary { background: var(--accent); color: var(--accent-text); border: 0; }
+.image-placeholder-actions .btn.primary { background: var(--tile-accent, var(--accent)); color: var(--tile-card, var(--accent-text)); border: 0; }
 .image-handle:hover span, body.dragging-image .image-handle span { opacity: 1; }
 .drop-zones { position: absolute; z-index: 4; pointer-events: none; }
 .drop-zones > div {
