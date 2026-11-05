@@ -1,7 +1,9 @@
 /* Universal Device Tile – Editor: Icon-Auswahl. Namen und Zeichnungen kommen aus Symcons /icons.js: die
    Symcon-eigenen Icons (Kit), Font Awesome Light und die Marken. Die Kachel löst einen einfachen Namen in
    derselben Reihenfolge auf (Kit vor Light vor Marken), deshalb zählt je Name nur der erste Satz.
-   Gezeichnet wird als SVG aus den Pfaddaten, und nur so viel, wie im Raster gerade sichtbar wird. */
+   Deutsche Namen und Suchbegriffe stehen in iconterms.js (aus der Icon-Datenbank der Symcon-Konsole);
+   sie wird erst mit der ersten Icon-Auswahl geladen. Gezeichnet wird als SVG aus den Pfaddaten, und nur
+   so viel, wie im Raster gerade sichtbar wird. */
 (function (E) {
     'use strict';
     const h = E.h;
@@ -30,12 +32,34 @@
             Object.entries(styles[prefix] || {}).forEach(([name, def]) => {
                 if (seen.has(name) || !Array.isArray(def)) return;
                 const aliases = (Array.isArray(def[2]) ? def[2] : []).filter(a => typeof a === 'string');
-                seen.set(name, { name, prefix, def, aliases });
+                seen.set(name, { name, prefix, def, aliases, de: '', words: [] });
             });
         });
         index = { all: [...seen.values()], byName: seen };
         return index;
     };
+
+    /** Deutsche Begriffe nachladen (einmal): gleiche Adresse wie dieser Teil, nur f=iconterms.js. */
+    let termsLoaded = null;
+    const loadTerms = () => termsLoaded || (termsLoaded = new Promise(resolve => {
+        const own = document.querySelector('script[src*="f=iconpicker.js"]');
+        if (!own) { resolve(false); return; }
+        const script = document.createElement('script');
+        script.src = own.getAttribute('src').replace('f=iconpicker.js', 'f=iconterms.js');
+        script.onload = () => {
+            const terms = E.iconTerms || {};
+            getIndex().all.forEach(entry => {
+                const list = terms[entry.name];
+                if (Array.isArray(list) && list.length) {
+                    entry.de = String(list[0]);
+                    entry.words = list.map(w => String(w).toLowerCase());
+                }
+            });
+            resolve(true);
+        };
+        script.onerror = () => resolve(false);
+        document.head.appendChild(script);
+    }));
 
     /** Icon als SVG, wie die Kachel es auflöst; ohne Daten das gewohnte <i> (Light). */
     E.iconSvg = function (name) {
@@ -57,18 +81,24 @@
         return svg;
     };
 
-    /** Treffer nach Güte: genau (Name vor Alias), Anfang (Name vor Alias), Wortanfang im Namen, im Namen, im Alias. */
+    /** Treffer nach Güte: genau (Name, Alias, deutscher Name), Anfang (Name, dann Alias, deutscher Name oder
+        deutscher Begriff genau), Wortanfang im Namen, im Namen, irgendwo in Alias oder deutschen Begriffen. */
     const search = q => {
-        const needle = q.toLowerCase().trim().replace(/^fa-/, '').replace(/\s+/g, '-');
+        const text = q.toLowerCase().trim();
+        const needle = text.replace(/^fa-/, '').replace(/\s+/g, '-');
+        const parts = text.split(/[\s-]+/).filter(Boolean);
         const rank = entry => {
             const a = entry.aliases;
+            const w = entry.words; // deutscher Name zuerst, klein geschrieben
             if (entry.name === needle) return 0;
-            if (a.includes(needle)) return 1;
+            if (a.includes(needle) || w[0] === text) return 1;
             if (entry.name.startsWith(needle)) return 2;
-            if (a.some(x => x.startsWith(needle))) return 3;
+            if (a.some(x => x.startsWith(needle)) || (w.length && w[0].startsWith(text)) || w.includes(text)) return 3;
             if (entry.name.includes('-' + needle)) return 4;
             if (entry.name.includes(needle)) return 5;
-            return a.some(x => x.includes(needle)) ? 6 : -1;
+            if (a.some(x => x.includes(needle)) || w.some(x => x.includes(text))) return 6;
+            // Mehrere Wörter („Fenster gekippt“): jedes Wort muss irgendwo vorkommen
+            return parts.length > 1 && parts.every(p => entry.name.includes(p) || a.some(x => x.includes(p)) || w.some(x => x.includes(p))) ? 7 : -1;
         };
         return getIndex().all.map(e => [rank(e), e]).filter(([r]) => r >= 0)
             .sort((a, b) => a[0] - b[0] || a[1].name.localeCompare(b[1].name)).map(([, e]) => e);
@@ -78,7 +108,7 @@
     E.pickIcon = function (current, done) {
         const { all, byName } = getIndex();
         const dialog = h('dialog', { class: 'picker icon-picker' });
-        const input = h('input', { type: 'search', placeholder: E.t('Search icons (English names)'), autocomplete: 'off', spellcheck: 'false' });
+        const input = h('input', { type: 'search', placeholder: E.t('Search icons'), autocomplete: 'off', spellcheck: 'false' });
         const grid = h('div', { class: 'icon-results' });
         const count = h('span', { class: 'muted' });
         const close = () => { observer.disconnect(); dialog.close(); dialog.remove(); };
@@ -93,7 +123,8 @@
         dialog.addEventListener('cancel', e => { e.preventDefault(); close(); });
 
         const cell = entry => h('button', {
-            type: 'button', class: 'icon-cell' + (entry.name === current ? ' current' : ''), title: entry.name, 'data-name': entry.name,
+            type: 'button', class: 'icon-cell' + (entry.name === current ? ' current' : ''), 'data-name': entry.name,
+            title: entry.de && entry.de.toLowerCase() !== entry.name.replace(/-/g, ' ') ? entry.de + ' (' + entry.name + ')' : entry.name,
             onclick: () => choose(entry.name)
         }, E.iconSvg(entry.name), h('span', { text: entry.name }));
 
@@ -181,6 +212,8 @@
         document.body.appendChild(dialog);
         dialog.showModal();
         show();
+        // Kommen die deutschen Begriffe erst jetzt, gilt eine schon getippte Suche neu
+        loadTerms().then(ok => { if (ok && dialog.open && input.value.trim() !== '') show(); });
         input.focus();
         const mark = grid.querySelector('.icon-cell.current');
         if (mark) mark.scrollIntoView({ block: 'nearest' });

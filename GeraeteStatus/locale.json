@@ -352,7 +352,6 @@
             "Drag the image to the top, bottom, left or right edge. Click: status settings.": "Bild an den oberen, unteren, linken oder rechten Rand ziehen. Klick: Statuseinstellungen.",
             "Image position: %s": "Bildposition: %s",
             "Select icon": "Icon auswählen",
-            "Search icons (English names)": "Icons suchen (englische Namen)",
             "No icon": "Kein Icon",
             "The icon list is not available. Enter the Font Awesome name by hand.": "Die Icon-Liste ist nicht verfügbar. Den Font-Awesome-Namen bitte von Hand eintragen.",
             "Current": "Aktuell",
@@ -360,7 +359,8 @@
             "Suggestions": "Vorschläge",
             "All icons": "Alle Icons",
             "%d icons": "%d Icons",
-            "No icons found.": "Keine Icons gefunden."
+            "No icons found.": "Keine Icons gefunden.",
+            "Search icons": "Icons suchen (deutsch oder englisch)"
         },
         "en": {
             "Links": "Left",
