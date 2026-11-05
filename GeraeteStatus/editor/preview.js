@@ -49,7 +49,7 @@
             + '.udte-drag-source{opacity:.6;outline:2px dashed var(--accent-color);outline-offset:3px;border-radius:6px;box-shadow:0 8px 22px rgba(0,0,0,.35)}'
             + '.udte-drag-part{opacity:.6}.udte-empty-group{opacity:.3}'
             + '.udte-drop-group{outline:1.5px solid var(--accent-color);outline-offset:5px;border-radius:8px}'
-            + '#udte-group-outline{position:absolute;z-index:40;pointer-events:none;border:2px dashed var(--accent-color);border-radius:8px}'
+            + '#udte-group-outline{position:absolute;z-index:40;pointer-events:none;box-sizing:border-box;border:2px dashed var(--accent-color);border-radius:8px}'
             + '.group-name-label,.group-name-above,.variable-group,.group-line{cursor:grab}'
             + 'html.udte-dragging .udte-selected{outline:none}html.udte-dragging #udte-group-outline{display:none}'
             + '.udte-placeholder{border:1.5px dashed var(--udte-group-color,rgba(127,127,127,.6));border-radius:8px;padding:4px 8px;box-sizing:border-box;max-width:100%}'

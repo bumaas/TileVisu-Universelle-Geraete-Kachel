@@ -287,15 +287,18 @@
                 box.classList.add('udte-group-selected'); // Zeilen darin ohne eigenen Platzhalter-Rahmen
                 frameEl.id = 'udte-group-outline';
                 frameEl.style.borderColor = E.groupColor(E.s.selectedGroup); // Farbe der Gruppe wie in der Liste
+                // Abstand wie die Zeilenrahmen: Platzhalter tragen ihren Rahmen am Rand (0), echte Zeilen 3 px außen
+                // (wie die Auswahl); weiter außen läge der Rahmen auf denen der Nachbarzeilen
+                const gap = box.querySelector('.variable-item:not(.udte-placeholder)') ? 3 : 0;
                 const place = () => {
                     const rects = [box, above].filter(Boolean).map(el => el.getBoundingClientRect());
                     const win = d.defaultView;
-                    const top = Math.min(...rects.map(r => r.top)) + win.scrollY - 5;
-                    const left = Math.min(...rects.map(r => r.left)) + win.scrollX - 5;
+                    const top = Math.min(...rects.map(r => r.top)) + win.scrollY - gap;
+                    const left = Math.min(...rects.map(r => r.left)) + win.scrollX - gap;
                     Object.assign(frameEl.style, {
                         top: top + 'px', left: left + 'px',
-                        width: (Math.max(...rects.map(r => r.right)) + win.scrollX + 5 - left) + 'px',
-                        height: (Math.max(...rects.map(r => r.bottom)) + win.scrollY + 5 - top) + 'px'
+                        width: (Math.max(...rects.map(r => r.right)) + win.scrollX + gap - left) + 'px',
+                        height: (Math.max(...rects.map(r => r.bottom)) + win.scrollY + gap - top) + 'px'
                     });
                 };
                 place();
