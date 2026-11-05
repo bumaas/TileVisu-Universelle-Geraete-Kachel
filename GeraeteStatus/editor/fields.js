@@ -49,24 +49,20 @@
             return wrap(label, input);
         },
 
-        /** Icon: Vorschau und Knopf öffnen die Icon-Auswahl, der Name bleibt auch von Hand eintragbar. */
+        /** Icon: Vorschau, Name und Knopf öffnen die Icon-Auswahl (Suche nach Name, auch auf Deutsch). */
         icon(label, get, set) {
-            const input = h('input', { type: 'text', maxlength: '64', spellcheck: 'false', placeholder: E.t('Font Awesome name, e.g. bolt') });
             const preview = h('button', { type: 'button', class: 'btn icon icon-preview', title: E.t('Select icon') });
-            const show = () => preview.replaceChildren(E.iconSvg(get()));
-            const apply = value => {
-                value = value.trim().replace(/^fa-/, '');
-                if (!/^[A-Za-z0-9 _-]{0,64}$/.test(value)) return;
-                set(value);
-                show();
+            const name = h('span', { class: 'obj-name' });
+            const show = () => {
+                preview.replaceChildren(E.iconSvg(get()));
+                name.textContent = get() || E.t('No icon');
             };
-            const open = () => E.pickIcon(get(), name => { input.value = name; apply(name); });
+            const open = () => E.pickIcon(get(), value => { set(value); show(); });
             preview.addEventListener('click', open);
-            input.value = get() || '';
-            input.addEventListener('input', () => apply(input.value));
+            name.addEventListener('click', open);
             const choose = h('button', { type: 'button', class: 'btn small', onclick: open }, E.icon('icons'), ' ', E.t('Select'));
-            const control = h('span', { class: 'icon-input' }, preview, input, choose);
-            control.id = input.id = 'f' + (++uid);
+            const control = h('span', { class: 'icon-input' }, preview, name, choose);
+            control.id = preview.id = 'f' + (++uid);
             show();
             return wrap(label, control, 'icon-field');
         },

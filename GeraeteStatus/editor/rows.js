@@ -81,15 +81,10 @@
         const iconPreview = h('button', { type: 'button', class: 'group-icon', title: E.t('Select icon') }, group.Groupicon ? E.iconSvg(group.Groupicon) : E.icon('layer-group'));
         const name = h('input', { type: 'text', class: 'group-name', maxlength: '100', value: group.GroupName || '', 'aria-label': E.t('Group name') });
         name.addEventListener('input', () => E.change(() => { group.GroupName = name.value; }));
-        const icon = h('input', { type: 'text', class: 'group-iconname', maxlength: '64', value: group.Groupicon || '', placeholder: E.t('Icon'), title: E.t('Font Awesome name, e.g. bolt') });
-        const setIcon = raw => {
-            const value = raw.trim().replace(/^fa-/, '');
-            if (!/^[A-Za-z0-9 _-]{0,64}$/.test(value)) return;
+        iconPreview.addEventListener('click', () => E.pickIcon(group.Groupicon || '', value => {
             E.change(() => { group.Groupicon = value; });
             iconPreview.replaceChildren(value ? E.iconSvg(value) : E.icon('layer-group'));
-        };
-        icon.addEventListener('input', () => setIcon(icon.value));
-        iconPreview.addEventListener('click', () => E.pickIcon(group.Groupicon || '', value => { icon.value = value; setIcon(value); }));
+        }));
         const remove = h('button', { type: 'button', class: 'btn small icon', title: E.t('Dissolve group (rows stay)'), onclick: () => {
             E.change(d => { d.VariablesList.forEach(r => { if (E.groupNumber(r.Group) === number) r.Group = 'keine Gruppe'; }); }, true);
             E.s.extraGroups = E.s.extraGroups.filter(n => n !== number);
@@ -100,7 +95,7 @@
         const card = h('div', { class: 'group-card', 'data-group': String(number) },
             h('div', { class: 'group-head' },
                 h('span', { class: 'grip', title: E.t('Drag to move') }, E.icon('grip-dots-vertical')),
-                iconPreview, name, icon,
+                iconPreview, name,
                 toggle(group, 'ShowGroupName', 'tag', 'Show group name'),
                 toggle(group, 'ShowAbove', 'arrow-up-to-line', 'Name above the group'),
                 toggle(group, 'line', 'horizontal-rule', 'Line below the group'),

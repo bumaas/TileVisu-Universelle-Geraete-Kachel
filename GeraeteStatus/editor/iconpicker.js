@@ -153,7 +153,7 @@
             observer.disconnect();
             const q = input.value.trim();
             if (all.length === 0) {
-                grid.replaceChildren(h('p', { class: 'muted pad', text: E.t('The icon list is not available. Enter the Font Awesome name by hand.') }));
+                grid.replaceChildren(h('p', { class: 'muted pad', text: E.t('The icon list is not available. Type the Font Awesome name and press Enter.') }));
                 count.textContent = '';
                 return;
             }
@@ -184,7 +184,9 @@
             } else if (e.key === 'Enter') {
                 e.preventDefault();
                 const first = grid.querySelector('.icon-cell');
-                if (first && input.value.trim() !== '') first.click();
+                const typed = input.value.trim().replace(/^fa-/, '');
+                if (first && typed !== '') first.click();
+                else if (all.length === 0 && /^[A-Za-z0-9_-]{1,64}$/.test(typed)) choose(typed); // ohne Liste: Name von Hand
             }
         });
         // Pfeiltasten im Raster: links/rechts je ein Icon, hoch/runter eine Reihe (gleiche Spalte)

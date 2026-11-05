@@ -152,7 +152,6 @@ body.resizing iframe { pointer-events: none; }
 .group-head { display: flex; align-items: center; gap: 3px; flex-wrap: wrap; margin-bottom: 6px; }
 .group-head .btn.icon { padding: 4px 5px; }
 .group-head .group-name { flex: 1; min-width: 70px; }
-.group-head .group-iconname { width: 66px; }
 .group-head input { padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
 .group-icon { width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; color: var(--accent); background: none; border: 1px solid transparent; border-radius: 6px; cursor: pointer; padding: 0; }
 .group-icon:hover, .group-icon:focus-visible { border-color: var(--line); background: var(--panel-2); }
@@ -246,7 +245,7 @@ textarea.code { font: 12px/1.4 ui-monospace, Menlo, monospace; margin-top: 8px; 
 .icon-cell.current { border-color: var(--accent); color: var(--accent); }
 .icon-sentinel { grid-column: 1 / -1; height: 1px; }
 .icon-input { display: flex; align-items: center; gap: 6px; }
-.icon-input input { flex: 1; min-width: 0; border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 6px 8px; min-height: 32px; }
+.icon-input .obj-name { cursor: pointer; }
 .icon-preview { min-width: 32px; min-height: 32px; justify-content: center; font-size: 16px; }
 
 .toast {

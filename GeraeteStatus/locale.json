@@ -254,7 +254,6 @@
             "The associations could not be read.": "Die Zuordnungen ließen sich nicht lesen.",
             "The status variable has no associations in its presentation.": "Die Darstellung der Statusvariable hat keine Zuordnungen.",
             "Show this status in the preview": "Diesen Status in der Vorschau zeigen",
-            "Font Awesome name, e.g. bolt": "Font-Awesome-Name, z. B. bolt",
             "Read again from the presentation": "Aus der Darstellung neu einlesen",
             "Select a status variable with a presentation that has values (e.g. Off, Running, Done).": "Eine Statusvariable mit einer Darstellung wählen, die Werte hat (z. B. Aus, Läuft, Fertig).",
             "Background": "Hintergrund",
@@ -352,7 +351,6 @@
             "Image position: %s": "Bildposition: %s",
             "Select icon": "Icon auswählen",
             "No icon": "Kein Icon",
-            "The icon list is not available. Enter the Font Awesome name by hand.": "Die Icon-Liste ist nicht verfügbar. Den Font-Awesome-Namen bitte von Hand eintragen.",
             "Current": "Aktuell",
             "Symcon icons": "Symcon-Icons",
             "Suggestions": "Vorschläge",
@@ -367,7 +365,8 @@
             "Label removed: the tile shows the name of the variable.": "Beschriftung entfernt: Die Kachel zeigt den Namen der Variable.",
             "Label: %s": "Beschriftung: %s",
             "Click a row in the preview to edit it, double-click a label or group name to change it, drag a row to move it. Buttons and sliders do not switch anything in the preview.": "Zeile in der Vorschau anklicken zum Bearbeiten, Beschriftung oder Gruppennamen doppelklicken zum Ändern, Zeile ziehen zum Verschieben. Schalter und Regler schalten in der Vorschau nichts.",
-            "Group name: %s": "Gruppenname: %s"
+            "Group name: %s": "Gruppenname: %s",
+            "The icon list is not available. Type the Font Awesome name and press Enter.": "Die Icon-Liste ist nicht verfügbar. Den Font-Awesome-Namen eintippen und Enter drücken."
         },
         "en": {
             "Links": "Left",
