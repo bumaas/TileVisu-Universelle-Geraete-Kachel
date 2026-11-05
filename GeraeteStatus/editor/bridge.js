@@ -383,11 +383,12 @@
             cancel({});
         }
     };
-    // Tastenkürzel des Editors auch, wenn die Vorschau den Fokus hat (Rückgängig, Speichern …)
+    // Tastenkürzel des Editors auch, wenn die Vorschau den Fokus hat (Rückgängig, Speichern, Zeile wählen, verschieben, löschen …)
     document.addEventListener('keydown', function (e) {
         if (drag && drag.active) return;
         var mod = e.metaKey || e.ctrlKey;
-        if (!(mod && /^[zys]$/i.test(e.key))) return;
+        var rowKey = /^(Delete|Backspace|ArrowUp|ArrowDown|Escape)$/.test(e.key) || (mod && /^d$/i.test(e.key));
+        if (!(mod && /^[zys]$/i.test(e.key)) && !(rowKey && !(e.target.closest && e.target.closest(CONTROLS)))) return;
         e.preventDefault();
         post({ udte: 'key', key: e.key, mod: mod, shift: e.shiftKey, alt: e.altKey });
     });

@@ -200,7 +200,7 @@
  "Drag rows here",
  "No rows yet. Add one or start with a template.",
  "Row",
- "Tip: Alt + arrow keys move the focused row.",
+ "Keys: arrow keys select the previous or next row, Alt + arrow keys move it, Delete removes it, Ctrl/Cmd + D duplicates it, Escape ends the selection. This also works in the preview.",
  "Use template “%s”?",
  "Rows, groups and layout of the draft are replaced. The status variable stays; its associations get the images of the template. Then select the variables for the rows.",
  "Rows, groups and layout of the draft are replaced. The status variable stays; the template shows its icon instead of the images of the associations. Then select the variables for the rows.",

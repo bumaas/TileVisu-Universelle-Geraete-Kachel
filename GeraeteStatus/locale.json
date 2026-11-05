@@ -280,7 +280,7 @@
             "All 10 groups are in use.": "Alle 10 Gruppen sind belegt.",
             "Add row": "Zeile hinzufügen",
             "New group": "Neue Gruppe",
-            "Tip: Alt + arrow keys move the focused row.": "Tipp: Alt + Pfeiltasten verschieben die ausgewählte Zeile.",
+            "Keys: arrow keys select the previous or next row, Alt + arrow keys move it, Delete removes it, Ctrl/Cmd + D duplicates it, Escape ends the selection. This also works in the preview.": "Tasten: Pfeiltasten wählen die vorige oder nächste Zeile, Alt + Pfeiltasten verschieben sie, Entf löscht sie, Strg/Cmd + D dupliziert sie, Escape hebt die Auswahl auf. Das geht auch in der Vorschau.",
             "Use template “%s”?": "Vorlage „%s“ verwenden?",
             "Rows, groups and layout of the draft are replaced. The status variable and its associations stay. Then select the variables for the rows.": "Zeilen, Gruppen und Aufteilung des Entwurfs werden ersetzt. Statusvariable und Zuordnungen bleiben. Danach die Variablen der Zeilen auswählen.",
             "Use template": "Vorlage verwenden",

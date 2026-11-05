@@ -45,8 +45,9 @@
         E.change(() => { const [r] = rows.splice(index, 1); rows.splice(to, 0, r); }, true);
         E.select(to);
         const item = listEl.querySelector('.row-item[data-index="' + to + '"]');
-        if (item) item.focus();
+        if (item && !item.closest('[hidden]')) item.focus();
     };
+    E.moveRow = moveRow; // Alt + Pfeil auch in der Vorschau (keys.js)
 
     const rowItem = (row, index) => {
         const problem = E.rowProblem(row);
@@ -261,7 +262,7 @@
         const bar = h('div', { class: 'list-bar' }, menu,
             h('button', { type: 'button', class: 'btn small', onclick: E.newGroup }, E.icon('plus'), ' ', E.t('Group')),
             h('span', { class: 'grow' }),
-            E.f.info(E.t('Tip: Alt + arrow keys move the focused row.')));
+            E.f.info(E.t('Keys: arrow keys select the previous or next row, Alt + arrow keys move it, Delete removes it, Ctrl/Cmd + D duplicates it, Escape ends the selection. This also works in the preview.')));
         listEl = h('div', { class: 'rows-list', id: 'rowsList' });
         listView = h('div', { class: 'list-view' }, bar, listEl);
         inspectorEl = h('div', { class: 'inspector', id: 'rowInspector', hidden: true });

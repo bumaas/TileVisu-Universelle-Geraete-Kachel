@@ -17,7 +17,37 @@
             if (key === 'y') { E.redo(); return true; }
             if (key === 's') { E.saveDraft(); return true; }
         }
+        if (!rowContext(k)) return false;
+        const selected = E.s.selected;
+        if (k.mod && !k.alt && key === 'd' && selected !== null) { E.duplicateRow(selected); return true; }
+        if ((key === 'delete' || key === 'backspace') && !k.mod && selected !== null) { E.deleteRow(selected); return true; }
+        if (key === 'arrowup' || key === 'arrowdown') {
+            const delta = key === 'arrowup' ? -1 : 1;
+            if (k.alt && !k.mod) { if (selected !== null) E.moveRow(selected, delta); return true; }
+            if (!k.mod && !k.shift) { step(delta); return true; }
+        }
+        if (key === 'escape' && (selected !== null || E.s.selectedGroup)) { E.select(null); return true; }
         return false;
+    };
+
+    /** Zeilentasten nur, wo keine Eingabe den Fokus hat: in der Vorschau, auf der Seite selbst, in der Zeilenliste. */
+    const rowContext = k => {
+        if (k.fromPreview) return true;
+        const t = k.target;
+        if (!t || t === document.body || t === document.documentElement) return true;
+        return !!(t.closest && t.closest('.row-item') && !t.closest('input, textarea, select'));
+    };
+
+    /** Vorige/nächste Zeile in der Reihenfolge der Vorschau (Gruppen stehen dort, wo die Kachel sie zeichnet). */
+    const step = delta => {
+        const d = E.previewDoc && E.previewDoc();
+        let order = d ? [...d.querySelectorAll('.variable-item[data-row-key]')].map(el => parseInt(el.getAttribute('data-row-key'), 10)) : [];
+        if (!order.length) order = E.rows().map((_, i) => i);
+        if (!order.length) return;
+        let from = order.indexOf(E.s.selected);
+        if (from < 0 && E.s.selectedGroup) from = order.findIndex(i => E.groupNumber(E.rows()[i].Group) === E.s.selectedGroup) - (delta > 0 ? 1 : 0);
+        const at = from < 0 ? (delta > 0 ? 0 : order.length - 1) : Math.max(0, Math.min(order.length - 1, from + delta));
+        E.select(order[at]);
     };
 
     document.addEventListener('keydown', e => {
