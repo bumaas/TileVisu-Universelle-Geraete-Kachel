@@ -52,7 +52,7 @@
             + '.group-name-label,.group-name-above{cursor:grab}'
             + 'html.udte-dragging .udte-selected{outline:none}html.udte-dragging #udte-group-outline{display:none}'
             + '.udte-placeholder{border:1.5px dashed rgba(127,127,127,.6);border-radius:8px;padding:4px 8px;box-sizing:border-box;max-width:100%}'
-            + '#udte-status-placeholder>span:first-child{white-space:nowrap}html,body{overflow-x:clip}'
+            + '#udte-status-placeholder>span:first-child{white-space:nowrap}'
             + '.udte-placeholder{min-width:0}.udte-placeholder .variable-label{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'
             + '#div2:has(.udte-placeholder){min-width:0}#udte-status-placeholder{max-width:100%}#udte-status-placeholder>span:first-child{flex:none}'
             + '.udte-placeholder .variable-value{opacity:.6;font-style:italic;flex:0 100 auto!important;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'
@@ -274,6 +274,14 @@
         };
     };
 
+    /** Auswahl in den sichtbaren Teil der Kachel holen, nur senkrecht (scrollIntoView schob sie auch seitlich). */
+    const reveal = el => {
+        const win = frame().contentWindow;
+        const r = el.getBoundingClientRect();
+        if (r.top < 0) win.scrollBy(0, r.top - 8);
+        else if (r.bottom > win.innerHeight) win.scrollBy(0, Math.min(r.top - 8, r.bottom - win.innerHeight + 8));
+    };
+
     const highlight = () => {
         placeImageHandle();
         const d = doc();
@@ -300,14 +308,14 @@
                     height: (Math.max(...rects.map(r => r.bottom)) + win.scrollY + 5 - top) + 'px'
                 });
                 d.body.appendChild(frameEl);
-                box.scrollIntoView({ block: 'nearest' });
+                reveal(box);
             }
         }
         if (E.s.selected !== null) {
             const el = d.querySelector('.variable-item[data-row-key="' + E.s.selected + '"]');
             if (el) {
                 el.classList.add('udte-selected');
-                el.scrollIntoView({ block: 'nearest' });
+                reveal(el);
             }
         }
     };
