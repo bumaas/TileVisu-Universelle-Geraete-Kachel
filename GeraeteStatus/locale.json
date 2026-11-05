@@ -376,7 +376,8 @@
             "Default icon": "Standard-Icon",
             "Default icon color": "Farbe des Standard-Icons",
             "The default icon is shown instead when there is no default image.": "Ohne Standard-Bild erscheint stattdessen das Standard-Icon.",
-            "Default icon (Font Awesome name, without default image)": "Standard-Icon (Font-Awesome-Name, ohne Standard-Bild)"
+            "Default icon (Font Awesome name, without default image)": "Standard-Icon (Font-Awesome-Name, ohne Standard-Bild)",
+            "Status area hidden. “Discard” brings it back until you save.": "Statusbereich ausgeblendet. „Verwerfen“ holt ihn zurück, solange nicht gespeichert ist."
         },
         "en": {
             "Links": "Left",

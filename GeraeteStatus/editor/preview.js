@@ -55,12 +55,15 @@
             + '#udte-status-placeholder>span:first-child{white-space:nowrap}'
             + '.udte-placeholder{min-width:0}.udte-placeholder .variable-label{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'
             + '#div2:has(.udte-placeholder){min-width:0}#udte-status-placeholder{max-width:100%}#udte-status-placeholder>span:first-child{flex:none}'
-            + '.udte-placeholder .variable-value{opacity:.6;font-style:italic;flex:0 100 auto!important;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'
+            + '.udte-placeholder .variable-value{display:block!important;opacity:.6;font-style:italic;flex:0 100 auto!important;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'
             + '.variable-group-item:has(>.udte-placeholder){min-width:0;max-width:100%}'
             + '#udte-status-placeholder{display:flex;align-items:center;gap:8px;margin:4px 0 8px;font-weight:bold}'
             + '.udte-pick{margin-left:auto;padding:4px 11px;border-radius:6px;border:0;background:var(--accent-color);'
             + 'color:var(--card-color);font:inherit;font-size:12px;font-weight:600;cursor:pointer;flex:none}'
             + '.udte-pick:hover{filter:brightness(1.12)}'
+            + '.udte-remove{margin-left:6px;padding:4px 7px;border:0;border-radius:6px;background:rgba(127,127,127,.25);color:inherit;'
+            + 'cursor:pointer;flex:none;display:inline-flex;align-items:center}.udte-remove svg{width:13px;height:13px}'
+            + '.udte-remove:hover{background:#d6453d;color:#fff}'
             + 'html.udte-dragging,html.udte-dragging *{user-select:none!important;cursor:grabbing!important}';
     };
 
@@ -441,7 +444,7 @@
             holding = false;
             held = null; // der neue Stand kommt mit der Änderung, ein angehaltener zeigte die alte Reihenfolge
             E.emit('bridge', data);
-        } else if (['selectGroup', 'edit', 'editGroup', 'editGroupIcon', 'rowIcon', 'pick'].includes(data.udte)) {
+        } else if (['selectGroup', 'edit', 'editGroup', 'editGroupIcon', 'rowIcon', 'pick', 'remove'].includes(data.udte)) {
             E.emit('bridge', data); // Bearbeiten in der Vorschau: inplace.js
         } else if (data.udte === 'select') {
             E.select(parseInt(data.key, 10));

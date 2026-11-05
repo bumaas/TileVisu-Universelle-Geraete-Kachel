@@ -144,11 +144,23 @@
             b.textContent = E.t('Select');
             return b;
         };
+        // Mülleimer rechts daneben: Zeile entfernen, beim Status den Statusbereich ausblenden
+        const trash = (kind, key) => {
+            const b = d.createElement('button');
+            b.type = 'button';
+            b.className = 'udte-remove';
+            b.setAttribute('data-kind', kind);
+            b.setAttribute('data-key', String(key));
+            b.title = kind === 'status' ? E.t('Hide status variable') : E.t('Remove');
+            b.setAttribute('aria-label', b.title);
+            b.appendChild(E.iconSvg('trash-can'));
+            return b;
+        };
         (payload.variables || []).filter(v => v.editorPlaceholder).forEach(v => {
             const el = d.querySelector('.variable-item[data-row-key="' + v.key + '"]');
             if (!el || el.querySelector('.udte-pick')) return;
             el.classList.add('udte-placeholder');
-            el.appendChild(button(v.editorPlaceholder, v.key));
+            el.append(button(v.editorPlaceholder, v.key), trash(v.editorPlaceholder, v.key));
         });
         const list = d.getElementById('variables-container');
         let status = d.getElementById('udte-status-placeholder');
@@ -162,7 +174,7 @@
             const value = d.createElement('span');
             value.className = 'variable-value';
             value.textContent = E.t('No variable selected');
-            status.append(text, value, button('status', -1));
+            status.append(text, value, button('status', -1), trash('status', -1));
             list.parentElement.insertBefore(status, list);
         } else if (!needed && status) {
             status.remove();
@@ -266,6 +278,13 @@
             pickGroupIcon(key);
         } else if (data.udte === 'pick') {
             pickTarget(data.kind, key);
+        } else if (data.udte === 'remove') {
+            if (data.kind === 'status') {
+                E.change(d => { d.StatusHide = true; }, true);
+                E.toast(E.t('Status area hidden. “Discard” brings it back until you save.'));
+            } else if (E.rows()[key]) {
+                E.deleteRow(key);
+            }
         } else if (data.udte === 'rowIcon') {
             E.select(key);
             E.toast(E.t('The icon of a row comes from the presentation of its variable.'));

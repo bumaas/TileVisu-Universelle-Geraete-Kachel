@@ -71,6 +71,8 @@
         if (t.closest('#udte-add')) { post({ udte: 'add' }); return; }
         var pick = t.closest('.udte-pick'); // Platzhalter des Editors: Variable, Bild oder Statusvariable wählen
         if (pick) { post({ udte: 'pick', kind: pick.getAttribute('data-kind'), key: pick.getAttribute('data-key') }); return; }
+        var remove = t.closest('.udte-remove'); // Platzhalter entfernen: Zeile löschen bzw. Statusbereich ausblenden
+        if (remove) { post({ udte: 'remove', kind: remove.getAttribute('data-kind'), key: remove.getAttribute('data-key') }); return; }
         var item = t.closest(ROW);
         if (item) { post({ udte: 'select', key: item.getAttribute('data-row-key') }); return; }
         // Gruppenname oder leerer Bereich einer Gruppe (Kasten, Abstand zwischen den Zeilen, Linie darunter)
