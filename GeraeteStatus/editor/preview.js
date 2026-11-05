@@ -40,25 +40,25 @@
         return ':root{--accent-color:' + t.accent + ';--content-color:' + t.content + ';--card-color:' + t.card + '}'
             + 'html,body{background:var(--card-color)}body{font-size:14px!important;margin:12px 20px 15px 20px!important}'
             + 'html{-webkit-user-select:none;user-select:none}' // in der Vorschau nichts markieren (Klicks, Ziehen)
-            + '.udte-selected{outline:2.5px dashed var(--accent-color);outline-offset:3px;border-radius:6px}'
+            + '.udte-selected{outline:1.5px solid var(--accent-color);outline-offset:3px;border-radius:6px}'
             + '.variable-item{cursor:pointer}'
             + '#udte-add{display:flex;align-items:center;justify-content:center;width:100%;height:30px;margin:6px 0 0;padding:0;'
             + 'border:1.5px dashed currentColor;border-radius:8px;background:transparent;color:var(--content-color);opacity:.35;'
             + 'font:300 22px/1 sans-serif;cursor:pointer}'
             + '#udte-add:hover,#udte-add:focus-visible{opacity:1;color:var(--accent-color);outline:none}'
-            + '.udte-drag-source{opacity:.6;outline:2px dashed var(--accent-color);outline-offset:3px;border-radius:6px;box-shadow:0 8px 22px rgba(0,0,0,.35)}'
+            + '.udte-drag-source{opacity:.6;outline:1.5px solid var(--accent-color);outline-offset:3px;border-radius:6px;box-shadow:0 8px 22px rgba(0,0,0,.35)}'
             + '.udte-drag-part{opacity:.6}.udte-empty-group{opacity:.3}'
             + '.udte-drop-group{outline:1.5px solid var(--udte-group-color,var(--accent-color));outline-offset:3px;border-radius:8px}'
-            + '#udte-group-outline{position:absolute;z-index:40;pointer-events:none;box-sizing:border-box;border:2px dashed var(--accent-color);border-radius:8px}'
+            + '#udte-group-outline{position:absolute;z-index:40;pointer-events:none;box-sizing:border-box;border:1.5px solid var(--accent-color);border-radius:8px}'
             + '.group-name-label,.group-name-above,.variable-group,.group-line{cursor:grab}'
             + 'html.udte-dragging .udte-selected{outline:none}html.udte-dragging #udte-group-outline{display:none}'
             + '.udte-placeholder{border:1.5px dashed var(--udte-group-color,rgba(127,127,127,.6));border-radius:8px;padding:4px 8px;box-sizing:border-box;max-width:100%}'
-            // gewählt: nur ein Rahmen (dicker, Akzentfarbe) statt Gruppenrahmen plus Auswahl; in gewählter Gruppe ohne eigenen Rahmen
-            + 'html:not(.udte-dragging) .udte-placeholder.udte-selected{outline:none;border:2.5px dashed var(--accent-color);padding:3px 7px}'
+            // gewählt: nur ein Rahmen (durchgehend, Akzentfarbe) statt Gruppenrahmen plus Auswahl; in gewählter Gruppe ohne eigenen Rahmen
+            + 'html:not(.udte-dragging) .udte-placeholder.udte-selected{outline:none;border-style:solid;border-color:var(--accent-color)}'
             + '.udte-group-selected .udte-placeholder:not(.udte-selected){border-color:transparent}'
-            // beim Ziehen behalten Zeile und Gruppe die Farbe ihrer Gruppe (Rahmen der Gruppe wie bei der Auswahl am Rand)
-            + '.udte-placeholder.udte-drag-source{outline:none;border:2.5px dashed var(--udte-group-color,rgba(127,127,127,.6));padding:3px 7px}'
-            + '.variable-group.udte-drag-source{outline-color:var(--udte-group-color,var(--accent-color));outline-offset:-2px;border-radius:8px}'
+            // beim Ziehen: durchgehend in der Farbe der Gruppe (Rahmen der Gruppe wie bei der Auswahl am Rand)
+            + '.udte-placeholder.udte-drag-source{outline:none;border-style:solid}'
+            + '.variable-group.udte-drag-source{outline-color:var(--udte-group-color,var(--accent-color));outline-offset:-1.5px;border-radius:8px}'
             + '.variable-group.udte-drag-source .udte-placeholder{border-color:transparent}'
             + '#udte-status-placeholder>span:first-child{white-space:nowrap}'
             + '.udte-placeholder{min-width:0}.udte-placeholder .variable-label{display:block!important;flex:0 1 auto!important;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-right:8px!important}'

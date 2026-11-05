@@ -272,7 +272,7 @@
         E.pick(kind === 'image' ? 'image' : 'variable', row[field] | 0, id => E.change(() => { row[field] = id; }, true));
     };
 
-    /** Rahmen der gewählten Gruppe in der Vorschau (gestrichelt, in ihrer Farbe), um Name oben und Kasten; zieht mit,
+    /** Rahmen der gewählten Gruppe in der Vorschau (durchgehend, in ihrer Farbe), um Name oben und Kasten; zieht mit,
         wenn sich die Kachel danach noch verschiebt. preview.js ruft das nach jedem Stand und jeder Auswahl. */
     let groupOutlineObserver = null;
     E.drawGroupOutline = function (d) {
@@ -281,7 +281,7 @@
         d.querySelectorAll('.udte-group-selected').forEach(el => el.classList.remove('udte-group-selected'));
         if (groupOutlineObserver) { groupOutlineObserver.disconnect(); groupOutlineObserver = null; }
         if (E.s.selectedGroup) {
-            // Gruppe: gestrichelter Rahmen um Name (oben) und Kasten, im Fluss der Kachel (scrollt mit)
+            // Gruppe: Rahmen um Name (oben) und Kasten, im Fluss der Kachel (scrollt mit)
             const member = E.rows().findIndex(r => E.groupNumber(r.Group) === E.s.selectedGroup);
             const item = member >= 0 && d.querySelector('.variable-item[data-row-key="' + member + '"]');
             const box = item && item.closest('.variable-group');
