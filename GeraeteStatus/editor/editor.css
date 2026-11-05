@@ -239,6 +239,14 @@ details.sec .seg-full { margin-bottom: 10px; }
 .field input[type=text], .field input[type=number], .field select, .picker input[type=search], textarea.code {
     border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 6px 8px; min-height: 32px; width: 100%;
 }
+/* Einheitliche Feldhöhe; Auswahllisten ohne Systemstil (Safari beachtet sonst weder Höhe noch Polster), Pfeil als Grafik */
+.field input[type=text], .field input[type=number], .field select { min-height: 36px; }
+.field select {
+    -webkit-appearance: none; appearance: none; height: 36px; padding: 0 32px 0 10px; line-height: normal; cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%23888' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 11px center; background-size: 12px;
+}
+.field input[type=text], .field input[type=number] { padding: 6px 10px; }
 .with-suffix { display: flex; align-items: center; gap: 6px; }
 .with-suffix .suffix { color: var(--muted); font-size: 12px; }
 .color { display: flex; align-items: center; gap: 8px; }
@@ -246,7 +254,7 @@ details.sec .seg-full { margin-bottom: 10px; }
 .color input[type=color]:disabled { opacity: .35; }
 .color label { font-size: 13px; }
 .obj { display: flex; align-items: center; gap: 6px; }
-.obj-name { flex: 1; min-width: 0; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.obj-name { flex: 1; min-width: 0; min-height: 36px; line-height: 22px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .obj-name.missing { color: var(--danger); }
 .warn { background: var(--warn-bg); color: var(--warn-text); border-radius: 6px; padding: 8px 10px; margin: 8px 0; font-size: 13px; }
 .warn-box { background: var(--warn-bg); color: var(--warn-text); margin: 0 16px 12px; border-radius: 8px; padding: 8px 12px; font-size: 13px; }
@@ -308,6 +316,11 @@ textarea.code { font: 12px/1.4 ui-monospace, Menlo, monospace; margin-top: 8px; 
 .icon-sentinel { grid-column: 1 / -1; height: 1px; }
 .icon-input { display: flex; align-items: center; gap: 6px; }
 .icon-input .obj-name { cursor: pointer; }
+/* Knöpfe neben Feldern so hoch wie die Felder */
+.obj .btn.small, .icon-input .btn.small { min-height: 36px; }
+.field-row > .field.check { align-self: flex-end; height: 36px; margin-bottom: 10px; }
+.obj .btn.small.icon { min-width: 36px; justify-content: center; }
+.icon-input .icon-preview { min-width: 36px; min-height: 36px; }
 .icon-preview { min-width: 32px; min-height: 32px; justify-content: center; font-size: 16px; }
 
 .toast {
