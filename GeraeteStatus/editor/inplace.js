@@ -41,7 +41,14 @@
         const row = E.rows()[key];
         const number = row ? E.groupNumber(row.Group) : 0;
         const hit = d && d.elementFromPoint(x, y);
-        const anchor = hit && hit.closest && hit.closest('.group-name-label, .group-name-above');
+        let anchor = hit && hit.closest && hit.closest('.group-name-label, .group-name-above');
+        if (!anchor && d) {
+            // Rechtsklick in einen leeren Bereich: der Name der Gruppe, sonst ihr Kasten (Name ausgeblendet)
+            const item = d.querySelector('.variable-item[data-row-key="' + key + '"]');
+            const box = item && item.closest('.variable-group');
+            const above = box && box.previousElementSibling;
+            anchor = box && (box.querySelector('.group-name-label') || (above && above.classList.contains('group-name-above') ? above : box));
+        }
         if (!number || !anchor) return;
         const group = E.groups()[number - 1];
         inlineEdit(anchor.getBoundingClientRect(), {
@@ -259,42 +266,7 @@
         E.pick(kind === 'image' ? 'image' : 'variable', row[field] | 0, id => E.change(() => { row[field] = id; }, true));
     };
 
-    /** Kontextmenü einer Zeile (Rechtsklick in der Vorschau): Duplizieren, Löschen. */
-    const contextMenu = h('div', { class: 'menu-list add-menu', id: 'contextMenu', role: 'menu', hidden: true });
-    document.body.appendChild(contextMenu);
-    const closeContext = () => { contextMenu.hidden = true; };
-    const openContext = (key, x, y) => {
-        if (!E.rows()[key]) return;
-        E.select(key);
-        const item = (icon, caption, fn, cls) => h('button', { type: 'button', role: 'menuitem', class: cls || '', onclick: () => { closeContext(); fn(); } },
-            E.icon(icon), ' ', caption);
-        contextMenu.replaceChildren(h('div', { class: 'menu-title', text: E.rowTitle(E.rows()[key]) }),
-            item('copy', E.t('Duplicate'), () => E.duplicateRow(key)),
-            item('trash', E.t('Delete'), () => E.deleteRow(key), 'danger'));
-        contextMenu.hidden = false;
-        const f = E.previewFrame().getBoundingClientRect();
-        const w = contextMenu.offsetWidth;
-        const hgt = contextMenu.offsetHeight;
-        Object.assign(contextMenu.style, {
-            left: Math.min(f.left + x, window.innerWidth - w - 8) + 'px',
-            top: Math.min(f.top + y, window.innerHeight - hgt - 8) + 'px'
-        });
-        contextMenu.querySelector('button').focus();
-    };
-    contextMenu.addEventListener('keydown', e => {
-        const items = [...contextMenu.querySelectorAll('button')];
-        const at = items.indexOf(document.activeElement);
-        if (e.key === 'Escape') { e.preventDefault(); closeContext(); }
-        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-            e.preventDefault();
-            items[(at + (e.key === 'ArrowDown' ? 1 : items.length - 1)) % items.length].focus();
-        }
-    });
-    document.addEventListener('click', e => { if (!contextMenu.contains(e.target)) closeContext(); });
-    document.addEventListener('contextmenu', e => { if (!contextMenu.contains(e.target)) closeContext(); });
-    window.addEventListener('resize', closeContext);
-    // jede andere Meldung aus der Kachel (Klick, Scrollen über sie hinweg) schließt das Menü
-    window.addEventListener('message', e => { if (e.data && e.data.udte && e.data.udte !== 'context') closeContext(); });
+    E.inplace = { editLabel, editGroupName, pickGroupIcon }; // für das Kontextmenü (contextmenu.js)
 
     E.on('bridge', data => {
         const key = parseInt(data.key, 10);
@@ -311,8 +283,6 @@
             editGroupName(key, Number(data.x), Number(data.y));
         } else if (data.udte === 'editGroupIcon') {
             pickGroupIcon(key);
-        } else if (data.udte === 'context') {
-            openContext(key, Number(data.x), Number(data.y));
         } else if (data.udte === 'pick') {
             pickTarget(data.kind, key);
         } else if (data.udte === 'remove') {

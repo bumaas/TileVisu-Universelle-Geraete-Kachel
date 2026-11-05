@@ -103,10 +103,21 @@
 
     // Rechtsklick auf eine Zeile: Kontextmenü des Editors (Duplizieren, Löschen) statt des Browser-Menüs
     document.addEventListener('contextmenu', function (e) {
-        var item = e.target.closest && e.target.closest(ROW);
-        if (!item) return;
-        e.preventDefault();
-        post({ udte: 'context', key: item.getAttribute('data-row-key'), x: e.clientX, y: e.clientY });
+        var t = e.target;
+        if (!t.closest) return;
+        var item = t.closest(ROW);
+        if (item) {
+            e.preventDefault();
+            post({ udte: 'context', key: item.getAttribute('data-row-key'), x: e.clientX, y: e.clientY });
+            return;
+        }
+        // Gruppe: Name, leerer Bereich des Kastens oder Linie darunter
+        var line = t.closest('.group-line');
+        var g = (t.closest(GROUP_NAME) || t.closest('.variable-group') || line) && groupOf(line ? line.previousElementSibling : t);
+        if (g) {
+            e.preventDefault();
+            post({ udte: 'contextGroup', key: g.key, x: e.clientX, y: e.clientY });
+        }
     }, true);
 
     // ---------------------------------------------------------------- Live-Sortieren
