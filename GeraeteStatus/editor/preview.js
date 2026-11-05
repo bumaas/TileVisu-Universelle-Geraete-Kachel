@@ -295,36 +295,13 @@
         else if (r.bottom > win.innerHeight) win.scrollBy(0, Math.min(r.top - 8, r.bottom - win.innerHeight + 8));
     };
 
+    E.previewReveal = el => reveal(el);
     const highlight = () => {
         placeImageHandle();
         const d = doc();
         if (!d) return;
         d.querySelectorAll('.udte-selected').forEach(el => el.classList.remove('udte-selected'));
-        const outline = d.getElementById('udte-group-outline');
-        if (outline) outline.remove();
-        if (E.s.selectedGroup) {
-            // Gruppe: gestrichelter Rahmen um Name (oben) und Kasten, im Fluss der Kachel (scrollt mit)
-            const member = E.rows().findIndex(r => E.groupNumber(r.Group) === E.s.selectedGroup);
-            const item = member >= 0 && d.querySelector('.variable-item[data-row-key="' + member + '"]');
-            const box = item && item.closest('.variable-group');
-            if (box) {
-                const above = box.previousElementSibling && box.previousElementSibling.classList.contains('group-name-above') ? box.previousElementSibling : null;
-                const rects = [box, above].filter(Boolean).map(el => el.getBoundingClientRect());
-                const win = d.defaultView;
-                const top = Math.min(...rects.map(r => r.top)) + win.scrollY - 5;
-                const left = Math.min(...rects.map(r => r.left)) + win.scrollX - 5;
-                const frameEl = d.createElement('div');
-                frameEl.id = 'udte-group-outline';
-                frameEl.style.borderColor = E.groupColor(E.s.selectedGroup); // Farbe der Gruppe wie in der Liste
-                Object.assign(frameEl.style, {
-                    top: top + 'px', left: left + 'px',
-                    width: (Math.max(...rects.map(r => r.right)) + win.scrollX + 5 - left) + 'px',
-                    height: (Math.max(...rects.map(r => r.bottom)) + win.scrollY + 5 - top) + 'px'
-                });
-                d.body.appendChild(frameEl);
-                reveal(box);
-            }
-        }
+        if (E.drawGroupOutline) E.drawGroupOutline(d); // Rahmen der gewählten Gruppe (inplace.js)
         if (E.s.selected !== null) {
             const el = d.querySelector('.variable-item[data-row-key="' + E.s.selected + '"]');
             if (el) {
@@ -343,7 +320,7 @@
         const win = frame().contentWindow;
         if (!ready || !win || typeof win.handleMessage !== 'function') return;
         win.handleMessage(E.previewTransform ? E.previewTransform(E.clone(payload)) : E.clone(payload));
-        setTimeout(() => { highlight(); E.emit('pushed', payload); }, 60); // inplace.js: Platzhalter
+        setTimeout(() => { E.emit('pushed', payload); highlight(); }, 60); // erst die Platzhalter (inplace.js), dann die Auswahl
     };
     E.repaint = () => { if (E.s.payload) push(E.s.payload); };
 

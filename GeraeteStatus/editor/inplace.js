@@ -268,6 +268,45 @@
         E.pick(kind === 'image' ? 'image' : 'variable', row[field] | 0, id => E.change(() => { row[field] = id; }, true));
     };
 
+    /** Rahmen der gewählten Gruppe in der Vorschau (gestrichelt, in ihrer Farbe), um Name oben und Kasten; zieht mit,
+        wenn sich die Kachel danach noch verschiebt. preview.js ruft das nach jedem Stand und jeder Auswahl. */
+    let groupOutlineObserver = null;
+    E.drawGroupOutline = function (d) {
+        const outline = d.getElementById('udte-group-outline');
+        if (outline) outline.remove();
+        if (groupOutlineObserver) { groupOutlineObserver.disconnect(); groupOutlineObserver = null; }
+        if (E.s.selectedGroup) {
+            // Gruppe: gestrichelter Rahmen um Name (oben) und Kasten, im Fluss der Kachel (scrollt mit)
+            const member = E.rows().findIndex(r => E.groupNumber(r.Group) === E.s.selectedGroup);
+            const item = member >= 0 && d.querySelector('.variable-item[data-row-key="' + member + '"]');
+            const box = item && item.closest('.variable-group');
+            if (box) {
+                const above = box.previousElementSibling && box.previousElementSibling.classList.contains('group-name-above') ? box.previousElementSibling : null;
+                const frameEl = d.createElement('div');
+                frameEl.id = 'udte-group-outline';
+                frameEl.style.borderColor = E.groupColor(E.s.selectedGroup); // Farbe der Gruppe wie in der Liste
+                const place = () => {
+                    const rects = [box, above].filter(Boolean).map(el => el.getBoundingClientRect());
+                    const win = d.defaultView;
+                    const top = Math.min(...rects.map(r => r.top)) + win.scrollY - 5;
+                    const left = Math.min(...rects.map(r => r.left)) + win.scrollX - 5;
+                    Object.assign(frameEl.style, {
+                        top: top + 'px', left: left + 'px',
+                        width: (Math.max(...rects.map(r => r.right)) + win.scrollX + 5 - left) + 'px',
+                        height: (Math.max(...rects.map(r => r.bottom)) + win.scrollY + 5 - top) + 'px'
+                    });
+                };
+                place();
+                d.body.appendChild(frameEl);
+                // Rahmen zieht mit, wenn sich die Kachel danach noch verschiebt (Platzhalter, Bilder, Schrift)
+                groupOutlineObserver = new ResizeObserver(() => { if (frameEl.isConnected) place(); });
+                groupOutlineObserver.observe(d.body);
+                groupOutlineObserver.observe(box);
+                E.previewReveal(box);
+            }
+        }
+    };
+
     E.inplace = { editLabel, editGroupName, pickGroupIcon }; // für das Kontextmenü (contextmenu.js)
 
     E.on('bridge', data => {
