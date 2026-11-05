@@ -112,6 +112,16 @@ input, textarea, select, [contenteditable] { -webkit-user-select: text; user-sel
     display: flex; flex-direction: column; min-width: 180px; min-height: 160px; max-width: 100%; flex: none;
 }
 .tile-frame.maximized { width: 100%; height: 100%; min-height: 480px; }
+/* Kachel und darunter der Schalter „Rahmen anzeigen“ */
+.tile-column { display: flex; flex-direction: column; align-items: center; gap: 12px; max-width: 100%; }
+.tile-column:has(> .tile-frame.maximized) { width: 100%; height: 100%; align-items: stretch; }
+.tile-column > .tile-frame.maximized { height: auto; flex: 1; }
+.frames-toggle { display: inline-flex; align-items: center; align-self: center; gap: 8px; font-size: 13px; color: var(--muted); cursor: pointer; user-select: none; }
+.frames-toggle input { appearance: none; -webkit-appearance: none; width: 30px; height: 18px; margin: 0; border-radius: 9px; background: var(--line); position: relative; cursor: pointer; transition: background .15s; }
+.frames-toggle input::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: transform .15s; }
+.frames-toggle input:checked { background: var(--accent); }
+.frames-toggle input:checked::after { transform: translateX(12px); }
+.frames-toggle input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .tile-frame.maximized .resize-grip { display: none; }
 .resize-grip {
     position: absolute; right: 0; bottom: 0; width: 30px; height: 30px; cursor: nwse-resize; touch-action: none; z-index: 3;
@@ -365,5 +375,6 @@ textarea.code { font: 12px/1.4 ui-monospace, Menlo, monospace; margin-top: 8px; 
     .tab-body { overflow: visible; }
     .topbar .actions { width: 100%; }
     .tile-frame { width: 100% !important; max-width: 520px; }
+    .tile-column { width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

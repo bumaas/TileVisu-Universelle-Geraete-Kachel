@@ -163,9 +163,8 @@
             b.appendChild(E.iconSvg('trash-can'));
             return b;
         };
-        // Zeilen in einer Gruppe tragen in der Vorschau den Rahmen ihrer Gruppe wie die Platzhalter (sonst sieht man
-        // einer Zeile mit Variable nicht an, wohin sie gehört)
-        d.querySelectorAll('.variable-group .variable-item[data-row-key]').forEach(el => el.classList.add('udte-framed'));
+        // Jede Zeile trägt in der Vorschau einen grauen Rahmen wie die Platzhalter; Gruppen ihren farbigen (drawGroupOutline)
+        d.querySelectorAll('.variable-item[data-row-key]').forEach(el => el.classList.add('udte-framed'));
         // Kasten jeder Gruppe trägt ihre Farbe; Platzhalter darin erben sie (auch beim Ziehen in eine andere Gruppe)
         (payload.variables || []).forEach(v => {
             const item = E.groupNumber(v.group) && d.querySelector('.variable-item[data-row-key="' + v.key + '"]');
@@ -275,49 +274,69 @@
         E.pick(kind === 'image' ? 'image' : 'variable', row[field] | 0, id => { E.change(() => { row[field] = id; }, true); if (kind !== 'image') E.suggestType(row); });
     };
 
-    /** Rahmen der gewählten Gruppe in der Vorschau (durchgehend, in ihrer Farbe), um Name oben und Kasten; zieht mit,
-        wenn sich die Kachel danach noch verschiebt. preview.js ruft das nach jedem Stand und jeder Auswahl. */
+    /** Rahmen jeder Gruppe in der Vorschau, gestrichelt in ihrer Farbe (die gewählte durchgehend), um Name oben und
+        Kasten; ziehen mit, wenn sich die Kachel danach noch verschiebt. preview.js ruft das nach jedem Stand und jeder
+        Auswahl. 2,5 px außerhalb des Kastens: innen bleiben die Zeilenrahmen frei, außen die der Nachbarzeilen. */
     let groupOutlineObserver = null;
     E.drawGroupOutline = function (d) {
-        const outline = d.getElementById('udte-group-outline');
-        if (outline) outline.remove();
+        d.querySelectorAll('.udte-group-frame').forEach(el => el.remove());
         d.querySelectorAll('.udte-group-selected').forEach(el => el.classList.remove('udte-group-selected'));
         if (groupOutlineObserver) { groupOutlineObserver.disconnect(); groupOutlineObserver = null; }
-        if (E.s.selectedGroup) {
-            // Gruppe: Rahmen um Name (oben) und Kasten, im Fluss der Kachel (scrollt mit)
-            const member = E.rows().findIndex(r => E.groupNumber(r.Group) === E.s.selectedGroup);
-            const item = member >= 0 && d.querySelector('.variable-item[data-row-key="' + member + '"]');
+        const frames = [];
+        const seen = new Set();
+        E.rows().forEach((row, index) => {
+            const n = E.groupNumber(row.Group);
+            if (!n || seen.has(n)) return;
+            const item = d.querySelector('.variable-item[data-row-key="' + index + '"]');
             const box = item && item.closest('.variable-group');
-            if (box) {
-                const above = box.previousElementSibling && box.previousElementSibling.classList.contains('group-name-above') ? box.previousElementSibling : null;
-                const frameEl = d.createElement('div');
-                box.classList.add('udte-group-selected'); // Zeilen darin ohne eigenen Platzhalter-Rahmen
-                frameEl.id = 'udte-group-outline';
-                frameEl.style.borderColor = E.groupColor(E.s.selectedGroup); // Farbe der Gruppe wie in der Liste
-                // Abstand wie die Zeilenrahmen: Platzhalter tragen ihren Rahmen am Rand (0), echte Zeilen 3 px außen
-                // (wie die Auswahl); weiter außen läge der Rahmen auf denen der Nachbarzeilen
-                const gap = box.querySelector('.variable-item:not(.udte-placeholder):not(.udte-framed)') ? 3 : 0;
-                const place = () => {
-                    const rects = [box, above].filter(Boolean).map(el => el.getBoundingClientRect());
-                    const win = d.defaultView;
-                    const top = Math.min(...rects.map(r => r.top)) + win.scrollY - gap;
-                    const left = Math.min(...rects.map(r => r.left)) + win.scrollX - gap;
-                    Object.assign(frameEl.style, {
-                        top: top + 'px', left: left + 'px',
-                        width: (Math.max(...rects.map(r => r.right)) + win.scrollX + gap - left) + 'px',
-                        height: (Math.max(...rects.map(r => r.bottom)) + win.scrollY + gap - top) + 'px'
-                    });
-                };
-                place();
-                d.body.appendChild(frameEl);
-                // Rahmen zieht mit, wenn sich die Kachel danach noch verschiebt (Platzhalter, Bilder, Schrift)
-                groupOutlineObserver = new ResizeObserver(() => { if (frameEl.isConnected) place(); });
-                groupOutlineObserver.observe(d.body);
-                groupOutlineObserver.observe(box);
-                E.previewReveal(box);
-            }
+            if (!box) return;
+            seen.add(n);
+            const above = box.previousElementSibling && box.previousElementSibling.classList.contains('group-name-above') ? box.previousElementSibling : null;
+            const frame = d.createElement('div');
+            frame.className = 'udte-group-frame' + (n === E.s.selectedGroup ? ' selected' : '');
+            frame.style.borderColor = E.groupColor(n); // Farbe der Gruppe wie in der Liste
+            if (n === E.s.selectedGroup) box.classList.add('udte-group-selected'); // Zeilen darin ohne eigenen Rahmen
+            d.body.appendChild(frame);
+            frames.push({ frame, box, above, selected: n === E.s.selectedGroup });
+        });
+        const GAP = 2.5;
+        const place = () => frames.forEach(({ frame, box, above }) => {
+            if (!frame.isConnected) return;
+            const rects = [box, above].filter(Boolean).map(el => el.getBoundingClientRect());
+            const win = d.defaultView;
+            const top = Math.min(...rects.map(r => r.top)) + win.scrollY - GAP;
+            const left = Math.min(...rects.map(r => r.left)) + win.scrollX - GAP;
+            Object.assign(frame.style, {
+                top: top + 'px', left: left + 'px',
+                width: (Math.max(...rects.map(r => r.right)) + win.scrollX + GAP - left) + 'px',
+                height: (Math.max(...rects.map(r => r.bottom)) + win.scrollY + GAP - top) + 'px'
+            });
+        });
+        place();
+        if (frames.length) {
+            groupOutlineObserver = new ResizeObserver(place);
+            groupOutlineObserver.observe(d.body);
+            frames.forEach(f => groupOutlineObserver.observe(f.box));
         }
+        const chosen = frames.find(f => f.selected);
+        if (chosen) E.previewReveal(chosen.box);
     };
+
+    // Schalter unter der Vorschau: Rahmen von Zeilen und Gruppen ausblenden (die Auswahl bleibt sichtbar); je Browser gemerkt
+    const framesSwitch = document.getElementById('showFrames');
+    let showFrames = true;
+    try { showFrames = localStorage.getItem('udte-frames') !== '0'; } catch (_) { /* ohne Speicher */ }
+    framesSwitch.checked = showFrames;
+    const applyFrames = () => {
+        const d = E.previewDoc();
+        if (d && d.documentElement) d.documentElement.classList.toggle('udte-no-frames', !showFrames);
+    };
+    framesSwitch.addEventListener('change', () => {
+        showFrames = framesSwitch.checked;
+        try { localStorage.setItem('udte-frames', showFrames ? '1' : '0'); } catch (_) { /* nur bis zum Neuladen */ }
+        applyFrames();
+    });
+    E.on('pushed', applyFrames);
 
     E.inplace = { editLabel, editGroupName, pickGroupIcon }; // für das Kontextmenü (contextmenu.js)
 

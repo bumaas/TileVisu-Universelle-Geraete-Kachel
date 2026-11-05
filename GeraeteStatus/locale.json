@@ -476,7 +476,8 @@
             "Target temperature": "Solltemperatur",
             "Temperatures": "Temperaturen",
             "Valve opening": "Ventilöffnung",
-            "Vehicle": "Fahrzeug"
+            "Vehicle": "Fahrzeug",
+            "Show frames": "Rahmen anzeigen"
         },
         "en": {
             "Links": "Left",
