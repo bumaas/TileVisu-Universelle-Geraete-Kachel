@@ -40,7 +40,7 @@
         return ':root{--accent-color:' + t.accent + ';--content-color:' + t.content + ';--card-color:' + t.card + '}'
             + 'html,body{background:var(--card-color)}body{font-size:14px!important;margin:12px 20px 15px 20px!important}'
             + 'html{-webkit-user-select:none;user-select:none}' // in der Vorschau nichts markieren (Klicks, Ziehen)
-            + '.udte-selected{outline:2px dashed var(--accent-color);outline-offset:3px;border-radius:6px}'
+            + '.udte-selected{outline:2.5px dashed var(--accent-color);outline-offset:3px;border-radius:6px}'
             + '.variable-item{cursor:pointer}'
             + '#udte-add{display:flex;align-items:center;justify-content:center;width:100%;height:30px;margin:6px 0 0;padding:0;'
             + 'border:1.5px dashed currentColor;border-radius:8px;background:transparent;color:var(--content-color);opacity:.35;'
@@ -53,6 +53,9 @@
             + '.group-name-label,.group-name-above,.variable-group,.group-line{cursor:grab}'
             + 'html.udte-dragging .udte-selected{outline:none}html.udte-dragging #udte-group-outline{display:none}'
             + '.udte-placeholder{border:1.5px dashed var(--udte-group-color,rgba(127,127,127,.6));border-radius:8px;padding:4px 8px;box-sizing:border-box;max-width:100%}'
+            // gewählt: nur ein Rahmen (dicker, Akzentfarbe) statt Gruppenrahmen plus Auswahl; in gewählter Gruppe ohne eigenen Rahmen
+            + '.udte-placeholder.udte-selected,.udte-placeholder.udte-drag-source{outline:none;border:2.5px dashed var(--accent-color);padding:3px 7px}'
+            + '.udte-group-selected .udte-placeholder:not(.udte-selected){border-color:transparent}'
             + '#udte-status-placeholder>span:first-child{white-space:nowrap}'
             + '.udte-placeholder{min-width:0}.udte-placeholder .variable-label{display:block!important;flex:0 1 auto!important;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-right:8px!important}'
             + '#div2:has(.udte-placeholder){min-width:0}#udte-status-placeholder{max-width:100%}'

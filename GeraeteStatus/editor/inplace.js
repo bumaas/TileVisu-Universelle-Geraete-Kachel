@@ -274,6 +274,7 @@
     E.drawGroupOutline = function (d) {
         const outline = d.getElementById('udte-group-outline');
         if (outline) outline.remove();
+        d.querySelectorAll('.udte-group-selected').forEach(el => el.classList.remove('udte-group-selected'));
         if (groupOutlineObserver) { groupOutlineObserver.disconnect(); groupOutlineObserver = null; }
         if (E.s.selectedGroup) {
             // Gruppe: gestrichelter Rahmen um Name (oben) und Kasten, im Fluss der Kachel (scrollt mit)
@@ -283,6 +284,7 @@
             if (box) {
                 const above = box.previousElementSibling && box.previousElementSibling.classList.contains('group-name-above') ? box.previousElementSibling : null;
                 const frameEl = d.createElement('div');
+                box.classList.add('udte-group-selected'); // Zeilen darin ohne eigenen Platzhalter-Rahmen
                 frameEl.id = 'udte-group-outline';
                 frameEl.style.borderColor = E.groupColor(E.s.selectedGroup); // Farbe der Gruppe wie in der Liste
                 const place = () => {
