@@ -100,7 +100,17 @@
             width: 100% !important;
         }
         .variable-group-item .slider-track {
-            min-width: 60px; /* bleibt bedienbar, wenn die Gruppe eng wird (dann bricht die Zeile um) */
+            flex: 1 1 60px; /* Spur zählt zur Inhaltsbreite (Umbruch statt Überlauf), wird nur bei Platzmangel kürzer */
+            min-width: 24px;
+        }
+        /* Regler allein in einer schmalen Zeile: die Beschriftung kürzt mit „…“, bevor er aus der Kachel läuft */
+        .variable-group-item .slider-container .variable-label {
+            display: block;
+            flex: 0 1 auto;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         
         /* AUSNAHME: Progress-Bar-Container brauchen volle Breite */

@@ -237,8 +237,9 @@
                                 ? Number(groupVar.imageWidth)
                                 : null;
                             const isProgressLike = (groupVar.displayType === 'progress' || groupVar.displayType === 'slider');
-                            // Regler nie schmaler als Beschriftung, Knöpfe, Wert und eine kurze Spur: sonst läuft er über die Nachbarn
-                            const growStyle = isProgressLike ? ('flex: 1 1 0; min-width: ' + (groupVar.displayType === 'slider' ? 'min-content' : '0') + ';') : '';
+                            // Regler starten mit ihrer Inhaltsbreite (auto): passt die nicht mehr in die Zeile, bricht er um, statt über
+                            // die Nachbarn zu laufen; allein in einer Zeile darf er bis auf die Kachelbreite schrumpfen
+                            const growStyle = isProgressLike ? ('flex: 1 1 ' + (groupVar.displayType === 'slider' ? 'auto' : '0') + '; min-width: 0;') : '';
                             const widthStyle = (widthPercent !== null)
                                 ? ('flex: 0 0 ' + widthPercent + '%; max-width: ' + widthPercent + '%; min-width: ' + widthPercent + '%; box-sizing: border-box;')
                                 : '';
