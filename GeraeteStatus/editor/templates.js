@@ -41,13 +41,18 @@
         E.dialog(E.tf('Use template “%s”?', template.caption),
             Array.isArray(template.config.ProfilAssoziazionen)
                 ? E.t('Rows, groups and layout of the draft are replaced. The status variable stays; its associations get the images of the template. Then select the variables for the rows.')
-                : E.t('Rows, groups and layout of the draft are replaced. The status variable and its associations stay. Then select the variables for the rows.'),
+                : E.t('Rows, groups and layout of the draft are replaced. The status variable stays; the template shows its icon instead of the images of the associations. Then select the variables for the rows.'),
             [[E.t('Cancel'), () => true], [E.t('Use template'), () => {
                 const config = E.clone(template.config);
                 // Bilder der Vorlage auf vorhandene Zuordnungen übertragen, statt diese zu ersetzen
                 const current = E.s.draft.ProfilAssoziazionen || [];
-                if (Array.isArray(config.ProfilAssoziazionen) && (E.s.draft.Status | 0) > 0 && current.length) {
-                    config.ProfilAssoziazionen = E.mergeAssociations(current, config.ProfilAssoziazionen);
+                const hasStatus = (E.s.draft.Status | 0) > 0;
+                if (Array.isArray(config.ProfilAssoziazionen)) {
+                    if (hasStatus && current.length) config.ProfilAssoziazionen = E.mergeAssociations(current, config.ProfilAssoziazionen);
+                } else {
+                    // Vorlage ohne eigene Zuordnungen: ihr Icon zeigt das Gerät. Bilder einer früheren Vorlage (etwa
+                    // Waschmaschine) gehen weg; ohne Statusvariable stammen die Zuordnungen nur aus Vorlagen.
+                    config.ProfilAssoziazionen = hasStatus ? current.map(a => Object.assign({}, a, { Bildauswahl: 'none', SymconIcon: '', EigenesBild: 0 })) : [];
                 }
                 config.VariablesList = (config.VariablesList || []).map(row => Object.assign(E.clone(E.s.rowDefaults), row));
                 E.applyConfig(config, false);

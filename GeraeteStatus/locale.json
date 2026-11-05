@@ -407,7 +407,8 @@
             "Delete template": "Vorlage löschen",
             "Enter a name (at most 60 characters).": "Einen Namen eingeben (höchstens 60 Zeichen).",
             "A tile can hold at most 50 templates.": "Eine Kachel kann höchstens 50 Vorlagen speichern.",
-            "The templates of this tile are too large.": "Die Vorlagen dieser Kachel sind zu groß."
+            "The templates of this tile are too large.": "Die Vorlagen dieser Kachel sind zu groß.",
+            "Rows, groups and layout of the draft are replaced. The status variable stays; the template shows its icon instead of the images of the associations. Then select the variables for the rows.": "Zeilen, Gruppen und Aufteilung des Entwurfs werden ersetzt. Die Statusvariable bleibt; statt der Bilder der Zuordnungen zeigt die Vorlage ihr Icon. Danach die Variablen der Zeilen wählen."
         },
         "en": {
             "Links": "Left",
