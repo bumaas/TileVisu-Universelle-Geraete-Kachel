@@ -52,8 +52,10 @@
             + '.group-name-label,.group-name-above{cursor:grab}'
             + 'html.udte-dragging .udte-selected{outline:none}html.udte-dragging #udte-group-outline{display:none}'
             + '.udte-placeholder{border:1.5px dashed rgba(127,127,127,.6);border-radius:8px;padding:4px 8px;box-sizing:border-box;max-width:100%}'
-            + '#udte-status-placeholder>span:first-child{white-space:nowrap}'
-            + '.udte-placeholder .variable-value{opacity:.6;font-style:italic;flex:0 1 auto!important;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'
+            + '#udte-status-placeholder>span:first-child{white-space:nowrap}html,body{overflow-x:clip}'
+            + '.udte-placeholder{min-width:0}.udte-placeholder .variable-label{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'
+            + '#div2:has(.udte-placeholder){min-width:0}#udte-status-placeholder{max-width:100%}#udte-status-placeholder>span:first-child{flex:none}'
+            + '.udte-placeholder .variable-value{opacity:.6;font-style:italic;flex:0 100 auto!important;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'
             + '.variable-group-item:has(>.udte-placeholder){min-width:0;max-width:100%}'
             + '#udte-status-placeholder{display:flex;align-items:center;gap:8px;margin:4px 0 8px;font-weight:bold}'
             + '.udte-pick{margin-left:auto;padding:3px 10px;border-radius:6px;border:1px solid var(--accent-color);background:transparent;'
@@ -213,6 +215,7 @@
         const r = image.getBoundingClientRect();
         Object.assign(handle.style, { left: (f.offsetLeft + r.left) + 'px', top: (f.offsetTop + r.top) + 'px', width: r.width + 'px', height: r.height + 'px' });
         handle.hidden = false;
+        E.emit('handlePlaced');
     };
 
     /** Statusbild an eine Kante ziehen: die nächste Kante der Kachel wird BildPosition. */
@@ -315,9 +318,10 @@
         if (holding) { held = payload; return; }
         const win = frame().contentWindow;
         if (!ready || !win || typeof win.handleMessage !== 'function') return;
-        win.handleMessage(E.clone(payload));
+        win.handleMessage(E.previewTransform ? E.previewTransform(E.clone(payload)) : E.clone(payload));
         setTimeout(() => { highlight(); E.emit('pushed', payload); }, 60); // inplace.js: Platzhalter
     };
+    E.repaint = () => { if (E.s.payload) push(E.s.payload); };
 
     /** Vorschau-Stand holen; während einer Anfrage wird höchstens eine weitere vorgemerkt. */
     E.refreshPreview = async function () {

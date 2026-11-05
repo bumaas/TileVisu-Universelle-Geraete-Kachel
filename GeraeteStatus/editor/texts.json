@@ -51,6 +51,8 @@
  "Status “%s”: %s",
  "Status variable",
  "No variable selected",
+ "Without image",
+ "The tile has no image yet: select a default image, or keep it without image.",
  "The icon of a row comes from the presentation of its variable.",
  "Image without media",
  "Missing object #%d",

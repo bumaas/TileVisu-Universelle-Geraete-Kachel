@@ -108,6 +108,10 @@ body.resizing { cursor: nwse-resize; user-select: none; }
     justify-content: center; background: rgba(0, 0, 0, .55); color: #fff; font-size: 13px; opacity: 0; transition: opacity .15s;
 }
 .image-handle:hover { outline: 2px dashed var(--accent); outline-offset: -2px; }
+.image-handle.placeholder { outline: 2px dashed rgba(127, 127, 127, .6); outline-offset: -2px; }
+.image-placeholder-actions { display: none; position: absolute; left: 0; right: 0; top: 8px; flex-direction: column; align-items: center; gap: 4px; cursor: default; }
+.image-handle.placeholder .image-placeholder-actions { display: flex; }
+.image-placeholder-actions .btn { min-height: 24px; padding: 2px 8px; font-size: 12px; }
 .image-handle:hover span, body.dragging-image .image-handle span { opacity: 1; }
 .drop-zones { position: absolute; z-index: 4; pointer-events: none; }
 .drop-zones > div {

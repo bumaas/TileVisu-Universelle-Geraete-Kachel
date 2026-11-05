@@ -169,6 +169,40 @@
     };
     E.on('pushed', decorate);
 
+    /** Statusbild-Platzhalter: blendet die Kachel die Bildspalte aus (kein Bild, kein Standardbild), zeigt die
+        Vorschau dort ein Foto-Icon. „Auswählen“ setzt das Standardbild, „Ohne Bild“ lässt die Spalte weg. */
+    let noImagePlaceholder = false;
+    const handle = document.getElementById('imageHandle');
+    const actions = h('div', { class: 'image-placeholder-actions' },
+        h('button', { type: 'button', class: 'btn small primary', onclick: () => {
+            E.emit('tab', 'status');
+            E.pick('image', E.s.draft.DefaultImage | 0, id => E.change(d => { d.DefaultImage = id; }, true));
+        } }, E.icon('image'), ' ', E.t('Select')),
+        h('button', { type: 'button', class: 'btn small', onclick: () => { noImagePlaceholder = true; E.repaint(); } }, E.t('Without image')));
+    actions.addEventListener('pointerdown', e => e.stopPropagation()); // kein Ziehen des Bildes
+    actions.addEventListener('dblclick', e => e.stopPropagation());
+    handle.appendChild(actions);
+    // Knöpfe unter das Foto-Icon (die Bildspalte kann über den sichtbaren Teil der Kachel hinausreichen)
+    const placeActions = () => {
+        const d = E.previewDoc();
+        const column = d && d.getElementById('div1');
+        const icon = d && d.querySelector('#div1 .fontawesome-icon-container');
+        if (!handle.classList.contains('placeholder') || !column || !icon) return;
+        const top = icon.getBoundingClientRect().bottom - column.getBoundingClientRect().top + 6;
+        actions.style.top = Math.max(0, Math.min(top, column.offsetHeight - actions.offsetHeight - 4)) + 'px';
+    };
+    E.on('handlePlaced', placeActions);
+    E.on('pushed', placeActions);
+    E.previewTransform = payload => {
+        const placeholder = !!payload.hideImageColumn && !noImagePlaceholder;
+        handle.classList.toggle('placeholder', placeholder);
+        handle.title = placeholder ? E.t('The tile has no image yet: select a default image, or keep it without image.') : E.t(handle.getAttribute('data-t-title'));
+        if (placeholder) {
+            Object.assign(payload, { hideImageColumn: false, statusBildauswahl: 'symcon_icon_image', statusIconColor: 'rgba(127,127,127,.55)', isStatusIconColorTransparent: false });
+        }
+        return payload;
+    };
+
     /** „Auswählen“ am Platzhalter: Objektauswahl für die Zeile (Variable oder Bild) oder die Statusvariable. */
     const pickTarget = (kind, key) => {
         if (kind === 'status') {

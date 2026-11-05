@@ -369,7 +369,9 @@
             "Drag the image to the top, bottom, left or right edge. Click: status settings. Double-click: icon for the status shown.": "Bild an den oberen, unteren, linken oder rechten Rand ziehen. Klick: Statuseinstellungen. Doppelklick: Icon für den gezeigten Status.",
             "No status association matches the value shown.": "Keine Status-Zuordnung passt zum gezeigten Wert.",
             "Status “%s”: %s": "Status „%s“: %s",
-            "The icon of a row comes from the presentation of its variable.": "Das Icon einer Zeile kommt aus der Darstellung ihrer Variable."
+            "The icon of a row comes from the presentation of its variable.": "Das Icon einer Zeile kommt aus der Darstellung ihrer Variable.",
+            "Without image": "Ohne Bild",
+            "The tile has no image yet: select a default image, or keep it without image.": "Die Kachel hat noch kein Bild: Standardbild auswählen oder ohne Bild lassen."
         },
         "en": {
             "Links": "Left",
