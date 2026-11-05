@@ -170,11 +170,9 @@
             status.id = 'udte-status-placeholder';
             status.className = 'udte-placeholder';
             const text = d.createElement('span');
-            text.textContent = E.t('Status variable') + ': ';
-            const value = d.createElement('span');
-            value.className = 'variable-value';
-            value.textContent = E.t('No variable selected');
-            status.append(text, value, button('status', -1), trash('status', -1));
+            text.className = 'variable-label';
+            text.textContent = E.t('Status variable');
+            status.append(text, button('status', -1), trash('status', -1));
             list.parentElement.insertBefore(status, list);
         } else if (!needed && status) {
             status.remove();

@@ -87,11 +87,8 @@ trait PayloadVariablesTrait
         $captions = ['text' => 'Text', 'progress' => 'Progress Bar', 'slider' => 'Slider', 'button' => 'Button', 'image' => 'Image'];
         $icons = ['text' => 'font', 'progress' => 'bars-progress', 'slider' => 'sliders-simple', 'button' => 'hand-pointer', 'image' => 'image'];
         $label = trim((string)($variable['Label'] ?? ''));
-        if ($type === 'image') {
-            $value = 'Image without media';
-        } else {
-            $value = intval($variable['Variable'] ?? 0) > 0 ? 'The variable no longer exists.' : 'No variable selected';
-        }
+        // Nur ein Fehler bekommt einen Hinweis (Variable gelöscht); „noch nichts gewählt“ zeigt der Knopf „Auswählen“
+        $value = $type !== 'image' && intval($variable['Variable'] ?? 0) > 0 ? $this->Translate('The variable no longer exists.') : '';
         return [
             'id' => 'placeholder',
             'label' => $label !== '' ? $label : $this->Translate($captions[$type] ?? 'Text'),
@@ -100,12 +97,12 @@ trait PayloadVariablesTrait
             'group' => $variable['Group'] ?? 'keine Gruppe',
             'showIcon' => true,
             'showLabel' => true,
-            'showValue' => true,
+            'showValue' => $value !== '',
             'fontSize' => $variable['FontSize'] ?? 12,
             'textColor' => '#000000',
             'isTextColorTransparent' => true,
             'alignment' => 'left',
-            'formattedValue' => $this->Translate($value),
+            'formattedValue' => $value,
             'rawValue' => '',
             'icon' => $icons[$type] ?? 'font',
             'showBorderLine' => false,

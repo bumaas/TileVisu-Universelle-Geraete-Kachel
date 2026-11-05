@@ -26,6 +26,9 @@ body {
     display: flex; flex-direction: column;
 }
 button, input, select, textarea { font: inherit; color: inherit; }
+/* Mit der Maus nichts markieren (Klicken, Ziehen); Eingaben bleiben markierbar */
+body { -webkit-user-select: none; user-select: none; }
+input, textarea, select, [contenteditable] { -webkit-user-select: text; user-select: text; }
 :focus-visible { outline: none; box-shadow: var(--focus); }
 [hidden] { display: none !important; }
 

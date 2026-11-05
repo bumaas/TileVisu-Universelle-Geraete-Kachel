@@ -39,6 +39,7 @@
         const t = THEMES[theme] || THEMES.dark;
         return ':root{--accent-color:' + t.accent + ';--content-color:' + t.content + ';--card-color:' + t.card + '}'
             + 'html,body{background:var(--card-color)}body{font-size:14px!important;margin:12px 20px 15px 20px!important}'
+            + 'html{-webkit-user-select:none;user-select:none}' // in der Vorschau nichts markieren (Klicks, Ziehen)
             + '.udte-selected{outline:2px dashed var(--accent-color);outline-offset:3px;border-radius:6px}'
             + '.variable-item{cursor:pointer}'
             + '#udte-add{display:flex;align-items:center;justify-content:center;width:100%;height:30px;margin:6px 0 0;padding:0;'
@@ -53,7 +54,7 @@
             + 'html.udte-dragging .udte-selected{outline:none}html.udte-dragging #udte-group-outline{display:none}'
             + '.udte-placeholder{border:1.5px dashed rgba(127,127,127,.6);border-radius:8px;padding:4px 8px;box-sizing:border-box;max-width:100%}'
             + '#udte-status-placeholder>span:first-child{white-space:nowrap}'
-            + '.udte-placeholder{min-width:0}.udte-placeholder .variable-label{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'
+            + '.udte-placeholder{min-width:0}.udte-placeholder .variable-label{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-right:8px!important}'
             + '#div2:has(.udte-placeholder){min-width:0}#udte-status-placeholder{max-width:100%}#udte-status-placeholder>span:first-child{flex:none}'
             + '.udte-placeholder .variable-value{display:block!important;opacity:.6;font-style:italic;flex:0 100 auto!important;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:.2em!important;margin-right:8px!important}'
             + '.variable-group-item:has(>.udte-placeholder){min-width:0;max-width:100%}'
