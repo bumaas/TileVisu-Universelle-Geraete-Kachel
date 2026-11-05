@@ -47,6 +47,7 @@
             + '#udte-add:hover,#udte-add:focus-visible{opacity:1;color:var(--accent-color);outline:none}'
             + '#udte-drop-line{position:fixed;z-index:50;background:var(--accent-color);border-radius:2px;pointer-events:none}'
             + '.udte-drag-source{opacity:.35}'
+            + '.group-name-label,.group-name-above{cursor:grab}'
             + 'html.udte-dragging,html.udte-dragging *{user-select:none!important;cursor:grabbing!important}';
     };
 
@@ -216,6 +217,7 @@
             return Object.keys(d).reduce((a, b) => (d[a] <= d[b] ? a : b));
         };
         const mark = edge => zones.querySelectorAll('[data-edge]').forEach(z => z.classList.toggle('active', z.dataset.edge === edge));
+        handle.addEventListener('dblclick', e => { e.preventDefault(); E.pickStatusIcon(); });
         handle.addEventListener('pointerdown', e => {
             if (e.button !== 0) return;
             e.preventDefault();
@@ -383,7 +385,7 @@
         } else if (data.udte === 'dragend') {
             holding = false;
             if (held) { const payload = held; held = null; push(payload); }
-        } else if (data.udte === 'move' || data.udte === 'edit' || data.udte === 'editGroup') {
+        } else if (['move', 'moveGroup', 'edit', 'editGroup', 'editGroupIcon', 'rowIcon'].includes(data.udte)) {
             E.emit('bridge', data); // Bearbeiten in der Vorschau: inplace.js
         } else if (data.udte === 'select') {
             E.select(parseInt(data.key, 10));

@@ -129,6 +129,10 @@ trait PayloadTrait
             if (is_array($profilAssoziationen)) {
                 $currentValue = $this->CurrentValue($statusId);
                 $assoziation = $this->FindMatchingAssociation($profilAssoziationen, $currentValue);
+                if ($assoziation !== null && $this->IsPreview()) {
+                    // nur für den Editor: welche Zuordnung die Vorschau gerade zeigt (Doppelklick aufs Statusbild)
+                    $result['editorAssociation'] = array_search($assoziation, $profilAssoziationen, true);
+                }
                 if ($assoziation !== null) {
                         // Neue erweiterte Bildauswahl-Logik
                         $bildauswahl = $assoziation['Bildauswahl'] ?? 'wm_aus';

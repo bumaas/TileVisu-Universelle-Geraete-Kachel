@@ -347,7 +347,6 @@
             "Drag to resize the tile. Arrow keys: 10 px, with Shift 50 px. Double-click: 2×2.": "Ziehen ändert die Kachelgröße. Pfeiltasten: 10 px, mit Umschalt 50 px. Doppelklick: 2×2.",
             "Access expired": "Zugang abgelaufen",
             "Unsaved changes are kept in this page: export them and import them in the newly opened editor.": "Ungespeicherte Änderungen bleiben in dieser Seite erhalten: exportieren und im neu geöffneten Editor importieren.",
-            "Drag the image to the top, bottom, left or right edge. Click: status settings.": "Bild an den oberen, unteren, linken oder rechten Rand ziehen. Klick: Statuseinstellungen.",
             "Image position: %s": "Bildposition: %s",
             "Select icon": "Icon auswählen",
             "No icon": "Kein Icon",
@@ -364,9 +363,13 @@
             "All objects": "Alle Objekte",
             "Label removed: the tile shows the name of the variable.": "Beschriftung entfernt: Die Kachel zeigt den Namen der Variable.",
             "Label: %s": "Beschriftung: %s",
-            "Click a row in the preview to edit it, double-click a label or group name to change it, drag a row to move it. Buttons and sliders do not switch anything in the preview.": "Zeile in der Vorschau anklicken zum Bearbeiten, Beschriftung oder Gruppennamen doppelklicken zum Ändern, Zeile ziehen zum Verschieben. Schalter und Regler schalten in der Vorschau nichts.",
             "Group name: %s": "Gruppenname: %s",
-            "The icon list is not available. Type the Font Awesome name and press Enter.": "Die Icon-Liste ist nicht verfügbar. Den Font-Awesome-Namen eintippen und Enter drücken."
+            "The icon list is not available. Type the Font Awesome name and press Enter.": "Die Icon-Liste ist nicht verfügbar. Den Font-Awesome-Namen eintippen und Enter drücken.",
+            "Click: edit · Double-click: change text or icon · Drag: move a row; at the group name or with Shift the whole group. Buttons and sliders do not switch anything in the preview.": "Klick: bearbeiten · Doppelklick: Text oder Icon ändern · Ziehen: Zeile verschieben, am Gruppennamen oder mit Umschalt die ganze Gruppe. Schalter und Regler schalten in der Vorschau nichts.",
+            "Drag the image to the top, bottom, left or right edge. Click: status settings. Double-click: icon for the status shown.": "Bild an den oberen, unteren, linken oder rechten Rand ziehen. Klick: Statuseinstellungen. Doppelklick: Icon für den gezeigten Status.",
+            "No status association matches the value shown.": "Keine Status-Zuordnung passt zum gezeigten Wert.",
+            "Status “%s”: %s": "Status „%s“: %s",
+            "The icon of a row comes from the presentation of its variable.": "Das Icon einer Zeile kommt aus der Darstellung ihrer Variable."
         },
         "en": {
             "Links": "Left",

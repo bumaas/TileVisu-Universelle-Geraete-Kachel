@@ -93,16 +93,67 @@
         E.select(rows.indexOf(moving));
     };
 
+    /** Ganze Gruppe (key = eine ihrer Zeilen) vor oder hinter das Ziel legen; ist das Ziel selbst in einer
+        Gruppe, vor deren erste oder hinter deren letzte Zeile (die Kachel zeichnet eine Gruppe am Stück). */
+    const moveGroup = (key, to, after) => {
+        const rows = E.rows();
+        const number = rows[key] ? E.groupNumber(rows[key].Group) : 0;
+        const target = rows[to];
+        if (!number || !target || E.groupNumber(target.Group) === number) return;
+        const block = rows.filter(r => E.groupNumber(r.Group) === number);
+        const rest = rows.filter(r => E.groupNumber(r.Group) !== number);
+        const targetGroup = E.groupNumber(target.Group);
+        const members = targetGroup ? rest.filter(r => E.groupNumber(r.Group) === targetGroup) : [target];
+        const anchor = after ? members[members.length - 1] : members[0];
+        rest.splice(rest.indexOf(anchor) + (after ? 1 : 0), 0, ...block);
+        E.change(() => { rows.splice(0, rows.length, ...rest); }, true);
+        E.select(rows.indexOf(block[0]));
+    };
+
+    const pickGroupIcon = key => {
+        const row = E.rows()[key];
+        const number = row ? E.groupNumber(row.Group) : 0;
+        if (!number) return;
+        const group = E.groups()[number - 1];
+        E.pickIcon(group.Groupicon || '', value => E.change(() => { group.Groupicon = value; }, true));
+    };
+
+    /** Doppelklick aufs Statusbild: Icon der Zuordnung, die die Vorschau gerade zeigt (ein Bild wird dabei zum Icon). */
+    E.pickStatusIcon = function () {
+        const index = E.s.payload ? E.s.payload.editorAssociation : null;
+        const assoc = Number.isInteger(index) ? (E.s.draft.ProfilAssoziazionen || [])[index] : null;
+        E.emit('tab', 'status');
+        if (!assoc) {
+            E.toast(E.t('No status association matches the value shown.'));
+            return;
+        }
+        const current = assoc.Bildauswahl === 'symcon_icon' ? (assoc.SymconIcon || '') : '';
+        E.pickIcon(current, value => {
+            E.change(() => {
+                assoc.Bildauswahl = value === '' ? 'none' : 'symcon_icon';
+                assoc.SymconIcon = value;
+            }, true);
+            E.toast(E.tf('Status “%s”: %s', assoc.AssoziationName || String(assoc.AssoziationValue), value || E.t('No icon')));
+        });
+    };
+
     E.on('bridge', data => {
         const key = parseInt(data.key, 10);
         E.emit('tab', 'rows');
         if (data.udte === 'move') {
             moveRow(parseInt(data.from, 10), parseInt(data.to, 10), !!data.after);
+        } else if (data.udte === 'moveGroup') {
+            moveGroup(key, parseInt(data.to, 10), !!data.after);
         } else if (data.udte === 'edit') {
             E.select(key);
             editLabel(key, Number(data.x), Number(data.y));
         } else if (data.udte === 'editGroup') {
             editGroupName(key, Number(data.x), Number(data.y));
+        } else if (data.udte === 'editGroupIcon') {
+            pickGroupIcon(key);
+        } else if (data.udte === 'rowIcon') {
+            E.select(key);
+            E.toast(E.t('The icon of a row comes from the presentation of its variable.'));
         }
     });
 })(window.UDTE);
