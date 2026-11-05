@@ -38,16 +38,66 @@
         return ':root{--accent-color:' + t.accent + ';--content-color:' + t.content + ';--card-color:' + t.card + '}'
             + 'html,body{background:var(--card-color)}body{font-size:14px!important;margin:12px 20px 15px 20px!important}'
             + '.udte-selected{outline:2px dashed var(--accent-color);outline-offset:3px;border-radius:6px}'
-            + '.variable-item{cursor:pointer}';
+            + '.variable-item{cursor:pointer}'
+            + '#udte-add{display:flex;align-items:center;justify-content:center;width:100%;height:30px;margin:6px 0 0;padding:0;'
+            + 'border:1.5px dashed currentColor;border-radius:8px;background:transparent;color:var(--content-color);opacity:.35;'
+            + 'font:300 22px/1 sans-serif;cursor:pointer}'
+            + '#udte-add:hover,#udte-add:focus-visible{opacity:1;color:var(--accent-color);outline:none}';
     };
 
     /* Das iframe hat bewusst kein sandbox: die Kachel läuft in der Visualisierung genauso mit der Herkunft
        von Symcon, und Editor wie Brücke greifen direkt auf ihr Dokument zu (Thema, Hervorhebung, Stand). */
 
-    /** Klicks in der Kachel wählen die Zeile im Editor; die Kachel selbst reagiert weiter wie gewohnt. */
-    const bridge = '<script>document.addEventListener("click",function(e){var t=e.target;var i=t.closest&&t.closest(".variable-item");'
-        + 'if(i){parent.postMessage({udte:"select",key:i.getAttribute("data-row-key")},"*");return;}'
-        + 'if(t.closest&&t.closest("#status-container,#image,#div1")){parent.postMessage({udte:"status"},"*");}},true);<\/script>';
+    /** Klicks in der Kachel wählen die Zeile im Editor; die Kachel selbst reagiert weiter wie gewohnt.
+        Unter der Zeilenliste (außerhalb von #variables-container, das die Kachel neu zeichnet) steht „+“. */
+    const bridge = () => '<script>(function(){var c=document.getElementById("variables-container");'
+        + 'if(c&&!document.getElementById("udte-add")){var b=document.createElement("button");b.type="button";b.id="udte-add";'
+        + 'b.title=' + JSON.stringify(E.t('Add row')).replace(/</g, '\\u003c') + ';b.setAttribute("aria-label",b.title);b.textContent="+";'
+        + 'c.insertAdjacentElement("afterend",b);}'
+        + 'document.addEventListener("click",function(e){var t=e.target;if(!t.closest)return;'
+        + 'if(t.closest("#udte-add")){parent.postMessage({udte:"add"},"*");return;}'
+        + 'var i=t.closest(".variable-item");if(i){parent.postMessage({udte:"select",key:i.getAttribute("data-row-key")},"*");return;}'
+        + 'parent.postMessage({udte:t.closest("#status-container,#image,#div1")?"status":"blank"},"*");},true);})();<\/script>';
+
+    /** Auswahl des Anzeigetyps unter dem „+“ der Vorschau; die neue Zeile kommt ans Ende der Liste. */
+    const addMenu = document.getElementById('addMenu');
+    const closeAddMenu = () => { addMenu.hidden = true; };
+    const openAddMenu = () => {
+        const d = doc();
+        const plus = d && d.getElementById('udte-add');
+        if (!plus) return;
+        addMenu.replaceChildren(h('div', { class: 'menu-title', text: E.t('Add row') }),
+            ...E.TYPES.map(([type, icon, caption]) => h('button', {
+                type: 'button', role: 'menuitem',
+                onclick: () => { closeAddMenu(); E.emit('tab', 'rows'); E.addRow(type); }
+            }, E.icon(icon), ' ', E.t(caption))));
+        addMenu.hidden = false;
+        const f = frame().getBoundingClientRect();
+        const r = plus.getBoundingClientRect();
+        const width = addMenu.offsetWidth;
+        const height = addMenu.offsetHeight;
+        let top = f.top + r.bottom + 6;
+        if (top + height > window.innerHeight - 8) top = Math.max(8, f.top + r.top - height - 6);
+        const left = Math.min(Math.max(8, f.left + r.left + r.width / 2 - width / 2), window.innerWidth - width - 8);
+        Object.assign(addMenu.style, { left: left + 'px', top: top + 'px' });
+        addMenu.querySelector('button').focus();
+    };
+    document.addEventListener('click', e => { if (!addMenu.hidden && !addMenu.contains(e.target)) closeAddMenu(); });
+    addMenu.addEventListener('keydown', e => {
+        const items = [...addMenu.querySelectorAll('button')];
+        const at = items.indexOf(document.activeElement);
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            closeAddMenu();
+            const plus = doc() && doc().getElementById('udte-add');
+            if (plus) plus.focus();
+        } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            items[(at + (e.key === 'ArrowDown' ? 1 : items.length - 1)) % items.length].focus();
+        }
+    });
+    window.addEventListener('resize', closeAddMenu);
+    document.getElementById('stageArea').addEventListener('scroll', closeAddMenu, { passive: true });
 
     const applyTheme = () => {
         const t = THEMES[theme] || THEMES.dark;
@@ -258,14 +308,14 @@
         }
         ready = false;
         lastSent = '';
-        const html = String(answer.data.html || '') + '<style id="udte-theme">' + themeCss() + '</style>' + bridge;
+        const html = String(answer.data.html || '') + '<style id="udte-theme">' + themeCss() + '</style>' + bridge();
         const f = frame();
         f.onload = () => {
             ready = true;
             applyTheme();
             E.refreshPreview();
             try {
-                f.contentWindow.addEventListener('scroll', placeImageHandle, { passive: true });
+                f.contentWindow.addEventListener('scroll', () => { placeImageHandle(); closeAddMenu(); }, { passive: true });
                 f.contentWindow.addEventListener('resize', placeImageHandle);
             } catch (_) { /* ohne Zugriff kein Griff */ }
         };
@@ -315,6 +365,11 @@
     window.addEventListener('message', event => {
         if (event.source !== frame().contentWindow) return;
         const data = event.data || {};
+        if (data.udte === 'add') {
+            if (addMenu.hidden) openAddMenu(); else closeAddMenu();
+            return;
+        }
+        closeAddMenu();
         if (data.udte === 'select') {
             E.select(parseInt(data.key, 10));
             E.emit('tab', 'rows');
