@@ -177,7 +177,7 @@
         h('button', { type: 'button', class: 'btn small primary', onclick: () => {
             E.emit('tab', 'status');
             E.pick('image', E.s.draft.DefaultImage | 0, id => E.change(d => { d.DefaultImage = id; }, true));
-        } }, E.icon('image'), ' ', E.t('Select')),
+        } }, E.t('Select')),
         h('button', { type: 'button', class: 'btn small icon', title: E.t('Without image'), 'aria-label': E.t('Without image'),
             onclick: () => { noImagePlaceholder = true; E.repaint(); } }, E.icon('trash-can')));
     actions.addEventListener('pointerdown', e => e.stopPropagation()); // kein Ziehen des Bildes

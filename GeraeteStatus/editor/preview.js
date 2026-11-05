@@ -58,9 +58,9 @@
             + '.udte-placeholder .variable-value{opacity:.6;font-style:italic;flex:0 100 auto!important;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'
             + '.variable-group-item:has(>.udte-placeholder){min-width:0;max-width:100%}'
             + '#udte-status-placeholder{display:flex;align-items:center;gap:8px;margin:4px 0 8px;font-weight:bold}'
-            + '.udte-pick{margin-left:auto;padding:3px 10px;border-radius:6px;border:1px solid var(--accent-color);background:transparent;'
-            + 'color:var(--accent-color);font:inherit;font-size:12px;font-weight:600;cursor:pointer;flex:none}'
-            + '.udte-pick:hover{background:var(--accent-color);color:var(--card-color)}'
+            + '.udte-pick{margin-left:auto;padding:4px 11px;border-radius:6px;border:0;background:var(--accent-color);'
+            + 'color:var(--card-color);font:inherit;font-size:12px;font-weight:600;cursor:pointer;flex:none}'
+            + '.udte-pick:hover{filter:brightness(1.12)}'
             + 'html.udte-dragging,html.udte-dragging *{user-select:none!important;cursor:grabbing!important}';
     };
 
