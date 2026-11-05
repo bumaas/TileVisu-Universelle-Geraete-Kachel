@@ -163,12 +163,16 @@
             b.appendChild(E.iconSvg('trash-can'));
             return b;
         };
+        // Kasten jeder Gruppe trägt ihre Farbe; Platzhalter darin erben sie (auch beim Ziehen in eine andere Gruppe)
+        (payload.variables || []).forEach(v => {
+            const item = E.groupNumber(v.group) && d.querySelector('.variable-item[data-row-key="' + v.key + '"]');
+            const group = item && item.closest('.variable-group');
+            if (group) group.style.setProperty('--udte-group-color', E.groupColor(E.groupNumber(v.group)));
+        });
         (payload.variables || []).filter(v => v.editorPlaceholder).forEach(v => {
             const el = d.querySelector('.variable-item[data-row-key="' + v.key + '"]');
             if (!el || el.querySelector('.udte-pick')) return;
             el.classList.add('udte-placeholder');
-            const group = E.groupNumber(v.group);
-            if (group) el.style.setProperty('--udte-group-color', E.groupColor(group)); // Rahmen in der Farbe der Gruppe
             el.append(button(v.editorPlaceholder, v.key), trash(v.editorPlaceholder, v.key));
         });
         const list = d.getElementById('variables-container');
