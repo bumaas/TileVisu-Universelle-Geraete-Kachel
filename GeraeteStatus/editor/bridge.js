@@ -9,8 +9,9 @@
     var post = function (message) { parent.postMessage(message, '*'); };
     var ROW = '.variable-item[data-row-key]';
     var GROUP_NAME = '.group-name-label, .group-name-above';
-    // Hier beginnt kein Ziehen: Bedienelemente der Kachel behalten ihre Zeigerereignisse
-    var CONTROLS = 'input,button,select,textarea,a,.slider-container,[role=slider]';
+    // Hier beginnt kein Ziehen: Bedienelemente der Kachel behalten ihre Zeigerereignisse. Beim Regler nur die Spur
+    // (mit Knopf) und die Plus/Minus-Knöpfe: Icon und Beschriftung stecken im selben Container und bleiben greifbar.
+    var CONTROLS = 'input,button,select,textarea,a,.slider-track,[role=slider]';
     var container = document.getElementById('variables-container');
 
     if (container && !document.getElementById('udte-add')) {
