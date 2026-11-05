@@ -1,0 +1,153 @@
+{
+  "caption": "Heat pump",
+  "icon": "heatpump",
+  "config": {
+    "BildPosition": "left",
+    "BildBreite": 90,
+    "DefaultIcon": "heatpump",
+    "DefaultIconColor": 16347926,
+    "ElementSpacing": 5,
+    "VariablesList": [
+      {
+        "Variable": 0,
+        "DisplayType": "text",
+        "Label": "Outside",
+        "Group": "Gruppe 1"
+      },
+      {
+        "Variable": 0,
+        "DisplayType": "text",
+        "Label": "Flow",
+        "Group": "Gruppe 1"
+      },
+      {
+        "Variable": 0,
+        "DisplayType": "text",
+        "Label": "Return",
+        "Group": "Gruppe 1"
+      },
+      {
+        "Variable": 0,
+        "DisplayType": "text",
+        "Label": "Hot water",
+        "Group": "Gruppe 1"
+      },
+      {
+        "Variable": 0,
+        "DisplayType": "text",
+        "Label": "Electrical power",
+        "Group": "Gruppe 2"
+      },
+      {
+        "Variable": 0,
+        "DisplayType": "text",
+        "Label": "COP",
+        "Group": "Gruppe 2"
+      },
+      {
+        "Variable": 0,
+        "DisplayType": "button",
+        "Label": "Operating mode",
+        "Group": "keine Gruppe"
+      },
+      {
+        "Variable": 0,
+        "DisplayType": "slider",
+        "Label": "Hot water target",
+        "Group": "keine Gruppe"
+      }
+    ],
+    "GroupNamesList": [
+      {
+        "Group": 1,
+        "GroupName": "Temperatures",
+        "Groupicon": "",
+        "ShowGroupName": true,
+        "ShowAbove": true,
+        "line": true,
+        "stretch": false
+      },
+      {
+        "Group": 2,
+        "GroupName": "Energy",
+        "Groupicon": "",
+        "ShowGroupName": true,
+        "ShowAbove": true,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 3,
+        "GroupName": "Group 3",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 4,
+        "GroupName": "Group 4",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 5,
+        "GroupName": "Group 5",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 6,
+        "GroupName": "Group 6",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 7,
+        "GroupName": "Group 7",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 8,
+        "GroupName": "Group 8",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 9,
+        "GroupName": "Group 9",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 10,
+        "GroupName": "Group 10",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      }
+    ]
+  }
+}

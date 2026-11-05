@@ -270,5 +270,10 @@
  "Washing machine",
  "Wallbox",
  "PV system",
- "Window"
+ "Window",
+ "Heat pump",
+ "Roller shutter",
+ "Battery storage",
+ "Heating",
+ "Electric car"
 ]

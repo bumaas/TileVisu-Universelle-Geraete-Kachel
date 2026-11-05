@@ -1,0 +1,135 @@
+{
+  "caption": "Roller shutter",
+  "icon": "blinds-raised",
+  "config": {
+    "BildPosition": "left",
+    "BildBreite": 70,
+    "DefaultIcon": "blinds-raised",
+    "DefaultIconColor": 9345711,
+    "ElementSpacing": 6,
+    "VariablesList": [
+      {
+        "Variable": 0,
+        "DisplayType": "slider",
+        "Label": "Position",
+        "Group": "keine Gruppe"
+      },
+      {
+        "Variable": 0,
+        "DisplayType": "button",
+        "Label": "Raise",
+        "Group": "Gruppe 1"
+      },
+      {
+        "Variable": 0,
+        "DisplayType": "button",
+        "Label": "Stop",
+        "Group": "Gruppe 1"
+      },
+      {
+        "Variable": 0,
+        "DisplayType": "button",
+        "Label": "Lower",
+        "Group": "Gruppe 1"
+      },
+      {
+        "Variable": 0,
+        "DisplayType": "button",
+        "Label": "Automatic",
+        "Group": "keine Gruppe"
+      }
+    ],
+    "GroupNamesList": [
+      {
+        "Group": 1,
+        "GroupName": "Control",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": true
+      },
+      {
+        "Group": 2,
+        "GroupName": "Group 2",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 3,
+        "GroupName": "Group 3",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 4,
+        "GroupName": "Group 4",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 5,
+        "GroupName": "Group 5",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 6,
+        "GroupName": "Group 6",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 7,
+        "GroupName": "Group 7",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 8,
+        "GroupName": "Group 8",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 9,
+        "GroupName": "Group 9",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      },
+      {
+        "Group": 10,
+        "GroupName": "Group 10",
+        "Groupicon": "",
+        "ShowGroupName": false,
+        "ShowAbove": false,
+        "line": false,
+        "stretch": false
+      }
+    ]
+  }
+}
