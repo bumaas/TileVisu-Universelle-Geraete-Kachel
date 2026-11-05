@@ -160,6 +160,7 @@ Die Funktionalität erfolgt über die Instanz-Konfiguration und den Editor. Für
 ## Changelog
 - **3.1.0** (in Vorbereitung)
   - Neu: visueller Editor mit Live-Vorschau der echten Kachel, geöffnet über „Editor öffnen“ im Formular. Zeilen, Gruppen und das Statusbild per Ziehen und Ablegen, frei ziehbare Vorschaugröße, Eigenschaften je Anzeigetyp, Objektauswahl mit Suche, Status simulieren und Testwerte nur in der Vorschau, Vorlagen sowie Export und Import, Zeilen aus einem Gerät mit vorgeschlagenem Anzeigetyp, Mehrfachauswahl, Tastatursteuerung, Rückgängig und Wiederholen. Gespeichert wird erst auf Klick, mit Rückfrage, wenn die Konfiguration inzwischen anderswo gespeichert wurde.
+  - Behoben: Ein Schieberegler in einer Gruppe wurde bei knappem Platz bis auf null zusammengedrückt und lief über die Nachbarn. Er behält jetzt Beschriftung, Knöpfe, Wert und eine kurze Spur; die Gruppe bricht stattdessen um.
 - **3.0.0**
   - Voraussetzung Symcon 8.1: das Modul nutzt Module Strict und den nativen Webhook; der Eintrag im WebHook Control entfällt.
   - Wertänderungen aktualisieren nur die betroffenen Zeilen: wertabhängige Icons wechseln mit, mehrere Zeilen derselben Variable bleiben richtig, ein Statuswechsel baut die Kachel nicht mehr neu auf, Ziel-Marker stimmen auch bei inaktivem Balken.

@@ -99,6 +99,9 @@
         .variable-group-item .variable-item .slider-container {
             width: 100% !important;
         }
+        .variable-group-item .slider-track {
+            min-width: 60px; /* bleibt bedienbar, wenn die Gruppe eng wird (dann bricht die Zeile um) */
+        }
         
         /* AUSNAHME: Progress-Bar-Container brauchen volle Breite */
         .variable-group-item .variable-progress {

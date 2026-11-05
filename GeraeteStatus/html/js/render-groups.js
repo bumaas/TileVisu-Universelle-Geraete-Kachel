@@ -237,7 +237,8 @@
                                 ? Number(groupVar.imageWidth)
                                 : null;
                             const isProgressLike = (groupVar.displayType === 'progress' || groupVar.displayType === 'slider');
-                            const growStyle = isProgressLike ? 'flex: 1 1 0; min-width: 0;' : '';
+                            // Regler nie schmaler als Beschriftung, Knöpfe, Wert und eine kurze Spur: sonst läuft er über die Nachbarn
+                            const growStyle = isProgressLike ? ('flex: 1 1 0; min-width: ' + (groupVar.displayType === 'slider' ? 'min-content' : '0') + ';') : '';
                             const widthStyle = (widthPercent !== null)
                                 ? ('flex: 0 0 ' + widthPercent + '%; max-width: ' + widthPercent + '%; min-width: ' + widthPercent + '%; box-sizing: border-box;')
                                 : '';
