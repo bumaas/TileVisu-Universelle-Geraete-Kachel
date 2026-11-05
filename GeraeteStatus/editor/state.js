@@ -215,5 +215,21 @@
         return el;
     };
 
-    E.icon = (name, extra) => E.h('i', { class: 'fa-light fa-' + name + (extra ? ' ' + extra : '') });
+    /** Icon-Satz wie in der Kachel (prepareIconForDisplay): Symcons eigene Icons (z. B. heatpump) liegen in
+        /icons.js nur im Kit-Satz, Marken im Brands-Satz, alle übrigen im Light-Satz. */
+    const iconSets = new Map();
+    const iconSet = name => {
+        if (iconSets.has(name)) return iconSets.get(name);
+        const fa = window.FontAwesome;
+        let set = 'fa-light';
+        try {
+            if (fa && typeof fa.findIconDefinition === 'function' && !fa.findIconDefinition({ prefix: 'fal', iconName: name })) {
+                if (fa.findIconDefinition({ prefix: 'fak', iconName: name })) set = 'fa-kit';
+                else if (fa.findIconDefinition({ prefix: 'fab', iconName: name })) set = 'fa-brands';
+            }
+        } catch (_) { /* unbekannt: Light */ }
+        if (fa) iconSets.set(name, set);
+        return set;
+    };
+    E.icon = (name, extra) => E.h('i', { class: iconSet(name) + ' fa-' + name + (extra ? ' ' + extra : '') });
 })(window.UDTE);
