@@ -1,0 +1,108 @@
+/* Universal Device Tile – Editor: Bearbeiten direkt in der Vorschau. Die Brücke in der Kachel (bridge.js)
+   meldet Doppelklicks auf Beschriftungen und Gruppennamen und gezogene Zeilen; preview.js reicht sie als
+   Ereignis „bridge“ weiter. Das Eingabefeld liegt im Editor über der Kachel, nicht in ihr: die Kachel
+   zeichnet ihre Zeilen bei jedem neuen Stand neu. */
+(function (E) {
+    'use strict';
+    const h = E.h;
+
+    /** Beschriftung direkt in der Vorschau ändern: Eingabefeld über dem Text der Zeile (Doppelklick). */
+    const editLabel = (key, x, y) => {
+        const d = E.previewDoc();
+        const row = E.rows()[key];
+        const item = d && d.querySelector('.variable-item[data-row-key="' + key + '"]');
+        if (!row || !item) return;
+        const live = ((E.s.payload && E.s.payload.variables) || []).find(v => String(v.key) === String(key)) || {};
+        const clean = text => text.replace(/[\s ]+$/, '').replace(/:$/, '').trim();
+        const spans = [...item.querySelectorAll('span')];
+        const main = spans.find(s => live.label && clean(s.textContent) === live.label) || null;
+        const second = live.secondVariable && live.secondVariable.label;
+        const hit = d.elementFromPoint(x, y);
+        const hitSpan = hit && hit.closest && hit.closest('span');
+        let field = 'Label';
+        let anchor = main;
+        if (hitSpan && hitSpan !== main && second && clean(hitSpan.textContent) === second) {
+            field = 'SecondVariableLabel';
+            anchor = hitSpan;
+        }
+        inlineEdit((anchor || item).getBoundingClientRect(), {
+            value: row[field] || '', max: 200,
+            placeholder: (field === 'Label' ? live.label : second) || E.t('Label'),
+            label: field === 'Label' ? E.t('Label') : E.t('Label of the second variable')
+        }, value => {
+            E.change(() => { row[field] = value; }, true);
+            E.toast(value === '' ? E.t('Label removed: the tile shows the name of the variable.') : E.tf('Label: %s', value));
+        });
+    };
+
+    /** Gruppenname direkt in der Vorschau ändern (Doppelklick auf den Namen; key = eine Zeile der Gruppe). */
+    const editGroupName = (key, x, y) => {
+        const d = E.previewDoc();
+        const row = E.rows()[key];
+        const number = row ? E.groupNumber(row.Group) : 0;
+        const hit = d && d.elementFromPoint(x, y);
+        const anchor = hit && hit.closest && hit.closest('.group-name-label, .group-name-above');
+        if (!number || !anchor) return;
+        const group = E.groups()[number - 1];
+        inlineEdit(anchor.getBoundingClientRect(), {
+            value: group.GroupName || '', max: 100, placeholder: E.t('Group name'), label: E.t('Group name')
+        }, value => {
+            E.change(() => { group.GroupName = value; }, true);
+            E.toast(E.tf('Group name: %s', value || '–'));
+        });
+    };
+
+    /** Eingabefeld über einer Stelle der Kachel (rect im iframe); Enter oder Klick daneben übernimmt, Escape verwirft. */
+    const inlineEdit = (r, opts, apply) => {
+        const f = E.previewFrame().getBoundingClientRect();
+        const input = h('input', { type: 'text', class: 'label-edit', maxlength: String(opts.max), spellcheck: 'false', placeholder: opts.placeholder, 'aria-label': opts.label });
+        input.value = opts.value;
+        Object.assign(input.style, {
+            left: Math.max(4, f.left + r.left - 4) + 'px', top: (f.top + r.top + r.height / 2 - 16) + 'px',
+            width: Math.max(160, Math.min(f.width - 16, r.width + 60)) + 'px'
+        });
+        let done = false;
+        const close = commit => {
+            if (done) return;
+            done = true;
+            const value = input.value.trim();
+            input.remove();
+            if (commit && value !== opts.value) apply(value);
+        };
+        input.addEventListener('keydown', e => {
+            if (e.key === 'Enter') { e.preventDefault(); close(true); }
+            if (e.key === 'Escape') { e.preventDefault(); close(false); }
+        });
+        input.addEventListener('blur', () => close(true));
+        document.body.appendChild(input);
+        input.focus();
+        input.select();
+    };
+
+    /** Zeile, die in der Kachel gezogen wurde, vor oder hinter die Zielzeile legen; sie übernimmt deren Gruppe. */
+    const moveRow = (from, to, after) => {
+        const rows = E.rows();
+        const moving = rows[from];
+        const target = rows[to];
+        if (!moving || !target || moving === target) return;
+        E.change(() => {
+            rows.splice(from, 1);
+            moving.Group = target.Group;
+            rows.splice(rows.indexOf(target) + (after ? 1 : 0), 0, moving);
+        }, true);
+        E.select(rows.indexOf(moving));
+    };
+
+    E.on('bridge', data => {
+        const key = parseInt(data.key, 10);
+        E.emit('tab', 'rows');
+        if (data.udte === 'move') {
+            moveRow(parseInt(data.from, 10), parseInt(data.to, 10), !!data.after);
+        } else if (data.udte === 'edit') {
+            E.select(key);
+            editLabel(key, Number(data.x), Number(data.y));
+        } else if (data.udte === 'editGroup') {
+            editGroupName(key, Number(data.x), Number(data.y));
+        }
+    });
+})(window.UDTE);

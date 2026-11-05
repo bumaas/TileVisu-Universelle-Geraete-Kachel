@@ -366,7 +366,8 @@
             "All objects": "Alle Objekte",
             "Label removed: the tile shows the name of the variable.": "Beschriftung entfernt: Die Kachel zeigt den Namen der Variable.",
             "Label: %s": "Beschriftung: %s",
-            "Click a row in the preview to edit it, double-click to change its label, drag it to move it. Buttons and sliders do not switch anything in the preview.": "Zeile in der Vorschau anklicken zum Bearbeiten, doppelklicken für die Beschriftung, ziehen zum Verschieben. Schalter und Regler schalten in der Vorschau nichts."
+            "Click a row in the preview to edit it, double-click a label or group name to change it, drag a row to move it. Buttons and sliders do not switch anything in the preview.": "Zeile in der Vorschau anklicken zum Bearbeiten, Beschriftung oder Gruppennamen doppelklicken zum Ändern, Zeile ziehen zum Verschieben. Schalter und Regler schalten in der Vorschau nichts.",
+            "Group name: %s": "Gruppenname: %s"
         },
         "en": {
             "Links": "Left",

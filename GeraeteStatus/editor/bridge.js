@@ -38,12 +38,20 @@
     }, true);
 
     document.addEventListener('dblclick', function (e) {
-        var item = e.target.closest && e.target.closest(ROW);
+        if (!e.target.closest) return;
+        var item = e.target.closest(ROW);
+        // Gruppenname (links in der Gruppe oder darüber): die Gruppe nennt ihre erste Zeile
+        var groupName = !item && e.target.closest('.group-name-label, .group-name-above');
+        if (groupName) {
+            var box = groupName.classList.contains('group-name-above') ? groupName.nextElementSibling : groupName.parentElement;
+            item = box && box.querySelector(ROW);
+            if (!item) return;
+        }
         if (!item || e.target.closest(CONTROLS)) return;
         e.preventDefault();
         var selection = window.getSelection && window.getSelection();
         if (selection) selection.removeAllRanges();
-        post({ udte: 'edit', key: item.getAttribute('data-row-key'), x: e.clientX, y: e.clientY });
+        post({ udte: groupName ? 'editGroup' : 'edit', key: item.getAttribute('data-row-key'), x: e.clientX, y: e.clientY });
     }, true);
 
     // Zeilen in der Kachel ziehen: ab 6 px Bewegung; die Linie zeigt, wohin die Zeile kommt

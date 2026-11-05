@@ -32,6 +32,8 @@
 
     const frame = () => document.getElementById('tile');
     const doc = () => { try { return frame().contentDocument; } catch (_) { return null; } };
+    E.previewFrame = frame;
+    E.previewDoc = doc;
 
     const themeCss = () => {
         const t = THEMES[theme] || THEMES.dark;
@@ -58,72 +60,6 @@
         const settings = JSON.stringify({ add: E.t('Add row') }).replace(/</g, '\\u003c');
         const attr = src.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
         return '<script>window.UDTE_BRIDGE=' + settings + ';<\/script>' + (src ? '<script src="' + attr + '"><\/script>' : '');
-    };
-
-    /** Beschriftung direkt in der Vorschau ändern: Eingabefeld über dem Text der Zeile (Doppelklick). */
-    const editLabel = (key, x, y) => {
-        const d = doc();
-        const row = E.rows()[key];
-        const item = d && d.querySelector('.variable-item[data-row-key="' + key + '"]');
-        if (!row || !item) return;
-        const live = ((E.s.payload && E.s.payload.variables) || []).find(v => String(v.key) === String(key)) || {};
-        const clean = text => text.replace(/[\s ]+$/, '').replace(/:$/, '').trim();
-        const spans = [...item.querySelectorAll('span')];
-        const main = spans.find(s => live.label && clean(s.textContent) === live.label) || null;
-        const second = live.secondVariable && live.secondVariable.label;
-        const hit = d.elementFromPoint(x, y);
-        const hitSpan = hit && hit.closest && hit.closest('span');
-        let field = 'Label';
-        let anchor = main;
-        if (hitSpan && hitSpan !== main && second && clean(hitSpan.textContent) === second) {
-            field = 'SecondVariableLabel';
-            anchor = hitSpan;
-        }
-        const r = (anchor || item).getBoundingClientRect();
-        const f = frame().getBoundingClientRect();
-        const input = h('input', {
-            type: 'text', class: 'label-edit', maxlength: '200', spellcheck: 'false',
-            placeholder: (field === 'Label' ? live.label : second) || E.t('Label'),
-            'aria-label': field === 'Label' ? E.t('Label') : E.t('Label of the second variable')
-        });
-        input.value = row[field] || '';
-        Object.assign(input.style, {
-            left: Math.max(4, f.left + r.left - 4) + 'px', top: (f.top + r.top + r.height / 2 - 16) + 'px',
-            width: Math.max(160, Math.min(f.width - 16, r.width + 60)) + 'px'
-        });
-        let done = false;
-        const close = commit => {
-            if (done) return;
-            done = true;
-            const value = input.value.trim();
-            input.remove();
-            if (commit && value !== (row[field] || '')) {
-                E.change(() => { row[field] = value; }, true);
-                E.toast(value === '' ? E.t('Label removed: the tile shows the name of the variable.') : E.tf('Label: %s', value));
-            }
-        };
-        input.addEventListener('keydown', e => {
-            if (e.key === 'Enter') { e.preventDefault(); close(true); }
-            if (e.key === 'Escape') { e.preventDefault(); close(false); }
-        });
-        input.addEventListener('blur', () => close(true));
-        document.body.appendChild(input);
-        input.focus();
-        input.select();
-    };
-
-    /** Zeile, die in der Kachel gezogen wurde, vor oder hinter die Zielzeile legen; sie übernimmt deren Gruppe. */
-    const moveRow = (from, to, after) => {
-        const rows = E.rows();
-        const moving = rows[from];
-        const target = rows[to];
-        if (!moving || !target || moving === target) return;
-        E.change(() => {
-            rows.splice(from, 1);
-            moving.Group = target.Group;
-            rows.splice(rows.indexOf(target) + (after ? 1 : 0), 0, moving);
-        }, true);
-        E.select(rows.indexOf(moving));
     };
 
     /** Auswahl des Anzeigetyps unter dem „+“ der Vorschau; die neue Zeile kommt ans Ende der Liste. */
@@ -447,14 +383,8 @@
         } else if (data.udte === 'dragend') {
             holding = false;
             if (held) { const payload = held; held = null; push(payload); }
-        } else if (data.udte === 'move') {
-            moveRow(parseInt(data.from, 10), parseInt(data.to, 10), !!data.after);
-            E.emit('tab', 'rows');
-        } else if (data.udte === 'edit') {
-            const key = parseInt(data.key, 10);
-            E.select(key);
-            E.emit('tab', 'rows');
-            editLabel(key, Number(data.x), Number(data.y));
+        } else if (data.udte === 'move' || data.udte === 'edit' || data.udte === 'editGroup') {
+            E.emit('bridge', data); // Bearbeiten in der Vorschau: inplace.js
         } else if (data.udte === 'select') {
             E.select(parseInt(data.key, 10));
             E.emit('tab', 'rows');
