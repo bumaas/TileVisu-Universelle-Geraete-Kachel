@@ -171,6 +171,14 @@
         });
     };
 
+    /** Davor (false) oder dahinter (true) nach der Lage im Ziel (0…1); um die Mitte eine Totzone (null = nichts
+        ändern), sonst kippt die Entscheidung, sobald das Ziel nach einem Tausch ein Stück wandert. */
+    var zone = function (fraction) {
+        if (fraction < 0.38) return false;
+        if (fraction > 0.62) return true;
+        return null;
+    };
+
     /** Ziel unter dem Zeiger: Einheit, Ort (Gruppe oder oberste Ebene) und ob davor oder dahinter. */
     var targetAt = function (x, y) {
         var el = document.elementFromPoint(x, y);
@@ -188,7 +196,8 @@
             if (unit === unitOf(drag.item) || unit.contains(drag.item)) return null;
             var r = unit.getBoundingClientRect();
             var side = sideBySide(unit);
-            return { kind: 'unit', unit: unit, after: side ? x > r.left + r.width / 2 : y > r.top + r.height / 2 };
+            var after = zone(side ? (x - r.left) / r.width : (y - r.top) / r.height);
+            return after === null ? null : { kind: 'unit', unit: unit, after: after };
         }
         // Gruppe: Ziele auf oberster Ebene (freie Zeilen und andere Gruppen als Ganzes)
         var g = (el.closest('.variable-group') || el.closest('.group-name-above') || el.closest('.group-line')) ? groupOf(el.closest('.group-line') ? el.closest('.group-line').previousElementSibling : el) : null;
@@ -200,7 +209,8 @@
             nodes = [free];
         }
         var u = unionRect(nodes);
-        return { kind: 'top', nodes: nodes, after: y > u.top + u.height / 2 };
+        var below = zone((y - u.top) / u.height);
+        return below === null ? null : { kind: 'top', nodes: nodes, after: below };
     };
 
     /** Liegt das Gezogene schon so, wie das Ziel es will? Dann nichts tun (verhindert Hin-und-her). */
@@ -269,7 +279,25 @@
             if (created && !created.contains(drag.item)) created.remove();
         });
     };
+    /** Während die Elemente nach einem Tausch gleiten (FLIP, 150 ms), stimmen ihre Positionen nicht: erst danach
+        neu entscheiden, dann mit der letzten Zeigerposition (auch wenn sich der Zeiger nicht mehr bewegt). */
+    var SETTLE = 190;
+    var evaluate = function () {
+        if (!drag || !drag.active) return;
+        var wait = (drag.settled || 0) - Date.now();
+        if (wait > 0) {
+            if (!drag.timer) drag.timer = setTimeout(function () { if (drag) { drag.timer = null; evaluate(); } }, wait + 10);
+            return;
+        }
+        var t = targetAt(drag.px, drag.py);
+        if (t && !placed(t)) {
+            moveTo(t);
+            drag.settled = Date.now() + SETTLE;
+        }
+    };
+
     var finish = function () {
+        if (drag && drag.timer) clearTimeout(drag.timer);
         document.documentElement.classList.remove('udte-dragging');
         document.removeEventListener('keydown', keydown, true);
         window.removeEventListener('pointermove', move, true);
@@ -305,13 +333,15 @@
             start(e);
         }
         e.preventDefault();
-        var t = targetAt(e.clientX, e.clientY);
-        if (t && !placed(t)) moveTo(t);
+        drag.px = e.clientX;
+        drag.py = e.clientY;
+        evaluate();
     };
     var up = function (e) {
         if (!drag || e.pointerId !== drag.pointer) return;
         var d = drag;
         if (!d.active) { finish(); return; }
+        if (d.timer) { clearTimeout(d.timer); d.timer = null; d.settled = 0; evaluate(); } // ausstehende Entscheidung nicht verlieren
         suppressClick = true;
         setTimeout(function () { suppressClick = false; }, 0);
         var after = snapshot();
