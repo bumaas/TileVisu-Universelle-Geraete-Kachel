@@ -350,7 +350,17 @@
             "Access expired": "Zugang abgelaufen",
             "Unsaved changes are kept in this page: export them and import them in the newly opened editor.": "Ungespeicherte Änderungen bleiben in dieser Seite erhalten: exportieren und im neu geöffneten Editor importieren.",
             "Drag the image to the top, bottom, left or right edge. Click: status settings.": "Bild an den oberen, unteren, linken oder rechten Rand ziehen. Klick: Statuseinstellungen.",
-            "Image position: %s": "Bildposition: %s"
+            "Image position: %s": "Bildposition: %s",
+            "Select icon": "Icon auswählen",
+            "Search icons (English names)": "Icons suchen (englische Namen)",
+            "No icon": "Kein Icon",
+            "The icon list is not available. Enter the Font Awesome name by hand.": "Die Icon-Liste ist nicht verfügbar. Den Font-Awesome-Namen bitte von Hand eintragen.",
+            "Current": "Aktuell",
+            "Symcon icons": "Symcon-Icons",
+            "Suggestions": "Vorschläge",
+            "All icons": "Alle Icons",
+            "%d icons": "%d Icons",
+            "No icons found.": "Keine Icons gefunden."
         },
         "en": {
             "Links": "Left",

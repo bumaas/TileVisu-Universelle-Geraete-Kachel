@@ -18,6 +18,7 @@ trait EditorHookTrait
         'state.js' => 'text/javascript; charset=utf-8',
         'preview.js' => 'text/javascript; charset=utf-8',
         'picker.js' => 'text/javascript; charset=utf-8',
+        'iconpicker.js' => 'text/javascript; charset=utf-8',
         'fields.js' => 'text/javascript; charset=utf-8',
         'rows.js' => 'text/javascript; charset=utf-8',
         'inspector.js' => 'text/javascript; charset=utf-8',

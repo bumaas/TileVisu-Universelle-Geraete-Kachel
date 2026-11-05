@@ -78,16 +78,18 @@
 
     const groupCard = (number, members) => {
         const group = E.groups()[number - 1];
-        const iconPreview = h('span', { class: 'group-icon' }, group.Groupicon ? E.icon(group.Groupicon) : E.icon('layer-group'));
+        const iconPreview = h('button', { type: 'button', class: 'group-icon', title: E.t('Select icon') }, group.Groupicon ? E.iconSvg(group.Groupicon) : E.icon('layer-group'));
         const name = h('input', { type: 'text', class: 'group-name', maxlength: '100', value: group.GroupName || '', 'aria-label': E.t('Group name') });
         name.addEventListener('input', () => E.change(() => { group.GroupName = name.value; }));
         const icon = h('input', { type: 'text', class: 'group-iconname', maxlength: '64', value: group.Groupicon || '', placeholder: E.t('Icon'), title: E.t('Font Awesome name, e.g. bolt') });
-        icon.addEventListener('input', () => {
-            const value = icon.value.trim().replace(/^fa-/, '');
+        const setIcon = raw => {
+            const value = raw.trim().replace(/^fa-/, '');
             if (!/^[A-Za-z0-9 _-]{0,64}$/.test(value)) return;
             E.change(() => { group.Groupicon = value; });
-            iconPreview.replaceChildren(value ? E.icon(value) : E.icon('layer-group'));
-        });
+            iconPreview.replaceChildren(value ? E.iconSvg(value) : E.icon('layer-group'));
+        };
+        icon.addEventListener('input', () => setIcon(icon.value));
+        iconPreview.addEventListener('click', () => E.pickIcon(group.Groupicon || '', value => { icon.value = value; setIcon(value); }));
         const remove = h('button', { type: 'button', class: 'btn small icon', title: E.t('Dissolve group (rows stay)'), onclick: () => {
             E.change(d => { d.VariablesList.forEach(r => { if (E.groupNumber(r.Group) === number) r.Group = 'keine Gruppe'; }); }, true);
             E.s.extraGroups = E.s.extraGroups.filter(n => n !== number);

@@ -38,22 +38,21 @@
         const choice = a.Bildauswahl || 'none';
         const statusId = E.s.draft.Status | 0;
         const simulated = Object.prototype.hasOwnProperty.call(E.s.simulate, statusId) && JSON.stringify(E.s.simulate[statusId]) === JSON.stringify(a.AssoziationValue);
+        const head = h('div', { class: 'assoc-head' },
+            choice === 'symcon_icon' && a.SymconIcon ? E.iconSvg(a.SymconIcon) : E.icon('circle-small'),
+            h('strong', { class: 'grow', text: a.AssoziationName || String(a.AssoziationValue) }),
+            h('span', { class: 'muted', text: '= ' + JSON.stringify(a.AssoziationValue) }),
+            h('button', { type: 'button', class: 'btn small' + (simulated ? ' on' : ''), title: E.t('Show this status in the preview'),
+                onclick: () => { E.setSimulated(statusId, simulated ? undefined : a.AssoziationValue); renderStatus(); } }, E.icon('eye')));
         const parts = [
-            h('div', { class: 'assoc-head' },
-                choice === 'symcon_icon' && a.SymconIcon ? E.icon(a.SymconIcon) : E.icon('circle-small'),
-                h('strong', { class: 'grow', text: a.AssoziationName || String(a.AssoziationValue) }),
-                h('span', { class: 'muted', text: '= ' + JSON.stringify(a.AssoziationValue) }),
-                h('button', { type: 'button', class: 'btn small' + (simulated ? ' on' : ''), title: E.t('Show this status in the preview'),
-                    onclick: () => { E.setSimulated(statusId, simulated ? undefined : a.AssoziationValue); renderStatus(); } }, E.icon('eye'))),
+            head,
             f.row(f.select(E.t('Image Selection'), get('Bildauswahl'), set('Bildauswahl', true), IMAGE_CHOICES.map(([v, c]) => [v, E.t(c)])),
                 f.color(E.t('Status Color'), get('StatusColor'), set('StatusColor')))
         ];
         if (choice === 'custom') parts.push(f.object(E.t('Custom Image'), get('EigenesBild'), set('EigenesBild', true), 'image'));
         if (choice === 'symcon_icon') {
-            parts.push(f.row(
-                f.text(E.t('Icon'), get('SymconIcon'), value => { if (/^[A-Za-z0-9 _-]{0,64}$/.test(value)) set('SymconIcon')(value.trim()); },
-                    { max: 64, placeholder: E.t('Font Awesome name, e.g. bolt') }),
-                f.color(E.t('Icon Color'), get('IconColor'), set('IconColor'))));
+            parts.push(f.icon(E.t('Icon'), get('SymconIcon'), value => { set('SymconIcon')(value); head.replaceChild(E.iconSvg(value), head.firstChild); }),
+                f.color(E.t('Icon Color'), get('IconColor'), set('IconColor')));
         }
         parts.push(f.checkbox(E.t('Progressbar active'), get('ProgressbarActive'), set('ProgressbarActive')));
         return h('div', { class: 'assoc-card' + (simulated ? ' simulated' : ''), 'data-index': String(i) }, ...parts);

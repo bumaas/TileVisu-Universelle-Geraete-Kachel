@@ -150,7 +150,8 @@ body.resizing iframe { pointer-events: none; }
 .group-head .group-name { flex: 1; min-width: 70px; }
 .group-head .group-iconname { width: 66px; }
 .group-head input { padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
-.group-icon { width: 22px; text-align: center; color: var(--accent); }
+.group-icon { width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; color: var(--accent); background: none; border: 1px solid transparent; border-radius: 6px; cursor: pointer; padding: 0; }
+.group-icon:hover, .group-icon:focus-visible { border-color: var(--line); background: var(--panel-2); }
 .group-body { display: flex; flex-direction: column; gap: 6px; min-height: 36px; padding-left: 10px; border-left: 2px solid var(--accent); }
 .drop-hint { color: var(--muted); font-size: 12px; padding: 8px; border: 1px dashed var(--line); border-radius: 6px; text-align: center; }
 
@@ -218,6 +219,26 @@ textarea.code { font: 12px/1.4 ui-monospace, Menlo, monospace; margin-top: 8px; 
 .node:hover .pick, .node:focus .pick { visibility: visible; }
 .twisty { border: 0; background: none; width: 18px; padding: 0; cursor: pointer; color: var(--muted); transition: transform .15s; }
 .twisty.open { transform: rotate(90deg); }
+
+/* Icon-Auswahl */
+.svg-icon { width: 1.15em; height: 1.15em; vertical-align: -.2em; flex: none; }
+.icon-picker { width: min(760px, calc(100vw - 24px)); }
+.icon-results { flex: 1; overflow: auto; padding: 4px 16px 12px; }
+.icon-results h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin: 12px 0 6px; }
+.icon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 4px; }
+.icon-cell {
+    display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 4px 6px; min-width: 0;
+    background: none; border: 1px solid transparent; border-radius: 8px; color: var(--text); cursor: pointer;
+}
+.icon-cell .svg-icon, .icon-cell i { width: 24px; height: 24px; font-size: 22px; }
+.icon-cell span { font-size: 11px; color: var(--muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.icon-cell:hover, .icon-cell:focus-visible { background: var(--panel-2); border-color: var(--line); outline: none; }
+.icon-cell:focus-visible { box-shadow: var(--focus); }
+.icon-cell.current { border-color: var(--accent); color: var(--accent); }
+.icon-sentinel { grid-column: 1 / -1; height: 1px; }
+.icon-input { display: flex; align-items: center; gap: 6px; }
+.icon-input input { flex: 1; min-width: 0; border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 6px 8px; min-height: 32px; }
+.icon-preview { min-width: 32px; min-height: 32px; justify-content: center; font-size: 16px; }
 
 .toast {
     position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--text); color: var(--bg);
