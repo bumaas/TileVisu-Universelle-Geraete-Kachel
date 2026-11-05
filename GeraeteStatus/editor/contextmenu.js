@@ -73,7 +73,11 @@
         if (items.length) items[(at + (e.key === 'ArrowDown' ? 1 : items.length - 1)) % items.length].focus();
     });
     document.addEventListener('click', e => { if (!root.contains(e.target)) close(); });
-    document.addEventListener('contextmenu', e => { if (!root.contains(e.target) && !e.target.closest('#imageHandle')) close(); });
+    document.addEventListener('contextmenu', e => {
+        if (!root.contains(e.target) && !e.target.closest('#imageHandle')) close();
+        // Menü des Browsers nur in Eingabefeldern (Kopieren, Einfügen), sonst nur das des Editors
+        if (!e.target.closest('input, textarea, select, [contenteditable]')) e.preventDefault();
+    });
     window.addEventListener('resize', close);
     window.addEventListener('message', e => { if (e.data && e.data.udte && !String(e.data.udte).startsWith('context')) close(); });
 

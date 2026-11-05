@@ -103,11 +103,11 @@
 
     // Rechtsklick auf eine Zeile: Kontextmenü des Editors (Duplizieren, Löschen) statt des Browser-Menüs
     document.addEventListener('contextmenu', function (e) {
+        e.preventDefault(); // in der Vorschau nie das Menü des Browsers, nur das des Editors
         var t = e.target;
         if (!t.closest) return;
         var item = t.closest(ROW);
         if (item) {
-            e.preventDefault();
             post({ udte: 'context', key: item.getAttribute('data-row-key'), x: e.clientX, y: e.clientY });
             return;
         }
@@ -115,7 +115,6 @@
         var line = t.closest('.group-line');
         var g = (t.closest(GROUP_NAME) || t.closest('.variable-group') || line) && groupOf(line ? line.previousElementSibling : t);
         if (g) {
-            e.preventDefault();
             post({ udte: 'contextGroup', key: g.key, x: e.clientX, y: e.clientY });
         }
     }, true);
