@@ -387,7 +387,10 @@
         if (e.button !== 0 || drag || e.pointerType === 'touch' || !e.target.closest || !container) return;
         var t = e.target;
         var item = t.closest(ROW);
-        var group = (t.closest(GROUP_NAME) || (item && e.shiftKey)) ? groupOf(t) : null;
+        // Gruppe: am Namen, im leeren Bereich ihres Kastens (neben/zwischen den Zeilen), an der Linie oder mit Umschalt
+        var line = !item && t.closest('.group-line');
+        var group = (t.closest(GROUP_NAME) || (!item && t.closest('.variable-group')) || line || (item && e.shiftKey))
+            ? groupOf(line ? line.previousElementSibling : t) : null;
         if (!group && (!item || t.closest(CONTROLS))) return;
         drag = { mode: group ? 'group' : 'row', item: item, group: group, x: e.clientX, y: e.clientY, pointer: e.pointerId, active: false };
         window.addEventListener('pointermove', move, true);

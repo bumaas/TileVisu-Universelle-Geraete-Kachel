@@ -365,7 +365,6 @@
             "Label: %s": "Beschriftung: %s",
             "Group name: %s": "Gruppenname: %s",
             "The icon list is not available. Type the Font Awesome name and press Enter.": "Die Icon-Liste ist nicht verfügbar. Den Font-Awesome-Namen eintippen und Enter drücken.",
-            "Click: edit · Double-click: change text or icon · Drag: move a row; at the group name or with Shift the whole group. Buttons and sliders do not switch anything in the preview.": "Klick: bearbeiten · Doppelklick: Text oder Icon ändern · Ziehen: Zeile verschieben, am Gruppennamen oder mit Umschalt die ganze Gruppe. Schalter und Regler schalten in der Vorschau nichts.",
             "Drag the image to the top, bottom, left or right edge. Click: status settings. Double-click: icon for the status shown.": "Bild an den oberen, unteren, linken oder rechten Rand ziehen. Klick: Statuseinstellungen. Doppelklick: Icon für den gezeigten Status.",
             "No status association matches the value shown.": "Keine Status-Zuordnung passt zum gezeigten Wert.",
             "Status “%s”: %s": "Status „%s“: %s",
@@ -427,7 +426,8 @@
             "Also save variables, scripts and media": "Variablen, Skripte und Medien mitspeichern",
             "Without the check mark the rows become placeholders when the template is applied. The template is available in all tiles.": "Ohne Häkchen werden die Zeilen beim Anwenden zu Platzhaltern. Die Vorlage steht in allen Kacheln bereit.",
             "There can be at most 50 own templates.": "Es können höchstens 50 eigene Vorlagen gespeichert werden.",
-            "The own templates are too large.": "Die eigenen Vorlagen sind zu groß."
+            "The own templates are too large.": "Die eigenen Vorlagen sind zu groß.",
+            "Click: edit · Double-click: change text or icon · Right-click: menu · Drag: move a row; at the group name, in the free area of a group or with Shift the whole group. Buttons and sliders do not switch anything in the preview.": "Klick: bearbeiten · Doppelklick: Text oder Icon ändern · Rechtsklick: Menü · Ziehen: Zeile verschieben, am Gruppennamen, im freien Bereich einer Gruppe oder mit Umschalt die ganze Gruppe. Schalter und Regler schalten in der Vorschau nichts."
         },
         "en": {
             "Links": "Left",
