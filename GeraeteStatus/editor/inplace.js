@@ -163,6 +163,9 @@
             b.appendChild(E.iconSvg('trash-can'));
             return b;
         };
+        // Zeilen in einer Gruppe tragen in der Vorschau den Rahmen ihrer Gruppe wie die Platzhalter (sonst sieht man
+        // einer Zeile mit Variable nicht an, wohin sie gehört)
+        d.querySelectorAll('.variable-group .variable-item[data-row-key]').forEach(el => el.classList.add('udte-framed'));
         // Kasten jeder Gruppe trägt ihre Farbe; Platzhalter darin erben sie (auch beim Ziehen in eine andere Gruppe)
         (payload.variables || []).forEach(v => {
             const item = E.groupNumber(v.group) && d.querySelector('.variable-item[data-row-key="' + v.key + '"]');
@@ -293,7 +296,7 @@
                 frameEl.style.borderColor = E.groupColor(E.s.selectedGroup); // Farbe der Gruppe wie in der Liste
                 // Abstand wie die Zeilenrahmen: Platzhalter tragen ihren Rahmen am Rand (0), echte Zeilen 3 px außen
                 // (wie die Auswahl); weiter außen läge der Rahmen auf denen der Nachbarzeilen
-                const gap = box.querySelector('.variable-item:not(.udte-placeholder)') ? 3 : 0;
+                const gap = box.querySelector('.variable-item:not(.udte-placeholder):not(.udte-framed)') ? 3 : 0;
                 const place = () => {
                     const rects = [box, above].filter(Boolean).map(el => el.getBoundingClientRect());
                     const win = d.defaultView;
