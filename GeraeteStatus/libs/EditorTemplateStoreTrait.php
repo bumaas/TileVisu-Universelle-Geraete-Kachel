@@ -7,8 +7,9 @@ namespace UDT;
 /**
  * Eigene Vorlagen des Editors. Jede Kachel speichert ihre im Attribut UserTemplates (keine Dateien); das
  * Vorlagen-Menü sammelt die aller Kacheln dieses Moduls ein (UDST_GetUserTemplates), gelöscht wird bei der
- * Kachel, die sie gespeichert hat (UDST_DeleteUserTemplate). Gespeichert wird ohne Objekte: Variablen, Skripte,
- * Medien und Statusvariable fallen weg, die Zeilen werden beim Anwenden zu Platzhaltern.
+ * Kachel, die sie gespeichert hat (UDST_DeleteUserTemplate). Gespeichert wird ohne Objekte (Variablen, Skripte,
+ * Medien und Statusvariable fallen weg, die Zeilen werden beim Anwenden zu Platzhaltern), außer der Nutzer setzt
+ * im Dialog das Häkchen „mitspeichern“ (withObjects): dann verweist die Vorlage auf dieselben Objekte.
  */
 trait EditorTemplateStoreTrait
 {
@@ -63,7 +64,7 @@ trait EditorTemplateStoreTrait
         return $all;
     }
 
-    /** api=saveTemplate: {caption, icon, config} aus dem Entwurf, geprüft und ohne Objekte, in dieser Kachel. */
+    /** api=saveTemplate: {caption, icon, config, withObjects} aus dem Entwurf, geprüft, in dieser Kachel. */
     private function EditorSaveTemplate(array $body): array
     {
         $caption = trim(self::EditorText($body['caption'] ?? ''));
@@ -79,7 +80,9 @@ trait EditorTemplateStoreTrait
         if (count($list) >= 50) {
             return [422, ['errors' => [$this->Translate('A tile can hold at most 50 templates.')]]];
         }
-        $list[] = ['key' => bin2hex(random_bytes(6)), 'caption' => $caption, 'icon' => $icon, 'config' => self::StripTemplate($config)];
+        $withObjects = ($body['withObjects'] ?? false) === true;
+        $list[] = ['key' => bin2hex(random_bytes(6)), 'caption' => $caption, 'icon' => $icon, 'withObjects' => $withObjects,
+            'config' => $withObjects ? $config : self::StripTemplate($config)];
         $json = (string)json_encode($list, JSON_UNESCAPED_UNICODE);
         if (strlen($json) > 1024 * 1024) {
             return [422, ['errors' => [$this->Translate('The templates of this tile are too large.')]]];

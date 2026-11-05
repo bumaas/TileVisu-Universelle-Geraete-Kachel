@@ -47,7 +47,9 @@
                 // Bilder der Vorlage auf vorhandene Zuordnungen übertragen, statt diese zu ersetzen
                 const current = E.s.draft.ProfilAssoziazionen || [];
                 const hasStatus = (E.s.draft.Status | 0) > 0;
-                if (Array.isArray(config.ProfilAssoziazionen)) {
+                if ((config.Status | 0) > 0) {
+                    // Vorlage mit Objekten: bringt ihre Statusvariable samt Zuordnungen selbst mit
+                } else if (Array.isArray(config.ProfilAssoziazionen)) {
                     if (hasStatus && current.length) config.ProfilAssoziazionen = E.mergeAssociations(current, config.ProfilAssoziazionen);
                 } else {
                     // Vorlage ohne eigene Zuordnungen: ihr Icon zeigt das Gerät. Bilder einer früheren Vorlage (etwa
@@ -102,13 +104,15 @@
     /** Eigene Vorlage aus dem Entwurf: Name und Icon; der Server entfernt Variablen, Skripte und Medien. */
     const saveTemplate = () => {
         let icon = 'star';
+        let withObjects = false;
         const name = h('input', { type: 'text', maxlength: '60', value: E.s.instance.name || '' });
         const body = h('div', {},
             h('div', { class: 'field' }, h('label', { text: E.t('Name') }), name),
             E.f.icon(E.t('Icon'), () => icon, value => { icon = value || 'star'; }),
-            h('p', { class: 'muted', text: E.t('Variables, scripts and media are not saved; the rows become placeholders. The template is available in all tiles.') }));
+            E.f.checkbox(E.t('Also save variables, scripts and media'), () => withObjects, value => { withObjects = value; }),
+            h('p', { class: 'muted', text: E.t('Without the check mark the rows become placeholders when the template is applied. The template is available in all tiles.') }));
         E.dialog(E.t('Save as template'), body, [[E.t('Cancel'), () => true], [E.t('Save'), async () => {
-            const answer = await E.api('saveTemplate', { caption: name.value, icon, config: E.s.draft });
+            const answer = await E.api('saveTemplate', { caption: name.value, icon, withObjects, config: E.s.draft });
             if (answer.status !== 200) {
                 E.toast((answer.data.errors || [E.t('Saving failed.')]).join(' '), 'error');
                 return false;

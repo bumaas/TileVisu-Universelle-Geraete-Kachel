@@ -425,7 +425,9 @@
             "Status “%s”": "Status „%s“",
             "Select icon…": "Icon auswählen …",
             "Built-in image": "Gerätebild",
-            "Status settings": "Statuseinstellungen"
+            "Status settings": "Statuseinstellungen",
+            "Also save variables, scripts and media": "Variablen, Skripte und Medien mitspeichern",
+            "Without the check mark the rows become placeholders when the template is applied. The template is available in all tiles.": "Ohne Häkchen werden die Zeilen beim Anwenden zu Platzhaltern. Die Vorlage steht in allen Kacheln bereit."
         },
         "en": {
             "Links": "Left",
