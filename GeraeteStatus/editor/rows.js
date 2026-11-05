@@ -69,6 +69,7 @@
             if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) { e.preventDefault(); moveRow(index, e.key === 'ArrowUp' ? -1 : 1); }
             if (e.key === 'Delete') { e.preventDefault(); E.deleteRow(index); }
         });
+        item.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); E.openRowMenu(index, e.clientX, e.clientY); });
         item.querySelector('.grip').addEventListener('pointerdown', e => startDrag(e, item));
         return item;
     };

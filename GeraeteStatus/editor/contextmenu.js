@@ -93,10 +93,14 @@
     const groupName = n => { const g = E.groups()[n - 1]; return (g && g.GroupName) || E.tf('Group %d', n); };
 
     // ---------- Zeile ----------
-    function rowMenu(key, x, y) {
+    /** Menü einer Zeile; x/y in der Vorschau-Kachel, mit absolute im Editor (Liste). Gehört die Zeile zu einer
+        Mehrfachauswahl, gilt das Menü für alle gewählten Zeilen und die Auswahl bleibt. */
+    function rowMenu(key, x, y, absolute) {
         const rows = E.rows();
         const row = rows[key];
         if (!row) return;
+        const at = absolute ? [x, y] : fromTile(x, y);
+        if (E.isMulti() && E.s.picked.includes(row)) { multiMenu(at); return; }
         E.select(key);
         const type = E.rowValue(row, 'DisplayType');
         const image = type === 'image';
@@ -112,10 +116,10 @@
             set(() => { rows.splice(key, 1); rows.splice(to, 0, row); });
             E.select(to);
         };
-        open(...fromTile(x, y), E.rowTitle(row), [
+        open(...at, E.rowTitle(row), [
             { icon: 'magnifying-glass', label: image ? E.t('Select image…') : E.t('Select variable…'),
                 run: () => E.pick(image ? 'image' : 'variable', row[field] | 0, id => { set(() => { row[field] = id; }); if (!image) E.suggestType(row); }) },
-            image ? null : { icon: 'pen', label: E.t('Change label'), run: () => E.inplace.editLabel(key, x, y) },
+            image ? null : { icon: 'pen', label: E.t('Change label'), run: () => E.inplace.editLabel(key, absolute ? -1 : x, absolute ? -1 : y) }, // aus der Liste: ohne Trefferpunkt in der Kachel
             '-',
             { icon: E.typeIcon(type), label: E.t('Display type'), items: E.TYPES.map(([id, , caption]) => ({
                 label: E.t(caption), checked: id === type, run: () => set(() => { row.DisplayType = id; }) })) },
@@ -141,6 +145,42 @@
             { icon: 'trash', label: E.t('Delete'), danger: true, run: () => E.deleteRow(key) }
         ]);
     }
+
+    // ---------- Mehrere Zeilen ----------
+    function multiMenu(at) {
+        const list = E.pickedRows();
+        const set = mutate => E.change(mutate, true);
+        const all = mutate => set(() => list.forEach(mutate));
+        const common = field => {
+            const values = list.map(r => JSON.stringify(E.rowValue(r, field)));
+            return values.every(v => v === values[0]) ? E.rowValue(list[0], field) : undefined;
+        };
+        const group = common('Group');
+        const current = group === undefined ? -1 : E.groupNumber(group);
+        const type = common('DisplayType');
+        const shown = f => list.every(r => { const m = (E.s.matrix && (E.s.matrix[E.rowValue(r, 'DisplayType')] || E.s.matrix.text)) || {}; return m[f] !== undefined ? !!m[f] : true; });
+        open(...at, E.tf('%d rows selected', list.length), [
+            { icon: E.typeIcon(type || 'text'), label: E.t('Display type'), items: E.TYPES.map(([id, , caption]) => ({
+                label: E.t(caption), checked: id === type, run: () => all(r => { r.DisplayType = id; }) })) },
+            { icon: 'layer-group', label: E.t('Group'), items: [
+                { label: E.t('No group'), checked: current === 0, run: () => all(r => { r.Group = 'keine Gruppe'; }) },
+                ...[...usedGroups()].sort((a, b) => a - b).map(n => ({ label: groupName(n), checked: n === current, run: () => all(r => { r.Group = 'Gruppe ' + n; }) })),
+                '-',
+                { icon: 'plus', label: E.t('New group'), disabled: !freeGroup(), run: () => { const n = freeGroup(); all(r => { r.Group = 'Gruppe ' + n; }); } }] },
+            { icon: 'eye', label: E.t('Show'), items: [['ShowIcon', 'Icon'], ['ShowLabel', 'Label'], ['ShowValue', 'Value']].filter(([f]) => shown(f)).map(([f, caption]) => {
+                const on = list.every(r => !!E.rowValue(r, f));
+                return { label: E.t(caption), checked: on, run: () => all(r => { r[f] = !on; }) };
+            }) },
+            '-',
+            { icon: 'paint-roller', label: E.t('Paste appearance'), disabled: !styleClipboard, run: () => E.pasteStyle(list) },
+            '-',
+            { icon: 'copy', label: E.t('Duplicate'), run: () => E.duplicateRows(list) },
+            { icon: 'trash', label: E.t('Delete'), danger: true, run: () => E.deleteRows(list) },
+            '-',
+            { icon: 'xmark', label: E.t('End selection'), run: () => E.select(null) }
+        ]);
+    }
+    E.openRowMenu = (key, x, y) => rowMenu(key, x, y, true); // Rechtsklick in der Liste (rows.js)
 
     // ---------- Gruppe ----------
     function groupMenu(key, x, y) {
