@@ -182,14 +182,17 @@
     actions.addEventListener('pointerdown', e => e.stopPropagation()); // kein Ziehen des Bildes
     actions.addEventListener('dblclick', e => e.stopPropagation());
     handle.appendChild(actions);
-    // Knöpfe unter das Foto-Icon (die Bildspalte kann über den sichtbaren Teil der Kachel hinausreichen)
+    // Knöpfe mittig über das Foto-Icon (die Bildspalte kann über den sichtbaren Teil der Kachel hinausreichen)
     const placeActions = () => {
         const d = E.previewDoc();
         const column = d && d.getElementById('div1');
         const icon = d && d.querySelector('#div1 .fontawesome-icon-container');
         if (!handle.classList.contains('placeholder') || !column || !icon) return;
-        const top = icon.getBoundingClientRect().bottom - column.getBoundingClientRect().top + 6;
-        actions.style.top = Math.max(0, Math.min(top, column.offsetHeight - actions.offsetHeight - 4)) + 'px';
+        const r = icon.getBoundingClientRect();
+        const c = column.getBoundingClientRect();
+        actions.style.top = Math.max(0, r.top + r.height / 2 - c.top - actions.offsetHeight / 2) + 'px';
+        actions.style.left = (r.left - c.left) + 'px';
+        actions.style.width = r.width + 'px';
     };
     E.on('handlePlaced', placeActions);
     E.on('pushed', placeActions);
