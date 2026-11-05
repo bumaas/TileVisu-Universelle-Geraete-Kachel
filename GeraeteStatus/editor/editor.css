@@ -76,7 +76,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .layout { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) 440px; min-height: 0; }
 .stage { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
 .stage-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 10px 16px; }
-.stage-area { flex: 1; overflow: auto; display: flex; align-items: flex-start; justify-content: center; padding: 32px; min-height: 280px; }
+.stage-area { position: relative; flex: 1; overflow: auto; display: flex; align-items: flex-start; justify-content: center; padding: 32px; min-height: 280px; }
 .hint { color: var(--muted); font-size: 12px; margin: 0; padding: 8px 16px 12px; }
 .side { background: var(--panel); border-left: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; }
 
@@ -124,18 +124,20 @@ body.resizing { cursor: nwse-resize; user-select: none; }
 .image-placeholder-actions .btn:not(.primary) { background: rgba(0, 0, 0, .65); color: #fff; border-color: rgba(255, 255, 255, .4); }
 .image-placeholder-actions .btn.primary { background: var(--tile-accent, var(--accent)); color: var(--tile-card, var(--accent-text)); border: 0; }
 .image-handle:hover span, body.dragging-image .image-handle span { opacity: 1; }
-.drop-zones { position: absolute; z-index: 4; pointer-events: none; }
+.drop-zones { position: absolute; z-index: 6; pointer-events: none; }
+/* Ablagefelder fürs Statusbild: klein, mit Bild-Icon, mittig auf den Kanten der Kachel */
 .drop-zones > div {
-    position: absolute; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px;
-    color: #fff; background: rgba(0, 205, 171, .14); border: 2px dashed rgba(0, 205, 171, .5); border-radius: 10px; transition: background .1s;
+    position: absolute; width: 46px; height: 46px; border-radius: 50%; transform: translate(-50%, -50%);
+    display: flex; align-items: center; justify-content: center; font-size: 18px; color: #fff;
+    background: rgba(0, 0, 0, .55); border: 2px dashed rgba(0, 205, 171, .85); box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    transition: transform .12s, background .12s;
 }
-.drop-zones > div.active { background: rgba(0, 205, 171, .45); border-style: solid; }
-.drop-zones span { background: rgba(0, 0, 0, .7); padding: 4px 10px; border-radius: 999px; }
-.drop-zones > div.active span { background: var(--accent); color: var(--accent-text); }
-.drop-zones [data-edge=top] { left: 6px; right: 6px; top: 6px; height: 26%; }
-.drop-zones [data-edge=bottom] { left: 6px; right: 6px; bottom: 6px; height: 26%; }
-.drop-zones [data-edge=left] { left: 6px; top: calc(26% + 12px); bottom: calc(26% + 12px); width: 26%; }
-.drop-zones [data-edge=right] { right: 6px; top: calc(26% + 12px); bottom: calc(26% + 12px); width: 26%; }
+.drop-zones > div.current { border-style: solid; opacity: .55; }
+.drop-zones > div.active { background: var(--accent); color: var(--accent-text); border-style: solid; opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+.drop-zones [data-edge=top] { left: 50%; top: 0; }
+.drop-zones [data-edge=bottom] { left: 50%; top: 100%; }
+.drop-zones [data-edge=left] { left: 0; top: 50%; }
+.drop-zones [data-edge=right] { left: 100%; top: 50%; }
 body.dragging-image { cursor: grabbing; user-select: none; }
 body.dragging-image iframe { pointer-events: none; }
 body.resizing iframe { pointer-events: none; }

@@ -228,15 +228,22 @@
     const setupImageDrag = () => {
         const handle = document.getElementById('imageHandle');
         const zones = document.getElementById('dropZones');
-        const labels = { top: 'top', bottom: 'bottom', left: 'left', right: 'right' };
-        zones.querySelectorAll('[data-edge]').forEach(z => { z.replaceChildren(h('span', { text: E.t(labels[z.dataset.edge]) })); });
+        zones.querySelectorAll('[data-edge]').forEach(z => { z.title = E.t(z.dataset.edge); z.replaceChildren(E.icon('image')); });
         let drag = null;
+        // Abgelegt wird nur auf einem der kleinen Felder an den Kanten (bis 56 px um ihre Mitte)
         const edgeAt = (x, y) => {
-            const r = frame().getBoundingClientRect();
-            const d = { left: (x - r.left) / r.width, right: (r.right - x) / r.width, top: (y - r.top) / r.height, bottom: (r.bottom - y) / r.height };
-            return Object.keys(d).reduce((a, b) => (d[a] <= d[b] ? a : b));
+            let best = null;
+            zones.querySelectorAll('[data-edge]').forEach(z => {
+                const r = z.getBoundingClientRect();
+                const d = Math.hypot(x - (r.left + r.width / 2), y - (r.top + r.height / 2));
+                if (d < 56 && (!best || d < best.d)) best = { edge: z.dataset.edge, d };
+            });
+            return best ? best.edge : null;
         };
-        const mark = edge => zones.querySelectorAll('[data-edge]').forEach(z => z.classList.toggle('active', z.dataset.edge === edge));
+        const mark = edge => zones.querySelectorAll('[data-edge]').forEach(z => {
+            z.classList.toggle('active', z.dataset.edge === edge);
+            z.classList.toggle('current', !!E.s.draft && z.dataset.edge === E.s.draft.BildPosition);
+        });
         handle.addEventListener('dblclick', e => { e.preventDefault(); E.pickStatusIcon(); });
         handle.addEventListener('pointerdown', e => {
             if (e.button !== 0) return;
@@ -251,8 +258,8 @@
             if (!drag.moved && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 6) return;
             if (!drag.moved) {
                 drag.moved = true;
-                const f = frame();
-                Object.assign(zones.style, { left: f.offsetLeft + 'px', top: f.offsetTop + 'px', width: f.offsetWidth + 'px', height: f.offsetHeight + 'px' });
+                const box = document.getElementById('tileFrame'); // Lage in der Bühne (die Felder sitzen auf ihren Kanten)
+                Object.assign(zones.style, { left: box.offsetLeft + 'px', top: box.offsetTop + 'px', width: box.offsetWidth + 'px', height: box.offsetHeight + 'px' });
                 zones.hidden = false;
                 document.body.classList.add('dragging-image');
             }
