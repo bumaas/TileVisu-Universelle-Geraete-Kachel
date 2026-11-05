@@ -65,12 +65,54 @@ trait PayloadVariablesTrait
             } elseif ($displayType === 'button' && intval($variable['OpenObjectId'] ?? 0) > 1) {
                 $row = $this->buildObjectRow($variable);
             }
+            $unset = $row === null || ($displayType === 'image' && intval($variable['ImageMedia'] ?? 0) <= 0);
+            if ($unset && $this->IsPreview()) {
+                $row = $this->buildPlaceholderRow($variable); // nur im Editor: Zeile ohne Ziel sichtbar machen
+            }
             return $row === null ? null : ['key' => $key] + $row;
         } catch (\Throwable $e) {
             // Zeile auslassen statt die ganze Kachel abzubrechen
             $this->LogCaughtThrowable(__FUNCTION__ . ':' . $key, $e);
             return null;
         }
+    }
+
+    /**
+     * Platzhalter für den Editor (nur Vorschau): eine Zeile ohne Variable, Bild oder Ziel erscheint als
+     * Textzeile mit dem Icon ihres Anzeigetyps; editorPlaceholder sagt dem Editor, was zu wählen ist.
+     */
+    private function buildPlaceholderRow(array $variable): array
+    {
+        $type = (string)($variable['DisplayType'] ?? 'text');
+        $captions = ['text' => 'Text', 'progress' => 'Progress Bar', 'slider' => 'Slider', 'button' => 'Button', 'image' => 'Image'];
+        $icons = ['text' => 'font', 'progress' => 'bars-progress', 'slider' => 'sliders-simple', 'button' => 'hand-pointer', 'image' => 'image'];
+        $label = trim((string)($variable['Label'] ?? ''));
+        if ($type === 'image') {
+            $value = 'Image without media';
+        } else {
+            $value = intval($variable['Variable'] ?? 0) > 0 ? 'The variable no longer exists.' : 'No variable selected';
+        }
+        return [
+            'id' => 'placeholder',
+            'label' => $label !== '' ? $label : $this->Translate($captions[$type] ?? 'Text'),
+            'displayType' => 'text',
+            'variableType' => 3,
+            'group' => $variable['Group'] ?? 'keine Gruppe',
+            'showIcon' => true,
+            'showLabel' => true,
+            'showValue' => true,
+            'fontSize' => $variable['FontSize'] ?? 12,
+            'textColor' => '#000000',
+            'isTextColorTransparent' => true,
+            'alignment' => 'left',
+            'formattedValue' => $this->Translate($value),
+            'rawValue' => '',
+            'icon' => $icons[$type] ?? 'font',
+            'showBorderLine' => false,
+            'progressbarActive' => true,
+            'progressbarInactive' => false,
+            'editorPlaceholder' => $type === 'image' ? 'image' : 'variable',
+        ];
     }
 
     /** Zeile mit Variable: alle Darstellungsarten samt zweiter Variable und Ziel-Marker. */

@@ -129,6 +129,63 @@
         });
     };
 
+    /** Platzhalter der Vorschau: Zeilen ohne Ziel (der Server liefert sie in der Vorschau als Textzeile mit
+        editorPlaceholder) und eine fehlende Statusvariable bekommen einen Knopf „Auswählen“. */
+    const decorate = payload => {
+        const d = E.previewDoc();
+        if (!d || !payload) return;
+        const button = (kind, key) => {
+            const b = d.createElement('button');
+            b.type = 'button';
+            b.className = 'udte-pick';
+            b.setAttribute('data-kind', kind);
+            b.setAttribute('data-key', String(key));
+            b.textContent = E.t('Select');
+            return b;
+        };
+        (payload.variables || []).filter(v => v.editorPlaceholder).forEach(v => {
+            const el = d.querySelector('.variable-item[data-row-key="' + v.key + '"]');
+            if (!el || el.querySelector('.udte-pick')) return;
+            el.classList.add('udte-placeholder');
+            el.appendChild(button(v.editorPlaceholder, v.key));
+        });
+        const list = d.getElementById('variables-container');
+        let status = d.getElementById('udte-status-placeholder');
+        const needed = !('status' in payload) && !payload.statusHidden;
+        if (needed && !status && list) {
+            status = d.createElement('div');
+            status.id = 'udte-status-placeholder';
+            status.className = 'udte-placeholder';
+            const text = d.createElement('span');
+            text.textContent = E.t('Status variable') + ': ';
+            const value = d.createElement('span');
+            value.className = 'variable-value';
+            value.textContent = E.t('No variable selected');
+            status.append(text, value, button('status', -1));
+            list.parentElement.insertBefore(status, list);
+        } else if (!needed && status) {
+            status.remove();
+        }
+    };
+    E.on('pushed', decorate);
+
+    /** „Auswählen“ am Platzhalter: Objektauswahl für die Zeile (Variable oder Bild) oder die Statusvariable. */
+    const pickTarget = (kind, key) => {
+        if (kind === 'status') {
+            E.emit('tab', 'status');
+            E.pick('variable', E.s.draft.Status | 0, async id => {
+                E.change(d => { d.Status = id; }, true);
+                if (id) await E.reloadAssociations(false);
+            });
+            return;
+        }
+        const row = E.rows()[key];
+        if (!row) return;
+        E.select(key);
+        const field = kind === 'image' ? 'ImageMedia' : 'Variable';
+        E.pick(kind === 'image' ? 'image' : 'variable', row[field] | 0, id => E.change(() => { row[field] = id; }, true));
+    };
+
     E.on('bridge', data => {
         const key = parseInt(data.key, 10);
         E.emit('tab', 'rows');
@@ -144,6 +201,8 @@
             editGroupName(key, Number(data.x), Number(data.y));
         } else if (data.udte === 'editGroupIcon') {
             pickGroupIcon(key);
+        } else if (data.udte === 'pick') {
+            pickTarget(data.kind, key);
         } else if (data.udte === 'rowIcon') {
             E.select(key);
             E.toast(E.t('The icon of a row comes from the presentation of its variable.'));

@@ -69,6 +69,8 @@
             return;
         }
         if (t.closest('#udte-add')) { post({ udte: 'add' }); return; }
+        var pick = t.closest('.udte-pick'); // Platzhalter des Editors: Variable, Bild oder Statusvariable wählen
+        if (pick) { post({ udte: 'pick', kind: pick.getAttribute('data-kind'), key: pick.getAttribute('data-key') }); return; }
         var item = t.closest(ROW);
         if (item) { post({ udte: 'select', key: item.getAttribute('data-row-key') }); return; }
         var g = t.closest(GROUP_NAME) && groupOf(t);
