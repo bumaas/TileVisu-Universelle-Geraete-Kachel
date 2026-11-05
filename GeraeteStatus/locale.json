@@ -442,7 +442,11 @@
             "Add rows": "Zeilen hinzufügen",
             "%d rows added.": "%d Zeilen hinzugefügt.",
             "From a device…": "Aus Gerät …",
-            "Select device": "Gerät auswählen"
+            "Select device": "Gerät auswählen",
+            "%d rows removed.": "%d Zeilen entfernt.",
+            "%d rows selected": "%d Zeilen ausgewählt",
+            "End selection": "Auswahl aufheben",
+            "Shift, Cmd or Ctrl + click adds or removes rows.": "Umschalt-, Cmd- oder Strg-Klick nimmt Zeilen hinzu oder heraus."
         },
         "en": {
             "Links": "Left",

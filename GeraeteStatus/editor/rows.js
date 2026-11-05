@@ -7,6 +7,7 @@
     let listEl = null;
     let inspectorEl = null;
     let listView = null;
+    let multiEl = null;
     let listScroll = 0;
 
     const usedGroups = () => {
@@ -52,14 +53,17 @@
     const rowItem = (row, index) => {
         const problem = E.rowProblem(row);
         const item = h('div', {
-            class: 'row-item' + (index === E.s.selected ? ' selected' : '') + (problem ? ' has-problem' : ''),
+            class: 'row-item' + (index === E.s.selected || E.s.picked.includes(row) ? ' selected' : '') + (problem ? ' has-problem' : ''),
             tabindex: '0', 'data-index': String(index), role: 'button'
         },
             h('span', { class: 'grip', title: E.t('Drag to move') }, E.icon('grip-dots-vertical')),
             E.icon(E.typeIcon(E.rowValue(row, 'DisplayType')), 'type'),
             h('span', { class: 'row-title', text: E.rowTitle(row) }),
             problem ? h('span', { class: 'problem', title: problem }, E.icon('triangle-exclamation')) : null);
-        item.addEventListener('click', e => { if (!e.target.closest('.grip')) E.select(index === E.s.selected ? null : index); });
+        item.addEventListener('click', e => {
+            if (e.target.closest('.grip')) return;
+            if (e.shiftKey || e.metaKey || e.ctrlKey) E.toggleMulti(index); else E.select(index === E.s.selected ? null : index);
+        });
         item.addEventListener('keydown', e => {
             if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); E.select(index); }
             if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) { e.preventDefault(); moveRow(index, e.key === 'ArrowUp' ? -1 : 1); }
@@ -236,6 +240,9 @@
         if (!listView) return;
         const tab = document.getElementById('tab-rows');
         const detail = E.s.selected !== null && !!E.rows()[E.s.selected];
+        const multi = E.isMulti();
+        multiEl.hidden = !multi;
+        if (multi) E.renderMulti(multiEl);
         if (detail && !listView.hidden) listScroll = tab.scrollTop;
         const back = !detail && listView.hidden;
         listView.hidden = detail;
@@ -265,7 +272,8 @@
             h('span', { class: 'grow' }),
             E.f.info(E.t('Keys: arrow keys select the previous or next row, Alt + arrow keys move it, Delete removes it, Ctrl/Cmd + D duplicates it, Escape ends the selection. This also works in the preview.')));
         listEl = h('div', { class: 'rows-list', id: 'rowsList' });
-        listView = h('div', { class: 'list-view' }, bar, listEl);
+        multiEl = h('div', { class: 'multi-panel', hidden: true });
+        listView = h('div', { class: 'list-view' }, bar, multiEl, listEl);
         inspectorEl = h('div', { class: 'inspector', id: 'rowInspector', hidden: true });
         inspectorEl.addEventListener('keydown', e => { if (e.key === 'Escape' && !e.target.closest('input, select, textarea')) E.select(null); });
         tab.replaceChildren(listView, inspectorEl);
@@ -287,7 +295,10 @@
     E.on('objects', () => { E.renderRows(); });
     E.on('select', () => {
         if (!listEl) return;
-        listEl.querySelectorAll('.row-item').forEach(item => item.classList.toggle('selected', parseInt(item.dataset.index, 10) === E.s.selected));
+        listEl.querySelectorAll('.row-item').forEach(item => {
+            const index = parseInt(item.dataset.index, 10);
+            item.classList.toggle('selected', index === E.s.selected || E.s.picked.includes(E.rows()[index]));
+        });
         listEl.querySelectorAll('.group-card').forEach(card => card.classList.toggle('selected', parseInt(card.dataset.group, 10) === E.s.selectedGroup));
         showView();
         const card = E.s.selectedGroup && listEl.querySelector('.group-card[data-group="' + E.s.selectedGroup + '"]');

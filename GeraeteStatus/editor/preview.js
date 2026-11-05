@@ -310,6 +310,7 @@
         if (!d) return;
         d.querySelectorAll('.udte-selected').forEach(el => el.classList.remove('udte-selected'));
         if (E.drawGroupOutline) E.drawGroupOutline(d); // Rahmen der gewählten Gruppe (inplace.js)
+        E.pickedRows().forEach(row => { const el = d.querySelector('.variable-item[data-row-key="' + E.rows().indexOf(row) + '"]'); if (el) el.classList.add('udte-selected'); });
         if (E.s.selected !== null) {
             const el = d.querySelector('.variable-item[data-row-key="' + E.s.selected + '"]');
             if (el) {
@@ -442,7 +443,7 @@
         } else if (['selectGroup', 'edit', 'editGroup', 'editGroupIcon', 'rowIcon', 'pick', 'remove', 'context', 'contextGroup'].includes(data.udte)) {
             E.emit('bridge', data); // Bearbeiten in der Vorschau: inplace.js
         } else if (data.udte === 'select') {
-            E.select(parseInt(data.key, 10));
+            if (data.multi) E.toggleMulti(parseInt(data.key, 10)); else E.select(parseInt(data.key, 10));
             E.emit('tab', 'rows');
         } else if (data.udte === 'status') {
             E.emit('tab', 'status');

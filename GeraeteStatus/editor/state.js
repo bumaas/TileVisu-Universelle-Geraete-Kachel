@@ -22,6 +22,7 @@
         instance: { id: 0, name: '' },
         selected: null,     // Index der gewählten Zeile
         selectedGroup: null, // Nummer der gewählten Gruppe (1–10)
+        picked: [],         // Mehrfachauswahl: die Zeilen selbst (multi.js)
         simulate: {},       // Variablen-ID => Vorschauwert
         extraGroups: [],    // angelegte Gruppen ohne Zeilen (nur im Editor)
         payload: null       // letzter Vorschau-Stand
@@ -40,6 +41,7 @@
         E.s.instance = data.instance || E.s.instance;
         E.s.selected = null;
         E.s.selectedGroup = null;
+        E.s.picked = [];
         E.s.extraGroups = [];
         past.length = 0;
         future.length = 0;
@@ -90,6 +92,7 @@
         const state = JSON.parse(from.pop());
         E.s.draft = state.draft;
         E.s.extraGroups = state.groups || [];
+        E.s.picked = [];
         lastField = null;
         const selected = E.s.selected;
         const group = E.s.selectedGroup;
@@ -115,6 +118,7 @@
     E.select = function (index) {
         E.s.selected = (index === null || index === undefined || index < 0 || index >= E.rows().length) ? null : index;
         E.s.selectedGroup = null;
+        E.s.picked = [];
         E.emit('select', E.s.selected);
     };
 
@@ -122,6 +126,7 @@
     E.selectGroup = function (number) {
         E.s.selected = null;
         E.s.selectedGroup = number > 0 ? number : null;
+        E.s.picked = [];
         E.emit('select', null);
     };
 

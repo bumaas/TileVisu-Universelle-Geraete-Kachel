@@ -74,7 +74,7 @@
         var remove = t.closest('.udte-remove'); // Platzhalter entfernen: Zeile löschen bzw. Statusbereich ausblenden
         if (remove) { post({ udte: 'remove', kind: remove.getAttribute('data-kind'), key: remove.getAttribute('data-key') }); return; }
         var item = t.closest(ROW);
-        if (item) { post({ udte: 'select', key: item.getAttribute('data-row-key') }); return; }
+        if (item) { post({ udte: 'select', key: item.getAttribute('data-row-key'), multi: e.shiftKey || e.metaKey || e.ctrlKey }); return; }
         // Gruppenname oder leerer Bereich einer Gruppe (Kasten, Abstand zwischen den Zeilen, Linie darunter)
         var line = t.closest('.group-line');
         var g = (t.closest(GROUP_NAME) || t.closest('.variable-group') || line) && groupOf(line ? line.previousElementSibling : t);

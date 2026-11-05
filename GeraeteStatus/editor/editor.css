@@ -342,6 +342,9 @@ textarea.code { font: 12px/1.4 ui-monospace, Menlo, monospace; margin-top: 8px; 
 }
 .toast-action { margin-left: 14px; padding: 0; border: 0; background: none; color: inherit; font: inherit; font-weight: 600; text-decoration: underline; cursor: pointer; }
 .history { display: flex; gap: 4px; }
+.multi-panel { display: flex; flex-direction: column; gap: 10px; margin: 0 0 12px; padding: 12px; border: 1px solid var(--accent); border-radius: var(--radius); background: var(--panel); }
+.multi-panel[hidden] { display: none; }
+.multi-panel > .detail-head { position: static; margin: 0; padding: 0 0 8px; background: none; }
 .device-rows { display: flex; flex-direction: column; gap: 10px; min-width: min(520px, 80vw); }
 .device-list { display: flex; flex-direction: column; gap: 2px; max-height: 50vh; overflow: auto; border: 1px solid var(--line); border-radius: 8px; padding: 4px; }
 .device-var { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; cursor: pointer; }

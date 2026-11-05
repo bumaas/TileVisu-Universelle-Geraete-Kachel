@@ -6,6 +6,8 @@
     const root = h('div', { class: 'menu-list add-menu ctx', id: 'contextMenu', role: 'menu', hidden: true });
     document.body.appendChild(root);
     let styleClipboard = null;
+    E.hasStyle = () => !!styleClipboard; // Mehrfachauswahl (multi.js)
+    E.pasteStyle = rows => { if (styleClipboard) E.change(() => rows.forEach(r => Object.assign(r, E.clone(styleClipboard))), true); };
 
     // Darstellung einer Zeile (für „Darstellung kopieren/einfügen“): alles außer Ziel, Beschriftung, Typ und Gruppe
     const STYLE = ['ShowIcon', 'ShowLabel', 'ShowValue', 'FontSize', 'TextColor', 'ProgressColor1', 'ProgressColor2', 'SliderColor1',
