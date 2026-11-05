@@ -136,7 +136,8 @@
     const buildMenu = () => {
         const list = document.getElementById('templateList');
         const own = E.s.templates.filter(t => t.user);
-        list.replaceChildren(
+        // replaceChildren schriebe ein null (keine eigenen Vorlagen) als Text „null“ ins Menü
+        list.replaceChildren(...[
             h('div', { class: 'menu-title', text: E.t('Start with a template') }),
             ...E.s.templates.filter(t => !t.user).map(t => h('button', { type: 'button', onclick: () => { close(); applyTemplate(t); } }, E.icon(t.icon || 'shapes'), ' ', t.caption)),
             own.length ? h('div', { class: 'menu-title', text: E.t('Own templates') }) : null,
@@ -147,7 +148,7 @@
             h('hr'),
             h('button', { type: 'button', onclick: () => { close(); saveTemplate(); } }, E.icon('bookmark'), ' ', E.t('Save as template…')),
             h('button', { type: 'button', onclick: () => { close(); exportConfig(); } }, E.icon('file-export'), ' ', E.t('Export')),
-            h('button', { type: 'button', onclick: () => { close(); importConfig(); } }, E.icon('file-import'), ' ', E.t('Import')));
+            h('button', { type: 'button', onclick: () => { close(); importConfig(); } }, E.icon('file-import'), ' ', E.t('Import'))].filter(Boolean));
     };
     const menu = document.getElementById('templateMenu');
     const close = () => menu.classList.remove('open');
