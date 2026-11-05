@@ -101,6 +101,14 @@
         post({ udte: t.closest('.variable-icon') ? 'rowIcon' : 'edit', key: item.getAttribute('data-row-key'), x: e.clientX, y: e.clientY });
     }, true);
 
+    // Rechtsklick auf eine Zeile: Kontextmenü des Editors (Duplizieren, Löschen) statt des Browser-Menüs
+    document.addEventListener('contextmenu', function (e) {
+        var item = e.target.closest && e.target.closest(ROW);
+        if (!item) return;
+        e.preventDefault();
+        post({ udte: 'context', key: item.getAttribute('data-row-key'), x: e.clientX, y: e.clientY });
+    }, true);
+
     // ---------------------------------------------------------------- Live-Sortieren
 
     var drag = null;

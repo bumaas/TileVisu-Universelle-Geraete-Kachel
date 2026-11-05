@@ -444,7 +444,7 @@
             holding = false;
             held = null; // der neue Stand kommt mit der Änderung, ein angehaltener zeigte die alte Reihenfolge
             E.emit('bridge', data);
-        } else if (['selectGroup', 'edit', 'editGroup', 'editGroupIcon', 'rowIcon', 'pick', 'remove'].includes(data.udte)) {
+        } else if (['selectGroup', 'edit', 'editGroup', 'editGroupIcon', 'rowIcon', 'pick', 'remove', 'context'].includes(data.udte)) {
             E.emit('bridge', data); // Bearbeiten in der Vorschau: inplace.js
         } else if (data.udte === 'select') {
             E.select(parseInt(data.key, 10));
