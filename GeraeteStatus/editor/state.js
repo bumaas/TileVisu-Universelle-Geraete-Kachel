@@ -84,6 +84,10 @@
     }
     E.groups = () => padGroups(E.s.draft);
 
+    /** Erkennungsfarbe einer Gruppe (1–10) im Editor: Liste rechts und Platzhalter in der Vorschau. */
+    const GROUP_COLORS = ['#4f9dff', '#f5a524', '#b37feb', '#34d399', '#f472b6', '#22d3ee', '#fb7185', '#a3e635', '#fbbf24', '#94a3b8'];
+    E.groupColor = n => GROUP_COLORS[(Math.max(1, n | 0) - 1) % GROUP_COLORS.length];
+
     E.groupNumber = value => {
         const m = /^Gruppe (\d+)$/.exec(String(value || ''));
         return m ? parseInt(m[1], 10) : 0;

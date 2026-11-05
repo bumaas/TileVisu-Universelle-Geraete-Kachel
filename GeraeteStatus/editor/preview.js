@@ -52,7 +52,7 @@
             + '#udte-group-outline{position:absolute;z-index:40;pointer-events:none;border:2px dashed var(--accent-color);border-radius:8px}'
             + '.group-name-label,.group-name-above{cursor:grab}'
             + 'html.udte-dragging .udte-selected{outline:none}html.udte-dragging #udte-group-outline{display:none}'
-            + '.udte-placeholder{border:1.5px dashed rgba(127,127,127,.6);border-radius:8px;padding:4px 8px;box-sizing:border-box;max-width:100%}'
+            + '.udte-placeholder{border:1.5px dashed var(--udte-group-color,rgba(127,127,127,.6));border-radius:8px;padding:4px 8px;box-sizing:border-box;max-width:100%}'
             + '#udte-status-placeholder>span:first-child{white-space:nowrap}'
             + '.udte-placeholder{min-width:0}.udte-placeholder .variable-label{display:block!important;flex:0 1 auto!important;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-right:8px!important}'
             + '#div2:has(.udte-placeholder){min-width:0}#udte-status-placeholder{max-width:100%}'
@@ -315,6 +315,7 @@
                 const left = Math.min(...rects.map(r => r.left)) + win.scrollX - 5;
                 const frameEl = d.createElement('div');
                 frameEl.id = 'udte-group-outline';
+                frameEl.style.borderColor = E.groupColor(E.s.selectedGroup); // Farbe der Gruppe wie in der Liste
                 Object.assign(frameEl.style, {
                     top: top + 'px', left: left + 'px',
                     width: (Math.max(...rects.map(r => r.right)) + win.scrollX + 5 - left) + 'px',

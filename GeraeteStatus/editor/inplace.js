@@ -167,6 +167,8 @@
             const el = d.querySelector('.variable-item[data-row-key="' + v.key + '"]');
             if (!el || el.querySelector('.udte-pick')) return;
             el.classList.add('udte-placeholder');
+            const group = E.groupNumber(v.group);
+            if (group) el.style.setProperty('--udte-group-color', E.groupColor(group)); // Rahmen in der Farbe der Gruppe
             el.append(button(v.editorPlaceholder, v.key), trash(v.editorPlaceholder, v.key));
         });
         const list = d.getElementById('variables-container');

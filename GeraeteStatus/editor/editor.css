@@ -231,14 +231,14 @@ details.sec .seg-full { margin-bottom: 10px; }
 .grip { cursor: grab; color: var(--muted); padding: 4px 2px; touch-action: none; }
 .dragging { opacity: .55; outline: 2px dashed var(--accent); }
 .group-card { border: 1px solid var(--line); border-radius: 10px; background: var(--panel-2); padding: 6px; }
-.group-card.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.group-card.selected { border-color: var(--group-color, var(--accent)); box-shadow: 0 0 0 1px var(--group-color, var(--accent)); }
 .group-head { display: flex; align-items: center; gap: 3px; flex-wrap: wrap; margin-bottom: 6px; }
 .group-head .btn.icon { padding: 4px 5px; }
 .group-head .group-name { flex: 1; min-width: 70px; }
 .group-head input { padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
-.group-icon { width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; color: var(--accent); background: none; border: 1px solid transparent; border-radius: 6px; cursor: pointer; padding: 0; }
+.group-icon { width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; color: var(--group-color, var(--accent)); background: none; border: 1px solid transparent; border-radius: 6px; cursor: pointer; padding: 0; }
 .group-icon:hover, .group-icon:focus-visible { border-color: var(--line); background: var(--panel-2); }
-.group-body { display: flex; flex-direction: column; gap: 6px; min-height: 36px; padding-left: 10px; border-left: 2px solid var(--accent); }
+.group-body { display: flex; flex-direction: column; gap: 6px; min-height: 36px; padding-left: 10px; border-left: 3px solid var(--group-color, var(--accent)); }
 .drop-hint { color: var(--muted); font-size: 12px; padding: 8px; border: 1px dashed var(--line); border-radius: 6px; text-align: center; }
 
 .grow { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

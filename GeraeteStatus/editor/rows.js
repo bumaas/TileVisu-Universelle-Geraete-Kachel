@@ -94,7 +94,7 @@
         } }, E.icon('object-ungroup'));
         const body = h('div', { class: 'group-body', 'data-group': String(number) },
             members.length ? members.map(([row, index]) => rowItem(row, index)) : h('div', { class: 'drop-hint', text: E.t('Drag rows here') }));
-        const card = h('div', { class: 'group-card', 'data-group': String(number) },
+        const card = h('div', { class: 'group-card', 'data-group': String(number), style: '--group-color:' + E.groupColor(number) },
             h('div', { class: 'group-head' },
                 h('span', { class: 'grip', title: E.t('Drag to move') }, E.icon('grip-dots-vertical')),
                 iconPreview, name,
