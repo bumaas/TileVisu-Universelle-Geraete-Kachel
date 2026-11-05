@@ -6,6 +6,8 @@
     const h = E.h;
     let listEl = null;
     let inspectorEl = null;
+    let listView = null;
+    let listScroll = 0;
 
     const usedGroups = () => {
         const used = new Set();
@@ -228,17 +230,45 @@
         E.toast(E.t('All 10 groups are in use.'), 'error');
     };
 
+    /** Liste oder Eigenschaften der gewählten Zeile (an derselben Stelle, kein Scrollen dazwischen). */
+    const showView = () => {
+        if (!listView) return;
+        const tab = document.getElementById('tab-rows');
+        const detail = E.s.selected !== null && !!E.rows()[E.s.selected];
+        if (detail && !listView.hidden) listScroll = tab.scrollTop;
+        const back = !detail && listView.hidden;
+        listView.hidden = detail;
+        inspectorEl.hidden = !detail;
+        if (detail) {
+            E.renderInspector(inspectorEl);
+            tab.scrollTop = 0;
+        } else if (back) {
+            tab.scrollTop = listScroll;
+        }
+    };
+
     E.buildRowsTab = function () {
         const tab = document.getElementById('tab-rows');
-        const addMenu = h('div', { class: 'add-bar' },
-            ...E.TYPES.map(([type, icon, caption]) => h('button', { type: 'button', class: 'btn small', onclick: () => E.addRow(type), title: E.t('Add row') },
-                E.icon('plus'), ' ', E.icon(icon), ' ', E.t(caption))),
-            h('button', { type: 'button', class: 'btn small', onclick: E.newGroup }, E.icon('layer-group'), ' ', E.t('New group')));
+        // „+ Zeile ▾“ mit den Anzeigetypen (wie das „+“ in der Vorschau) und „+ Gruppe“ in einer Leiste
+        const menu = h('div', { class: 'menu' });
+        menu.append(
+            h('button', { type: 'button', class: 'btn small primary', onclick: e => { e.stopPropagation(); menu.classList.toggle('open'); } },
+                E.icon('plus'), ' ', E.t('Row'), ' ', E.icon('chevron-down')),
+            h('div', { class: 'menu-list left' }, h('div', { class: 'menu-title', text: E.t('Add row') }),
+                ...E.TYPES.map(([type, icon, caption]) => h('button', { type: 'button', onclick: () => { menu.classList.remove('open'); E.addRow(type); } },
+                    E.icon(icon), ' ', E.t(caption)))));
+        document.addEventListener('click', e => { if (!menu.contains(e.target)) menu.classList.remove('open'); });
+        const bar = h('div', { class: 'list-bar' }, menu,
+            h('button', { type: 'button', class: 'btn small', onclick: E.newGroup }, E.icon('plus'), ' ', E.t('Group')),
+            h('span', { class: 'grow' }),
+            E.f.info(E.t('Tip: Alt + arrow keys move the focused row.')));
         listEl = h('div', { class: 'rows-list', id: 'rowsList' });
-        inspectorEl = h('div', { class: 'inspector', id: 'rowInspector' });
-        tab.replaceChildren(addMenu, listEl, h('p', { class: 'muted small', text: E.t('Tip: Alt + arrow keys move the focused row.') }), inspectorEl);
+        listView = h('div', { class: 'list-view' }, bar, listEl);
+        inspectorEl = h('div', { class: 'inspector', id: 'rowInspector', hidden: true });
+        inspectorEl.addEventListener('keydown', e => { if (e.key === 'Escape' && !e.target.closest('input, select, textarea')) E.select(null); });
+        tab.replaceChildren(listView, inspectorEl);
         E.renderRows();
-        E.renderInspector(inspectorEl);
+        showView();
     };
 
     E.on('loaded', () => E.buildRowsTab());
@@ -251,18 +281,14 @@
             if (row && title && title.textContent !== E.rowTitle(row)) title.textContent = E.rowTitle(row);
         });
     });
-    E.on('structure', () => { E.renderRows(); E.renderInspector(inspectorEl); });
+    E.on('structure', () => { E.renderRows(); showView(); });
     E.on('objects', () => { E.renderRows(); });
     E.on('select', () => {
         if (!listEl) return;
         listEl.querySelectorAll('.row-item').forEach(item => item.classList.toggle('selected', parseInt(item.dataset.index, 10) === E.s.selected));
         listEl.querySelectorAll('.group-card').forEach(card => card.classList.toggle('selected', parseInt(card.dataset.group, 10) === E.s.selectedGroup));
+        showView();
         const card = E.s.selectedGroup && listEl.querySelector('.group-card[data-group="' + E.s.selectedGroup + '"]');
         if (card) card.scrollIntoView({ block: 'nearest' });
-        E.renderInspector(inspectorEl);
-        if (E.s.selected !== null) {
-            const item = listEl.querySelector('.row-item[data-index="' + E.s.selected + '"]');
-            if (item) item.scrollIntoView({ block: 'nearest' });
-        }
     });
 })(window.UDTE);

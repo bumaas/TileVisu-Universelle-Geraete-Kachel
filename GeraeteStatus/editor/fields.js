@@ -5,9 +5,11 @@
     const h = E.h;
     let uid = 0;
 
+    /** Feld mit Beschriftung; label oder [label, Hinweis] (Hinweis als ⓘ statt Klammertext). */
     const wrap = (label, control, extra) => {
         const id = control.id || (control.id = 'f' + (++uid));
-        return h('div', { class: 'field' + (extra ? ' ' + extra : '') }, h('label', { for: id, text: label }), control);
+        const [text, hint] = Array.isArray(label) ? label : [label, ''];
+        return h('div', { class: 'field' + (extra ? ' ' + extra : '') }, h('label', { for: id }, text, hint ? E.f.info(hint) : null), control);
     };
 
     E.f = {
@@ -19,12 +21,15 @@
             return h('div', { class: 'field check' }, input, h('label', { for: id, text: label }));
         },
 
+        /** Zahl; opts.empty = Wert, der „Standard“ bedeutet (z. B. -1): dann bleibt das Feld leer mit Platzhalter. */
         number(label, get, set, opts = {}) {
-            const input = h('input', { type: 'number', min: opts.min, max: opts.max, step: opts.step || 1, inputmode: 'decimal' });
-            const shown = () => (opts.float ? String(+Number(get()).toFixed(4)) : String(get()));
+            const input = h('input', { type: 'number', min: opts.min, max: opts.max, step: opts.step || 1, inputmode: 'decimal',
+                placeholder: opts.empty !== undefined ? E.t('Default') : '' });
+            const shown = () => (opts.empty !== undefined && get() === opts.empty ? '' : (opts.float ? String(+Number(get()).toFixed(4)) : String(get())));
             input.value = shown();
             const apply = () => {
                 if (input.value === '') {
+                    if (opts.empty !== undefined) set(opts.empty);
                     return;
                 }
                 let value = Number(input.value);
@@ -102,6 +107,7 @@
             const name = h('span', { class: 'obj-name' });
             const show = () => {
                 const id = get();
+                if (id && E.s.objects[String(id)] === undefined) E.ensureObjects([id]); // Name nachladen, dann zeigt „objects“ ihn
                 name.textContent = id ? E.objectLabel(id) : E.t('Nothing selected');
                 name.classList.toggle('missing', !!id && E.s.objects[String(id)] === null);
                 clear.hidden = !id;
@@ -116,8 +122,48 @@
             return wrap(label, control, 'obj-field');
         },
 
+        /** Aufklappbarer Abschnitt; title oder [title, Hinweis]. Zugeklappte Abschnitte merkt sich der Browser. */
         section(title, ...children) {
-            return h('section', { class: 'group-box' }, h('h3', { text: title }), ...children);
+            const [caption, hint] = Array.isArray(title) ? title : [title, ''];
+            const key = 'udte-closed-' + caption;
+            let closed = false;
+            try { closed = localStorage.getItem(key) === '1'; } catch (_) { /* ohne Speicher */ }
+            const box = h('details', { class: 'sec' }, h('summary', {}, h('span', { text: caption }), hint ? E.f.info(hint) : null), ...children.filter(Boolean));
+            box.open = !closed;
+            box.addEventListener('toggle', () => { try { localStorage.setItem(key, box.open ? '0' : '1'); } catch (_) { /* ohne Speicher */ } });
+            return box;
+        },
+
+        /** ⓘ mit Erklärung als Tooltip (statt eines Absatzes). */
+        info(text) {
+            const el = h('span', { class: 'info', title: text, tabindex: '0', 'aria-label': text }, E.icon('circle-info'));
+            el.addEventListener('click', e => { e.preventDefault(); E.toast(text); }); // auch ohne Maus erreichbar
+            return el;
+        },
+
+        /** Umschalter als gleich breite Chips in einer Reihe: items = [[Beschriftung, get, set], …]. */
+        chips(...items) {
+            return h('div', { class: 'chips', style: 'grid-template-columns:repeat(' + items.length + ',1fr)' }, items.map(([label, get, set]) => {
+                const chip = h('button', { type: 'button', class: 'chip' + (get() ? ' on' : ''), 'aria-pressed': String(!!get()), text: label });
+                chip.addEventListener('click', () => {
+                    const next = !get();
+                    set(next);
+                    chip.classList.toggle('on', next);
+                    chip.setAttribute('aria-pressed', String(next));
+                });
+                return chip;
+            }));
+        },
+
+        /** Segmente (eins aus mehreren): options = [[Wert, Beschriftung, Icon?], …]. */
+        segments(get, set, options, iconOnly) {
+            const seg = h('div', { class: 'seg seg-full' + (iconOnly ? ' icons' : '') });
+            const draw = () => seg.replaceChildren(...options.map(([value, caption, icon]) => h('button', {
+                type: 'button', class: value === get() ? 'active' : '', title: caption, 'aria-pressed': String(value === get()),
+                onclick: () => { if (value !== get()) { set(value); draw(); } }
+            }, icon ? E.icon(icon) : null, iconOnly ? null : h('span', { text: caption }))));
+            draw();
+            return seg;
         },
 
         row(...children) {

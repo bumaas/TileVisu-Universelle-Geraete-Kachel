@@ -377,7 +377,19 @@
             "Default icon color": "Farbe des Standard-Icons",
             "The default icon is shown instead when there is no default image.": "Ohne Standard-Bild erscheint stattdessen das Standard-Icon.",
             "Default icon (Font Awesome name, without default image)": "Standard-Icon (Font-Awesome-Name, ohne Standard-Bild)",
-            "Status area hidden. “Discard” brings it back until you save.": "Statusbereich ausgeblendet. „Verwerfen“ holt ihn zurück, solange nicht gespeichert ist."
+            "Status area hidden. “Discard” brings it back until you save.": "Statusbereich ausgeblendet. „Verwerfen“ holt ihn zurück, solange nicht gespeichert ist.",
+            "Default": "Standard",
+            "All rows": "Alle Zeilen",
+            "Show": "Anzeigen",
+            "Colors": "Farben",
+            "Arrangement": "Anordnung",
+            "Value": "Wert",
+            "All associations": "Alle Zuordnungen",
+            "Row": "Zeile",
+            "Image transparency": "Bildtransparenz",
+            "Values from 0 to 1": "Werte von 0 bis 1",
+            "Corner radius": "Eckenradius",
+            "For progress bars and buttons": "Für Fortschrittsbalken und Schalter"
         },
         "en": {
             "Links": "Left",

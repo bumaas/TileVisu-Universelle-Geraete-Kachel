@@ -44,10 +44,7 @@
     E.renderInspector = function (container) {
         const index = E.s.selected;
         container.replaceChildren();
-        if (index === null) {
-            container.appendChild(h('p', { class: 'muted pad', text: E.t('Select a row in the list or in the preview.') }));
-            return;
-        }
+        if (index === null || !E.rows()[index]) return;
         const row = E.rows()[index];
         const type = E.rowValue(row, 'DisplayType');
         const get = field => () => E.rowValue(row, field);
@@ -55,18 +52,22 @@
         const show = field => visible(type, field);
         const f = E.f;
 
-        const head = h('div', { class: 'inspector-head' },
-            E.icon(E.typeIcon(type)), h('strong', { class: 'grow', text: E.rowTitle(row) }),
-            h('button', { type: 'button', class: 'btn small', title: E.t('Duplicate'), onclick: () => E.duplicateRow(index) }, E.icon('copy')),
-            h('button', { type: 'button', class: 'btn small danger', title: E.t('Delete'), onclick: () => E.deleteRow(index) }, E.icon('trash')));
+        // Kopf: zurück zur Liste, Name, Duplizieren, Löschen (bleibt beim Scrollen oben)
+        const title = h('strong', { class: 'grow', text: E.rowTitle(row) });
+        const head = h('div', { class: 'detail-head' },
+            h('button', { type: 'button', class: 'btn small back', title: E.t('All rows'), onclick: () => E.select(null) }, E.icon('chevron-left'), ' ', E.t('All rows')),
+            title,
+            h('button', { type: 'button', class: 'btn small icon', title: E.t('Duplicate'), onclick: () => E.duplicateRow(index) }, E.icon('copy')),
+            h('button', { type: 'button', class: 'btn small icon danger', title: E.t('Delete'), onclick: () => E.deleteRow(index) }, E.icon('trash')));
 
-        const typeSeg = h('div', { class: 'seg types' }, E.TYPES.map(([id, icon, caption]) => h('button', {
-            type: 'button', class: id === type ? 'active' : '', title: E.t(caption),
-            onclick: () => { if (id !== type) E.change(() => { row.DisplayType = id; }, true); }
-        }, E.icon(icon), h('span', { text: E.t(caption) }))));
+        // Anzeigetyp: nur Icons (Tooltip), der gewählte Typ als Text daneben
+        const typeName = (E.TYPES.find(t => t[0] === type) || E.TYPES[0])[2];
+        const typeRow = h('div', { class: 'type-picker' },
+            f.segments(() => type, id => E.change(() => { row.DisplayType = id; }, true), E.TYPES.map(([id, icon, caption]) => [id, E.t(caption), icon]), true),
+            h('span', { class: 'type-name', text: E.t(typeName) }));
 
         const problem = E.rowProblem(row);
-        const parts = [head, typeSeg, problem ? h('p', { class: 'warn', text: problem }) : null];
+        const parts = [head, typeRow, problem ? h('p', { class: 'warn', text: problem }) : null];
 
         const target = [];
         if (show('Variable')) target.push(f.object(E.t('Variable'), get('Variable'), set('Variable', true), 'variable'));
@@ -83,28 +84,33 @@
         if (show('Label')) {
             const id = row.Variable || row.ScriptID || row.OpenObjectId;
             const info = id ? E.s.objects[String(id)] : null;
-            look.push(f.text(E.t('Label'), get('Label'), value => { E.change(() => { row.Label = value; }); head.querySelector('strong').textContent = E.rowTitle(row); },
+            look.push(f.text(E.t('Label'), get('Label'), value => { E.change(() => { row.Label = value; }); title.textContent = E.rowTitle(row); },
                 { placeholder: info ? info.name : E.t('Name of the variable') }));
         }
-        const toggles = ['ShowIcon', 'ShowLabel', 'ShowValue'].filter(show)
-            .map(field => f.checkbox(E.t({ ShowIcon: 'Show Icon', ShowLabel: 'Show Label', ShowValue: 'Show Value' }[field]), get(field), set(field)));
-        if (toggles.length) look.push(f.row(...toggles));
+        const chips = [['ShowIcon', 'Icon'], ['ShowLabel', 'Label'], ['ShowValue', 'Value']].filter(([field]) => show(field))
+            .map(([field, caption]) => [E.t(caption), get(field), set(field)]);
+        if (chips.length) look.push(h('div', { class: 'field' }, h('label', { text: E.t('Show') }), f.chips(...chips)));
         const sizes = [];
-        if (show('FontSize')) sizes.push(f.number(E.t('Font size (-1 = default)'), get('FontSize'), set('FontSize'), { min: -1, max: 100, suffix: 'px' }));
+        if (show('FontSize')) sizes.push(f.number(E.t('Font size'), get('FontSize'), set('FontSize'), { min: -1, max: 100, suffix: 'px', empty: -1 }));
         if (show('TextColor')) sizes.push(f.color(E.t('Text color'), get('TextColor'), set('TextColor')));
         if (sizes.length) look.push(f.row(...sizes));
-        if (show('ProgressColor1')) look.push(f.row(f.color(E.t('Bar color 1'), get('ProgressColor1'), set('ProgressColor1')),
-            f.color(E.t('Bar color 2'), get('ProgressColor2'), set('ProgressColor2'))));
-        if (show('SliderColor1')) look.push(f.row(f.color(E.t('Slider color 1'), get('SliderColor1'), set('SliderColor1')),
-            f.color(E.t('Slider color 2'), get('SliderColor2'), set('SliderColor2'))));
-        if (show('boolButtonColor')) look.push(f.row(f.color(E.t('Button color'), get('boolButtonColor'), set('boolButtonColor')),
-            f.number(E.t('Button width'), get('ButtonWidth'), set('ButtonWidth'), { min: 20, max: 500, suffix: 'px' })));
-        const layout = [];
-        if (show('VerticalAlignment')) layout.push(f.select(E.t('Alignment'), get('VerticalAlignment'), set('VerticalAlignment'), E.alignOptions()));
-        if (show('ShowBorderLine')) layout.push(f.checkbox(E.t('Line below the row'), get('ShowBorderLine'), set('ShowBorderLine')));
-        if (layout.length) look.push(f.row(...layout));
-        look.push(f.select(E.t('Group'), get('Group'), set('Group', true), groupOptions()));
         parts.push(f.section(E.t('Appearance'), ...look));
+
+        const colors = [];
+        if (show('ProgressColor1')) colors.push(f.row(f.color(E.t('Bar color 1'), get('ProgressColor1'), set('ProgressColor1')),
+            f.color(E.t('Bar color 2'), get('ProgressColor2'), set('ProgressColor2'))));
+        if (show('SliderColor1')) colors.push(f.row(f.color(E.t('Slider color 1'), get('SliderColor1'), set('SliderColor1')),
+            f.color(E.t('Slider color 2'), get('SliderColor2'), set('SliderColor2'))));
+        if (show('boolButtonColor')) colors.push(f.row(f.color(E.t('Button color'), get('boolButtonColor'), set('boolButtonColor')),
+            f.number(E.t('Button width'), get('ButtonWidth'), set('ButtonWidth'), { min: 20, max: 500, suffix: 'px' })));
+        if (colors.length) parts.push(f.section(E.t('Colors'), ...colors));
+
+        const layout = [f.select(E.t('Group'), get('Group'), set('Group', true), groupOptions())];
+        const align = [];
+        if (show('VerticalAlignment')) align.push(f.select(E.t('Alignment'), get('VerticalAlignment'), set('VerticalAlignment'), E.alignOptions()));
+        if (show('ShowBorderLine')) align.push(f.checkbox(E.t('Line below the row'), get('ShowBorderLine'), set('ShowBorderLine')));
+        if (align.length) layout.push(f.row(...align));
+        parts.push(f.section(E.t('Arrangement'), ...layout));
 
         if (show('InactiveDisplay') || show('SecondVariable')) {
             const bar = [];
@@ -114,9 +120,10 @@
                 bar.push(f.object(E.t('Second variable'), get('SecondVariable'), set('SecondVariable', true), 'variable'));
                 bar.push(f.checkbox(E.t('Use 2nd variable as marker (e.g. target value)'), get('UseSecondVariableAsTarget'), set('UseSecondVariableAsTarget')));
                 bar.push(f.text(E.t('Label of the second variable'), get('SecondVariableLabel'), set('SecondVariableLabel')));
-                bar.push(f.row(f.checkbox(E.t('Show Icon'), get('SecondVariableShowIcon'), set('SecondVariableShowIcon')),
-                    f.checkbox(E.t('Show Label'), get('SecondVariableShowLabel'), set('SecondVariableShowLabel')),
-                    f.checkbox(E.t('Show Value'), get('SecondVariableShowValue'), set('SecondVariableShowValue'))));
+                bar.push(h('div', { class: 'field' }, h('label', { text: E.t('Show') }), f.chips(
+                    [E.t('Icon'), get('SecondVariableShowIcon'), set('SecondVariableShowIcon')],
+                    [E.t('Label'), get('SecondVariableShowLabel'), set('SecondVariableShowLabel')],
+                    [E.t('Value'), get('SecondVariableShowValue'), set('SecondVariableShowValue')])));
             }
             parts.push(f.section(E.t('Progress bar'), ...bar));
         }
@@ -139,7 +146,7 @@
         const out = h('output', { text: active ? String(E.s.simulate[id]) : E.t('Real value') });
         range.addEventListener('input', () => { out.textContent = range.value; E.setSimulated(id, Number(range.value)); });
         const reset = h('button', { type: 'button', class: 'btn small', onclick: () => { E.setSimulated(id, undefined); out.textContent = E.t('Real value'); } }, E.t('Real value'));
-        return E.f.section(E.t('Test value in the preview'), h('div', { class: 'sim-row' }, range, out, reset),
-            h('p', { class: 'muted', text: E.t('Only the preview shows the test value; the variable is not changed.') }));
+        return E.f.section([E.t('Test value in the preview'), E.t('Only the preview shows the test value; the variable is not changed.')],
+            h('div', { class: 'sim-row' }, range, out, reset));
     }
 })(window.UDTE);
