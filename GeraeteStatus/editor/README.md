@@ -234,12 +234,14 @@ In Eingabefeldern bleiben die Tasten beim Feld. Die Kürzel wirken in der Liste 
 | Escape | Auswahl aufheben, Ziehen abbrechen, zurück zur Liste |
 | Umschalt-, Cmd- oder Strg-Klick | Zeile zur Auswahl hinzunehmen oder herausnehmen |
 | Pfeiltasten am Greifer | Kachel um 10 px ändern, mit Umschalt um 50 px; Doppelklick auf den Greifer: 2×2 |
+| Pfeiltasten am Rand des rechten Bereichs | Breite des rechten Bereichs um 20 px ändern; Doppelklick auf den Rand: Standardbreite |
 
 ## Gut zu wissen
 
 - **Formular und Editor:** Nach dem Speichern im Editor ein noch offenes Konfigurationsformular neu öffnen, bevor dort etwas übernommen wird. Sonst überschreibt das Formular den Stand des Editors.
 - **Zugang:** Der Link gilt eine Stunde ohne Nutzung, höchstens acht Stunden, und verfällt mit einem Neustart von Symcon. Danach den Editor einfach wieder über das Formular öffnen. Die Objektauswahl zeigt auch Namen und Werte anderer Objekte, deshalb den Link nicht weitergeben.
 - **Nur Vorschau:** Schalter, Regler, Testwerte und simulierte Status lösen in der Vorschau keine Aktion aus.
-- **Rahmen:** Die gestrichelten Rahmen und Platzhalter gibt es nur im Editor. Der Schalter „Rahmen anzeigen“ unter der Vorschau blendet sie aus, um die Kachel so zu sehen wie in der Visualisierung.
+- **Rahmen:** Die gestrichelten Rahmen und Platzhalter gibt es nur im Editor. Der Schalter „Rahmen anzeigen“ unter der Vorschau blendet sie aus, um die Kachel so zu sehen wie in der Visualisierung. Die Zeilen stehen mit und ohne Rahmen an derselben Stelle.
+- **Breite rechts:** Den rechten Bereich mit Zeilen, Status und Kachel-Einstellungen an seinem linken Rand mit der Maus breiter oder schmaler ziehen, etwa für lange Werte in den Profilzuordnungen. Doppelklick auf den Rand stellt die Standardbreite her; der Browser merkt sich die Breite.
 
 Zurück zur [Anleitung des Moduls](../README.md).
