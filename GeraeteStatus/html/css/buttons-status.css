@@ -258,6 +258,8 @@
 
         .status-value {
             color: var(--status-color, #000000);
+            min-width: 0;
+            overflow-wrap: anywhere; /* lange Werte ohne Leerzeichen (z. B. BSH.Common.EnumType…) brechen um statt über den Rand */
         }
 
         .status-icon {
