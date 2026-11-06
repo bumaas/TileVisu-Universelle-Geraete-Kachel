@@ -138,8 +138,12 @@
         const id = row.Variable | 0;
         if (!id || (type !== 'progress' && type !== 'slider')) return null;
         const live = (E.s.payload && (E.s.payload.variables || []).find(v => v.key === E.s.selected)) || {};
-        const min = Number(live.progressMin ?? 0);
-        const max = Number(live.progressMax ?? 100);
+        let min = Number(live.progressMin ?? 0);
+        let max = Number(live.progressMax ?? 100);
+        if (!Number.isFinite(min) || !Number.isFinite(max) || max <= min) {
+            min = 0; // wie die Kachel (effectiveRange): ohne gültigen Bereich (Profil 0–0) gilt 0–100
+            max = 100;
+        }
         const active = Object.prototype.hasOwnProperty.call(E.s.simulate, id);
         const range = h('input', { type: 'range', min, max, step: (max - min) / 100 || 1 });
         range.value = active ? E.s.simulate[id] : Number(live.rawValue ?? min);
