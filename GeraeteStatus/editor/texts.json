@@ -250,6 +250,7 @@
  "Drag to resize the tile. Arrow keys: 10 px, with Shift 50 px. Double-click: 2×2.",
  "Show frames",
  "Drag to change the width. Arrow keys: 20 px. Double-click: default width.",
+ "The variable defines no valid range (%s to %s). The tile uses 0 to 100.",
  "Click: edit · Double-click: change text or icon · Right-click: menu · Drag: move a row; at the group name, in the free area of a group or with Shift the whole group. Buttons and sliders do not switch anything in the preview.",
  "Rows",
  "Tile",

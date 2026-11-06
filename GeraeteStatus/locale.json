@@ -478,7 +478,8 @@
             "Valve opening": "Ventilöffnung",
             "Vehicle": "Fahrzeug",
             "Show frames": "Rahmen anzeigen",
-            "Drag to change the width. Arrow keys: 20 px. Double-click: default width.": "Ziehen ändert die Breite. Pfeiltasten: 20 px. Doppelklick: Standardbreite."
+            "Drag to change the width. Arrow keys: 20 px. Double-click: default width.": "Ziehen ändert die Breite. Pfeiltasten: 20 px. Doppelklick: Standardbreite.",
+            "The variable defines no valid range (%s to %s). The tile uses 0 to 100.": "Die Variable gibt keinen gültigen Bereich an (%s bis %s). Die Kachel rechnet mit 0 bis 100."
         },
         "en": {
             "Links": "Left",

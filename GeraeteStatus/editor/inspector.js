@@ -67,7 +67,7 @@
             h('span', { class: 'type-name', text: E.t(typeName) }));
 
         const problem = E.rowProblem(row);
-        const parts = [head, typeRow, problem ? h('p', { class: 'warn', text: problem }) : null];
+        const parts = [head, typeRow, problem ? h('p', { class: 'warn', text: problem }) : null, rangeNote(row, type)];
 
         const target = [];
         if (show('Variable')) target.push(f.object(E.t('Variable'), get('Variable'), id => { set('Variable', true)(id); if (id) E.suggestType(row); }, 'variable'));
@@ -132,6 +132,17 @@
         if (sim) parts.push(sim);
         container.replaceChildren(...parts.filter(Boolean));
     };
+
+    /** Balken und Regler: gibt die Variable keinen gültigen Bereich an (etwa ein Profil mit 0–0), rechnet die Kachel mit 0–100. */
+    function rangeNote(row, type) {
+        if (!(row.Variable | 0) || (type !== 'progress' && type !== 'slider')) return null;
+        const live = (E.s.payload && (E.s.payload.variables || []).find(v => v.key === E.s.selected)) || null;
+        if (!live || live.progressMin === undefined || live.progressMax === undefined) return null;
+        const min = Number(live.progressMin);
+        const max = Number(live.progressMax);
+        if (Number.isFinite(min) && Number.isFinite(max) && max > min) return null;
+        return h('p', { class: 'warn', text: E.tf('The variable defines no valid range (%s to %s). The tile uses 0 to 100.', live.progressMin, live.progressMax) });
+    }
 
     /** Testwert nur für die Vorschau (Balken, Regler): schickt nie etwas an die Variable. */
     function simulationBox(row, type) {
