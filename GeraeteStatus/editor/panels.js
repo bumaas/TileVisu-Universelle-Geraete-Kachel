@@ -68,7 +68,7 @@
     function assocItem(a, i) {
         const item = h('div', { class: 'row-item assoc-item' + (isSimulated(a) ? ' simulated' : ''), tabindex: '0', role: 'button' },
             thumb(a), h('span', { class: 'row-title', text: a.AssoziationName || String(a.AssoziationValue) }),
-            h('span', { class: 'muted small', text: '= ' + JSON.stringify(a.AssoziationValue) }),
+            h('span', { class: 'muted small assoc-value', text: '= ' + JSON.stringify(a.AssoziationValue), title: JSON.stringify(a.AssoziationValue) }),
             a.StatusColor >= 0 && a.StatusColor !== 16777215 ? h('span', { class: 'color-dot', style: 'background:' + hex(a.StatusColor) }) : null,
             simButton(a), E.icon('chevron-right', 'chevron'));
         const open = () => { E.s.assocDetail = i; renderStatus(); document.getElementById('tab-status').scrollTop = 0; };
@@ -88,7 +88,7 @@
             h('div', { class: 'detail-head' },
                 h('button', { type: 'button', class: 'btn small back', onclick: back }, E.icon('chevron-left'), ' ', E.t('All associations')),
                 thumb(a), h('strong', { class: 'grow', text: a.AssoziationName || String(a.AssoziationValue) }),
-                h('span', { class: 'muted small', text: '= ' + JSON.stringify(a.AssoziationValue) }), simButton(a)),
+                h('span', { class: 'muted small assoc-value', text: '= ' + JSON.stringify(a.AssoziationValue), title: JSON.stringify(a.AssoziationValue) }), simButton(a)),
             f.row(f.select(E.t('Image Selection'), get('Bildauswahl'), set('Bildauswahl', true), IMAGE_CHOICES.map(([v, c]) => [v, E.t(c)])),
                 f.color(E.t('Status Color'), get('StatusColor'), set('StatusColor')))
         ];

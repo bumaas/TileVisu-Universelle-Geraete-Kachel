@@ -224,7 +224,11 @@ details.sec > summary:hover { color: var(--text); }
 .grow { flex: 1; min-width: 0; }
 .thumb { width: 20px; display: inline-flex; justify-content: center; color: var(--accent); flex: none; }
 .color-dot { width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 0 1px var(--line); flex: none; }
-.assoc-item .chevron { color: var(--muted); }
+.assoc-item .chevron { color: var(--muted); flex: none; }
+/* lange Werte (z. B. „BSH.Common.EnumType.OperationState.Inactive“) kürzen statt den Namen zu verdrängen */
+.assoc-item .row-title, .detail-head strong { flex: 0 1 auto; min-width: 2.5em; }
+.assoc-value { flex: 1 1 0; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.assoc-item > .btn, .detail-head > .btn { flex: none; }
 .assoc-item.simulated { border-color: var(--accent); }
 .assoc-detail > .detail-head { margin-bottom: 12px; }
 details.sec .seg-full { margin-bottom: 10px; }
