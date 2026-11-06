@@ -200,10 +200,11 @@
     let noImagePlaceholder = false;
     const handle = document.getElementById('imageHandle');
     const actions = h('div', { class: 'image-placeholder-actions' },
-        h('button', { type: 'button', class: 'btn small primary', onclick: () => {
+        // als Symbol: die Bildspalte ist meist schmaler als ein beschrifteter Knopf
+        h('button', { type: 'button', class: 'btn small icon primary', title: E.t('Select'), 'aria-label': E.t('Select'), onclick: () => {
             E.emit('tab', 'status');
             E.pick('image', E.s.draft.DefaultImage | 0, id => E.change(d => { d.DefaultImage = id; }, true));
-        } }, E.t('Select')),
+        } }, E.icon('magnifying-glass')),
         h('button', { type: 'button', class: 'btn small icon', title: E.t('Without image'), 'aria-label': E.t('Without image'),
             onclick: () => { noImagePlaceholder = true; E.repaint(); } }, E.icon('trash-can')));
     actions.addEventListener('pointerdown', e => e.stopPropagation()); // kein Ziehen des Bildes
