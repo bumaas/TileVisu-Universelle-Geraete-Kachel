@@ -57,6 +57,10 @@
             + 'html:not(.udte-dragging) :is(.udte-placeholder,.udte-framed).udte-selected{outline:none;border-style:solid;border-color:var(--accent-color)}'
             + '.udte-group-selected :is(.udte-placeholder,.udte-framed):not(.udte-selected){border-color:transparent}'
             + 'html.udte-no-frames :is(.udte-placeholder,.udte-framed):not(.udte-selected){border-color:transparent}html.udte-no-frames .udte-group-frame:not(.selected){display:none}'
+            // ohne Rahmen keine Rahmenabstände: die Zeilen stehen wie in der Visualisierung, die Auswahl zeigt der Umriss
+            + 'html.udte-no-frames .udte-framed:not(.udte-placeholder){border:0;padding:0}'
+            + 'html.udte-no-frames:not(.udte-dragging) .udte-framed:not(.udte-placeholder).udte-selected,'
+            + 'html.udte-no-frames .udte-framed:not(.udte-placeholder).udte-drag-source{outline:1.5px solid var(--accent-color);outline-offset:3px}'
             // beim Ziehen: Zeile durchgehend grau, eine gezogene Gruppe durchgehend in ihrer Farbe am Rand ihres Kastens
             + ':is(.udte-placeholder,.udte-framed).udte-drag-source{outline:none;border-style:solid}'
             + '.variable-group.udte-drag-source{outline-color:var(--udte-group-color,var(--accent-color));outline-offset:1px;border-radius:10px}'

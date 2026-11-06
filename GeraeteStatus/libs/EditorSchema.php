@@ -233,7 +233,8 @@ final class EditorSchema
                 if (is_bool($value)) {
                     return $value;
                 }
-                return ($value === 0 || $value === 1) ? (bool)$value : $fail('true or false expected');
+                // ältere Formularstände speichern Schalter in Listen als '' (aus), '0' oder '1'; die Kachel liest sie mit (bool)
+                return in_array($value, [0, 1, '', '0', '1'], true) ? (bool)$value : $fail('true or false expected');
             case 'int':
             case 'float':
                 if (is_string($value) && is_numeric($value)) {
@@ -250,6 +251,10 @@ final class EditorSchema
                 }
                 return $rule[0] === 'int' ? (int)$value : (float)$value;
             case 'color':
+                // ältere Stände speichern Farben als Text ("-1"), die Kachel liest sie als Zahl
+                if (is_string($value) && preg_match('/^-?\d{1,8}$/', $value) === 1) {
+                    $value = (int)$value;
+                }
                 if (!is_int($value) || $value < -1 || $value > 0xFFFFFF) {
                     return $fail('color expected (-1 = transparent)');
                 }
