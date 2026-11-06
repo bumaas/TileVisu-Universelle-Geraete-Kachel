@@ -25,6 +25,48 @@
     };
     drawTheme();
 
+    // Breite des rechten Bereichs: am linken Rand ziehen, Pfeiltasten 20 px, Doppelklick = Standard; je Browser gemerkt
+    const layout = document.querySelector('.layout');
+    const sideGrip = document.getElementById('sideResize');
+    let sideWidth = 0; // 0 = Standardbreite aus dem CSS
+    const setSide = (width, keep) => {
+        if (width > 0) {
+            sideWidth = Math.round(Math.min(Math.max(360, layout.clientWidth - 360), Math.max(360, width)));
+            layout.style.setProperty('--side-width', sideWidth + 'px');
+        } else {
+            sideWidth = 0;
+            layout.style.removeProperty('--side-width');
+        }
+        if (!keep) return;
+        try { if (sideWidth) localStorage.setItem('udte-side-width', String(sideWidth)); else localStorage.removeItem('udte-side-width'); } catch (_) { /* nur bis zum Neuladen */ }
+    };
+    try { setSide(parseInt(localStorage.getItem('udte-side-width') || '0', 10) || 0, false); } catch (_) { /* ohne Speicher */ }
+    window.addEventListener('resize', () => { if (sideWidth) setSide(sideWidth, false); });
+    sideGrip.addEventListener('pointerdown', e => {
+        if (e.button !== 0) return;
+        e.preventDefault();
+        sideGrip.setPointerCapture(e.pointerId);
+        document.documentElement.classList.add('side-resizing');
+        const move = ev => setSide(layout.getBoundingClientRect().right - ev.clientX, false);
+        const end = () => {
+            sideGrip.removeEventListener('pointermove', move);
+            sideGrip.removeEventListener('pointerup', end);
+            sideGrip.removeEventListener('pointercancel', end);
+            document.documentElement.classList.remove('side-resizing');
+            setSide(sideWidth, true);
+        };
+        sideGrip.addEventListener('pointermove', move);
+        sideGrip.addEventListener('pointerup', end);
+        sideGrip.addEventListener('pointercancel', end);
+    });
+    sideGrip.addEventListener('dblclick', () => setSide(0, true));
+    sideGrip.addEventListener('keydown', e => {
+        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+        e.preventDefault();
+        const now = sideWidth || document.querySelector('.side').getBoundingClientRect().width;
+        setSide(now + (e.key === 'ArrowLeft' ? 20 : -20), true);
+    });
+
     const saveButton = document.getElementById('save');
     const discardButton = document.getElementById('discard');
     const dirtyMark = document.getElementById('dirty');

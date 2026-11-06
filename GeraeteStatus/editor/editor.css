@@ -89,12 +89,19 @@ input, textarea, select, [contenteditable] { -webkit-user-select: text; user-sel
 .add-menu:not([hidden]) { display: block; }
 
 /* Aufteilung */
-.layout { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) 440px; min-height: 0; }
+.layout { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) var(--side-width, 440px); min-height: 0; }
 .stage { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
 .stage-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 10px 16px; }
 .stage-area { position: relative; flex: 1; overflow: auto; display: flex; align-items: flex-start; justify-content: center; padding: 32px; min-height: 280px; }
 .hint { color: var(--muted); font-size: 12px; margin: 0; padding: 8px 16px 12px; }
-.side { background: var(--panel); border-left: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; }
+.side { position: relative; background: var(--panel); border-left: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; }
+/* Greifer am linken Rand des rechten Bereichs (app.js); beim Ziehen fängt die Vorschau keine Mausereignisse ab */
+.side-resize { position: absolute; left: -4px; top: 0; bottom: 0; width: 8px; cursor: col-resize; z-index: 5; touch-action: none; }
+.side-resize:hover, .side-resize:focus-visible, html.side-resizing .side-resize {
+    outline: none; background: linear-gradient(to right, transparent 3px, var(--accent) 3px, var(--accent) 5px, transparent 5px);
+}
+html.side-resizing, html.side-resizing * { cursor: col-resize !important; user-select: none; }
+html.side-resizing iframe { pointer-events: none; }
 
 .seg { display: inline-flex; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--panel); }
 .seg button { border: 0; background: none; padding: 5px 10px; cursor: pointer; min-height: 30px; display: inline-flex; gap: 6px; align-items: center; }
@@ -375,6 +382,7 @@ textarea.code { font: 12px/1.4 ui-monospace, Menlo, monospace; margin-top: 8px; 
     body { display: block; }
     .layout { display: block; }
     .side { border-left: 0; border-top: 1px solid var(--line); }
+    .side-resize { display: none; }
     .stage-area { padding: 16px; overflow: visible; min-height: 0; }
     .tab-body { overflow: visible; }
     .topbar .actions { width: 100%; }

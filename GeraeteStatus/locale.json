@@ -477,7 +477,8 @@
             "Temperatures": "Temperaturen",
             "Valve opening": "Ventilöffnung",
             "Vehicle": "Fahrzeug",
-            "Show frames": "Rahmen anzeigen"
+            "Show frames": "Rahmen anzeigen",
+            "Drag to change the width. Arrow keys: 20 px. Double-click: default width.": "Ziehen ändert die Breite. Pfeiltasten: 20 px. Doppelklick: Standardbreite."
         },
         "en": {
             "Links": "Left",
