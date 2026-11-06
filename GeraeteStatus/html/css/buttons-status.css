@@ -143,6 +143,7 @@
             user-select: none;
             min-width: 80px;
             justify-content: center;
+            justify-content: safe center; /* passt die Beschriftung nicht, wird sie rechts abgeschnitten statt an beiden Seiten */
             box-sizing: border-box;
             position: relative; /* needed for ::after overlay */
             overflow: hidden;  /* clip overlay to rounded corners */

@@ -93,6 +93,7 @@
 
         .div2 {
             flex: 1;
+            min-width: 0; /* breite Inhalte (z. B. gestreckte Schalter) schieben die Bildspalte nicht aus der Kachel */
             box-sizing: border-box;
             margin: 0px 0px 0px 0px;
             border-radius: 0px;
@@ -107,6 +108,7 @@
         /* Bei links/rechts: Bild in der linken/rechten Spalte oben ausrichten */
         .main_container.image-left .div1,
         .main_container.image-right .div1 {
+            flex-shrink: 0; /* die Bildspalte behält ihre Breite, schmaler wird die Zeilenspalte */
             display: flex;
             align-items: flex-start; /* oben */
         }
