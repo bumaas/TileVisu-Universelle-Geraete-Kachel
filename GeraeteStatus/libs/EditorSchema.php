@@ -286,6 +286,9 @@ final class EditorSchema
                 if (!is_int($value) || $value < 0) {
                     return $fail('object ID expected');
                 }
+                if ($value < 10000) {
+                    return 0; // Symcon-IDs beginnen bei 10000; ältere Stände speichern 1 für „kein Bild“, die Kachel zeigt dann keins
+                }
                 return ($value === 0 || $refOk($rule[1], $value)) ? $value : $fail('object #' . $value . ' is not a suitable ' . $rule[1]);
         }
         return $fail('unknown rule');
