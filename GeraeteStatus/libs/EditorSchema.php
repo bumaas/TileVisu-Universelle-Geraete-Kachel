@@ -14,6 +14,8 @@ final class EditorSchema
     public const MAX_ROWS = 200;
     public const MAX_ASSOCIATIONS = 200;
     public const GROUP_COUNT = 10;
+    /** Symcon vergibt IDs ab 10000; kleinere Werte heißen „kein Objekt“ (ältere Stände speichern 1 für „kein Bild“). */
+    public const MIN_OBJECT_ID = 10000;
     private const MAX_TEXT = 200;
 
     private const ALIGN = ['left', 'center', 'right'];
@@ -286,8 +288,8 @@ final class EditorSchema
                 if (!is_int($value) || $value < 0) {
                     return $fail('object ID expected');
                 }
-                if ($value < 10000) {
-                    return 0; // Symcon-IDs beginnen bei 10000; ältere Stände speichern 1 für „kein Bild“, die Kachel zeigt dann keins
+                if ($value < self::MIN_OBJECT_ID) {
+                    return 0; // die Kachel zeigt dann kein Bild
                 }
                 return ($value === 0 || $refOk($rule[1], $value)) ? $value : $fail('object #' . $value . ' is not a suitable ' . $rule[1]);
         }

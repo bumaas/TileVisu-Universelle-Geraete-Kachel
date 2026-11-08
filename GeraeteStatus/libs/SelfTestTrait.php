@@ -82,7 +82,7 @@ trait SelfTestTrait
         $problems = [];
         foreach (['DefaultImage' => 'Default Image', 'bgImage' => 'Background image'] as $property => $caption) {
             $mediaId = $this->ReadPropertyInteger($property);
-            if ($mediaId > 0 && !IPS_MediaExists($mediaId)) {
+            if ($mediaId >= EditorSchema::MIN_OBJECT_ID && !IPS_MediaExists($mediaId)) {
                 $problems[] = sprintf($this->Translate('%s: image %d does not exist. Select another image.'), $this->Translate($caption), $mediaId);
             }
         }
@@ -119,7 +119,7 @@ trait SelfTestTrait
         }
 
         if ($displayType === 'image') {
-            if ($mediaId <= 0) {
+            if ($mediaId < EditorSchema::MIN_OBJECT_ID) {
                 $problems[] = sprintf($this->Translate('%s: no image selected. Select an image for this row.'), $name);
             } elseif (!IPS_MediaExists($mediaId)) {
                 $problems[] = sprintf($this->Translate('%s: image %d does not exist. Select another image for this row.'), $name, $mediaId);
