@@ -1,6 +1,10 @@
 {
     "translations": {
         "de": {
+            "Action rejected: \"%s\" is not an operable row of this tile. Read the row keys with UDST_RunSelfTest or switch the source variable directly.": "Aktion abgelehnt: „%s“ ist keine bedienbare Zeile dieser Kachel. Die Zeilenschlüssel nennt UDST_RunSelfTest, oder die Quellvariable direkt schalten.",
+            "Action failed: script %d of this row does not exist. Select another script for the row.": "Aktion fehlgeschlagen: Das Skript %d dieser Zeile existiert nicht. Bitte ein anderes Skript für die Zeile wählen.",
+            "Action failed: variable %d of this row does not exist. Select another variable for the row.": "Aktion fehlgeschlagen: Die Variable %d dieser Zeile existiert nicht. Bitte eine andere Variable für die Zeile wählen.",
+            "Action rejected: %s is not a valid value for a switch. Send true or false.": "Aktion abgelehnt: %s ist kein gültiger Wert für einen Schalter. Bitte true oder false senden.",
             "Universal Device Tile": "Universelle Geräte Kachel",
             "Tile configuration": "Kachelkonfiguration",
             "Example of a fully configured tile": "Beispiel einer voll konfigurierten Kachel",

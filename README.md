@@ -159,6 +159,8 @@ Die Funktionalität erfolgt über die Instanz-Konfiguration und den Editor. Für
 - `UDST_GetUserTemplates(int $InstanzID): string` – die eigenen Vorlagen, wie sie in dieser Kachel liegen, als JSON.
 - `UDST_SyncUserTemplates(int $InstanzID, string $Vorlagen): bool` – die Liste der eigenen Vorlagen dieser Kachel ersetzen; der Editor verteilt damit eine geänderte Liste an alle Kacheln.
 
+Eine Aktion, die die Kachel nicht ausführen kann, meldet `IPS_RequestAction` als Warnung mit dem Grund: eine Kennung ohne bedienbare Zeile, ein fehlendes Skript oder ein ungültiger Schaltwert.
+
 ## Changelog
 - **3.1.0** (Beta)
   - Neu: visueller Editor mit Live-Vorschau der echten Kachel, geöffnet über „Editor öffnen“ im Formular. Zeilen, Gruppen und das Statusbild per Ziehen und Ablegen, frei ziehbare Vorschaugröße, Eigenschaften je Anzeigetyp, Objektauswahl mit Suche, Status simulieren und Testwerte nur in der Vorschau, Vorlagen sowie Export und Import, Zeilen aus einem Gerät mit vorgeschlagenem Anzeigetyp, Mehrfachauswahl, Tastatursteuerung, Rückgängig und Wiederholen. Gespeichert wird erst auf Klick, mit Rückfrage, wenn die Konfiguration inzwischen anderswo gespeichert wurde.

@@ -46,10 +46,13 @@ trait ActionTrait
                 } catch (\Throwable $e) {
                     $this->LogCaughtThrowable(__FUNCTION__, $e);
                 }
+            } else {
+                trigger_error(sprintf($this->Translate('Action failed: script %d of this row does not exist. Select another script for the row.'), $id), E_USER_WARNING);
             }
             return;
         }
         if (!IPS_VariableExists($id)) {
+            trigger_error(sprintf($this->Translate('Action failed: variable %d of this row does not exist. Select another variable for the row.'), $id), E_USER_WARNING);
             return;
         }
         switch (IPS_GetVariable($id)['VariableType']) {
@@ -58,6 +61,7 @@ trait ActionTrait
                 $wish = is_bool($value) ? $value : filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
                 if ($wish === null) {
                     $this->SendDebug(__FUNCTION__, 'Kein Bool-Wunschwert: ' . json_encode($value), 0);
+                    trigger_error(sprintf($this->Translate('Action rejected: %s is not a valid value for a switch. Send true or false.'), (string)json_encode($value)), E_USER_WARNING);
                     return;
                 }
                 RequestAction($id, $wish);
