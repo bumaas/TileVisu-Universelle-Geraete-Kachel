@@ -161,6 +161,8 @@ Die Funktionalität erfolgt über die Instanz-Konfiguration und den Editor. Für
 
 `UDST_RunSelfTest(int $InstanzID): string`: prüft alle Zeilen, ohne etwas zu ändern, und liefert einen kurzen Text mit den gefundenen Problemen (fehlende Objekte, Schalter ohne Aktion), Hinweisen (Balken oder Regler ohne eigenen Bereich) und den bedienbaren Zeilen samt Schlüssel.
 
+`UDST_GetConfigurationHelp(int $InstanzID): string`: liefert die Hinweise für KI-Assistenten und Skripte aus dem Formular als Text und ändert nichts.
+
 Eine Aktion, die die Kachel nicht ausführen kann, meldet `IPS_RequestAction` als Warnung mit dem Grund: eine Kennung ohne bedienbare Zeile, ein fehlendes Skript oder ein ungültiger Schaltwert.
 
 ## Changelog

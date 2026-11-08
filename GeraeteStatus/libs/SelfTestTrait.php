@@ -53,12 +53,25 @@ trait SelfTestTrait
             }
         }
         if ($operable !== []) {
-            $lines[] = $this->Translate('Operable rows (keys change when rows are added, removed or moved; to switch a device use its source variable):');
+            $lines[] = $this->Translate('Operable rows (an action or script exists, its effect is not checked; keys change when rows are added, removed or moved; to switch a device use its source variable):');
             foreach ($operable as $entry) {
                 $lines[] = '- ' . $entry;
             }
         }
         return implode("\n", $lines);
+    }
+
+    /** Die unsichtbaren Hinweise des Formulars als Text: Das ganze Formular sprengt die Antwortgrenze eines Assistenten. */
+    public function GetConfigurationHelp(): string
+    {
+        $form = Helpers::decodeJsonArray((string)file_get_contents(__DIR__ . '/../form.json'), __FUNCTION__);
+        $notes = [];
+        foreach (is_array($form) ? ($form['elements'] ?? []) : [] as $element) {
+            if (($element['type'] ?? '') === 'Label' && ($element['visible'] ?? true) === false) {
+                $notes[] = $this->Translate((string)($element['caption'] ?? ''));
+            }
+        }
+        return implode("\n\n", $notes);
     }
 
     /** Probleme einer Zeile als Texte mit nächstem Schritt. */
