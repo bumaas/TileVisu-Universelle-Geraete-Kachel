@@ -30,7 +30,7 @@ trait SelfTestTrait
             $problems = array_merge($problems, $this->SelfTestRow($name, $row));
             $notes = array_merge($notes, $this->SelfTestRowNotes($name, $row));
             $target = $this->RowActionTarget($row);
-            if ($target !== null && ($target[0] === 'script' ? IPS_ScriptExists($target[1]) : HasAction($target[1]))) {
+            if ($target !== null && $this->SelfTestTypeMismatch($name, $row) === null && ($target[0] === 'script' ? IPS_ScriptExists($target[1]) : HasAction($target[1]))) {
                 $operable[] = sprintf(
                     $target[0] === 'script' ? $this->Translate('%s (%s): script %d "%s"') : $this->Translate('%s (%s): variable %d "%s"'),
                     $name,
@@ -114,6 +114,14 @@ trait SelfTestTrait
         $secondId = (int)($row['SecondVariable'] ?? 0);
         $problems = [];
 
+        if (!EditorSchema::RowFieldValid('DisplayType', $displayType)) {
+            return [sprintf($this->Translate('%s: unknown display type "%s". Allowed are: %s.'), $name, mb_substr($displayType, 0, 40), implode(', ', EditorSchema::DISPLAY_TYPES))];
+        }
+        $group = (string)($row['Group'] ?? '');
+        if ($group !== '' && !EditorSchema::RowFieldValid('Group', $group)) {
+            $problems[] = sprintf($this->Translate('%s: unknown group "%s". Allowed are keine Gruppe and Gruppe 1 to Gruppe 10.'), $name, mb_substr($group, 0, 40));
+        }
+
         if ($displayType === 'progress' && $secondId > 0 && !IPS_VariableExists($secondId)) {
             $problems[] = sprintf($this->Translate('%s: second variable %d does not exist. Select another one or remove it.'), $name, $secondId);
         }
@@ -135,6 +143,11 @@ trait SelfTestTrait
         if ($kind === 'script' && !IPS_ScriptExists($scriptId)) {
             $problems[] = sprintf($this->Translate('%s: script %d does not exist. Select another script for this row.'), $name, $scriptId);
         }
+        $mismatch = $this->SelfTestTypeMismatch($name, $row);
+        if ($mismatch !== null) {
+            $problems[] = $mismatch;
+            return $problems;
+        }
         if ($kind === 'variable' && !$opensObject && ($displayType === 'button' || $displayType === 'slider') && !HasAction($variableId)) {
             $problems[] = sprintf($this->Translate('%s: variable %d has no action, the row cannot switch. Give the variable an action or show it as text.'), $name, $variableId);
         }
@@ -150,6 +163,24 @@ trait SelfTestTrait
         return $problems;
     }
 
+    /** Problem, wenn die Variable nicht zur Darstellungsart passt: Balken und Regler rechnen mit Zahlen, ein Float-Button wird nur als Text gezeigt. */
+    private function SelfTestTypeMismatch(string $name, array $row): ?string
+    {
+        if ($this->RowKind($row) !== 'variable') {
+            return null;
+        }
+        $displayType = (string)($row['DisplayType'] ?? 'text');
+        $variableId = (int)$row['Variable'];
+        $type = IPS_GetVariable($variableId)['VariableType'];
+        if (($displayType === 'slider' || $displayType === 'progress') && $type !== VARIABLETYPE_INTEGER && $type !== VARIABLETYPE_FLOAT) {
+            return sprintf($this->Translate('%s: variable %d holds no number, this row type cannot show or set it. Select another variable or show it as text.'), $name, $variableId);
+        }
+        if ($displayType === 'button' && $type === VARIABLETYPE_FLOAT) {
+            return sprintf($this->Translate('%s: variable %d is a float, a button cannot switch it. Show it as a slider or as text.'), $name, $variableId);
+        }
+        return null;
+    }
+
     /** Hinweise einer Zeile: nichts ist kaputt, die Kachel weicht aber auf einen Standard aus. */
     private function SelfTestRowNotes(string $name, array $row): array
     {
@@ -159,6 +190,9 @@ trait SelfTestTrait
             return [sprintf($this->Translate('%s: variable %d does not exist, the row uses its script or object to open instead. Remove the variable or select another one.'), $name, $variableId)];
         }
         if (($displayType !== 'slider' && $displayType !== 'progress') || $variableId <= 0 || !IPS_VariableExists($variableId)) {
+            return [];
+        }
+        if ($this->SelfTestTypeMismatch($name, $row) !== null) {
             return [];
         }
         $bounds = $this->GetProgressMinMax($variableId);

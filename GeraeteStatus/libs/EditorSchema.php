@@ -19,6 +19,7 @@ final class EditorSchema
     private const MAX_TEXT = 200;
 
     private const ALIGN = ['left', 'center', 'right'];
+    public const DISPLAY_TYPES = ['text', 'progress', 'slider', 'button', 'image'];
     public const IMAGE_CHOICES = ['none', 'custom', 'wm_aus', 'wm_an', 'dryer_off', 'dryer_on', 'symcon_icon'];
 
     /** Einzelwerte: Name => [Typ, …]. Typen: int (min, max), float (min, max), bool, string (Länge), enum, color, ref (Art). */
@@ -58,7 +59,7 @@ final class EditorSchema
         'Variable' => ['ref', 'variable'],
         'ScriptID' => ['ref', 'script'],
         'OpenObjectId' => ['ref', 'object'],
-        'DisplayType' => ['enum', ['text', 'progress', 'slider', 'button', 'image']],
+        'DisplayType' => ['enum', self::DISPLAY_TYPES],
         'ShowIcon' => ['bool'],
         'ShowLabel' => ['bool'],
         'ShowValue' => ['bool'],
@@ -161,6 +162,14 @@ final class EditorSchema
     public static function IsList(string $name): bool
     {
         return isset(self::LISTS[$name]);
+    }
+
+    /** Ist der Wert für dieses Zeilenfeld gültig? Für Felder ohne Objektbezug. */
+    public static function RowFieldValid(string $field, mixed $value): bool
+    {
+        $errors = [];
+        self::Value($value, self::ROW[$field], $field, static fn (): bool => true, $errors);
+        return $errors === [];
     }
 
     /**
