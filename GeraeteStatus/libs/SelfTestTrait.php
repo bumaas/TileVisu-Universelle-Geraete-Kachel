@@ -23,6 +23,8 @@ trait SelfTestTrait
             $problems[] = sprintf($this->Translate('Status: variable %d does not exist. Select another status variable.'), $statusId);
         }
 
+        $problems = array_merge($problems, $this->SelfTestImages());
+
         foreach ($rows as $key => $row) {
             $name = 'row_' . $key;
             $problems = array_merge($problems, $this->SelfTestRow($name, $row));
@@ -72,6 +74,33 @@ trait SelfTestTrait
             }
         }
         return implode("\n\n", $notes);
+    }
+
+    /** Probleme bei Standardbild, Hintergrundbild und den Bildern der Status-Zuordnungen. */
+    private function SelfTestImages(): array
+    {
+        $problems = [];
+        foreach (['DefaultImage' => 'Default Image', 'bgImage' => 'Background image'] as $property => $caption) {
+            $mediaId = $this->ReadPropertyInteger($property);
+            if ($mediaId > 0 && !IPS_MediaExists($mediaId)) {
+                $problems[] = sprintf($this->Translate('%s: image %d does not exist. Select another image.'), $this->Translate($caption), $mediaId);
+            }
+        }
+        $associations = Helpers::decodeJsonArray($this->ReadPropertyString('ProfilAssoziazionen'), __FUNCTION__);
+        foreach (is_array($associations) ? $associations : [] as $association) {
+            if (!is_array($association)) {
+                continue;
+            }
+            $name = mb_substr((string)($association['AssoziationName'] ?? ''), 0, 40);
+            $choice = (string)($association['Bildauswahl'] ?? 'none');
+            $mediaId = (int)($association['EigenesBild'] ?? 0);
+            if (!in_array($choice, EditorSchema::IMAGE_CHOICES, true)) {
+                $problems[] = sprintf($this->Translate('Status value "%s": unknown image choice "%s". Allowed are: %s.'), $name, mb_substr($choice, 0, 40), implode(', ', EditorSchema::IMAGE_CHOICES));
+            } elseif ($choice === 'custom' && !IPS_MediaExists($mediaId)) {
+                $problems[] = sprintf($this->Translate('Status value "%s": image %d does not exist. Select another image.'), $name, $mediaId);
+            }
+        }
+        return $problems;
     }
 
     /** Probleme einer Zeile als Texte mit nächstem Schritt. */

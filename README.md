@@ -159,7 +159,7 @@ Die Funktionalität erfolgt über die Instanz-Konfiguration und den Editor. Für
 - `UDST_GetUserTemplates(int $InstanzID): string` – die eigenen Vorlagen, wie sie in dieser Kachel liegen, als JSON.
 - `UDST_SyncUserTemplates(int $InstanzID, string $Vorlagen): bool` – die Liste der eigenen Vorlagen dieser Kachel ersetzen; der Editor verteilt damit eine geänderte Liste an alle Kacheln.
 
-`UDST_RunSelfTest(int $InstanzID): string`: prüft alle Zeilen, ohne etwas zu ändern, und liefert einen kurzen Text mit den gefundenen Problemen (fehlende Objekte, Schalter ohne Aktion), Hinweisen (Balken oder Regler ohne eigenen Bereich) und den bedienbaren Zeilen samt Schlüssel.
+`UDST_RunSelfTest(int $InstanzID): string`: prüft alle Zeilen, ohne etwas zu ändern, und liefert einen kurzen Text mit den gefundenen Problemen (fehlende Objekte und Bilder, Schalter ohne Aktion), Hinweisen (Balken oder Regler ohne eigenen Bereich) und den bedienbaren Zeilen samt Schlüssel.
 
 `UDST_GetConfigurationHelp(int $InstanzID): string`: liefert die Hinweise für KI-Assistenten und Skripte aus dem Formular als Text und ändert nichts.
 

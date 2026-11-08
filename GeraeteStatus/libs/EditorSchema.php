@@ -17,7 +17,7 @@ final class EditorSchema
     private const MAX_TEXT = 200;
 
     private const ALIGN = ['left', 'center', 'right'];
-    private const IMAGE_CHOICES = ['none', 'custom', 'wm_aus', 'wm_an', 'dryer_off', 'dryer_on', 'symcon_icon'];
+    public const IMAGE_CHOICES = ['none', 'custom', 'wm_aus', 'wm_an', 'dryer_off', 'dryer_on', 'symcon_icon'];
 
     /** Einzelwerte: Name => [Typ, …]. Typen: int (min, max), float (min, max), bool, string (Länge), enum, color, ref (Art). */
     private const PROPERTIES = [
