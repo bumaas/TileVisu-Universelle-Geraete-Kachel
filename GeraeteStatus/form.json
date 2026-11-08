@@ -1073,7 +1073,7 @@
   {
     "type": "Label",
     "visible": false,
-    "caption": "UDST_RunSelfTest($id) checks all rows without changing anything and returns text: the number of problems, each problem with its row and next step, and the operable rows with their keys. Run it after every change of the configuration."
+    "caption": "UDST_RunSelfTest($id) checks all rows without changing anything and returns text: the number of problems and notes, each problem with its row and next step, notes where the tile falls back to a default, and the operable rows with their keys. Run it after every change of the configuration."
   },
   {
     "type": "Label",

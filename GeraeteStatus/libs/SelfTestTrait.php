@@ -15,6 +15,7 @@ trait SelfTestTrait
     {
         $rows = $this->ReadVariablesList();
         $problems = [];
+        $notes = [];
         $operable = [];
 
         $statusId = $this->ReadPropertyInteger('Status');
@@ -25,6 +26,7 @@ trait SelfTestTrait
         foreach ($rows as $key => $row) {
             $name = 'row_' . $key;
             $problems = array_merge($problems, $this->SelfTestRow($name, $row));
+            $notes = array_merge($notes, $this->SelfTestRowNotes($name, $row));
             $target = $this->RowActionTarget($row);
             if ($target !== null && ($target[0] === 'script' ? IPS_ScriptExists($target[1]) : HasAction($target[1]))) {
                 $operable[] = sprintf(
@@ -37,11 +39,17 @@ trait SelfTestTrait
             }
         }
 
-        $lines = [sprintf($this->Translate('Tile %d: %d rows, %d problems.'), $this->InstanceID, count($rows), count($problems))];
+        $lines = [sprintf($this->Translate('Tile %d, rows %d, problems %d, notes %d.'), $this->InstanceID, count($rows), count($problems), count($notes))];
         if ($problems !== []) {
             $lines[] = $this->Translate('Problems:');
             foreach ($problems as $problem) {
                 $lines[] = '- ' . $problem;
+            }
+        }
+        if ($notes !== []) {
+            $lines[] = $this->Translate('Notes:');
+            foreach ($notes as $note) {
+                $lines[] = '- ' . $note;
             }
         }
         if ($operable !== []) {
@@ -104,12 +112,21 @@ trait SelfTestTrait
         if (($displayType === 'button' || $displayType === 'slider') && !HasAction($variableId)) {
             $problems[] = sprintf($this->Translate('%s: variable %d has no action, the row cannot switch. Give the variable an action or show it as text.'), $name, $variableId);
         }
-        if ($displayType === 'slider' || $displayType === 'progress') {
-            $bounds = $this->GetProgressMinMax($variableId);
-            if ((float)($bounds['max'] ?? 100) <= (float)($bounds['min'] ?? 0)) {
-                $problems[] = sprintf($this->Translate('%s: variable %d has no valid range. Set minimum and maximum in its presentation, until then the tile uses 0 to 100.'), $name, $variableId);
-            }
-        }
         return $problems;
+    }
+
+    /** Hinweise einer Zeile: nichts ist kaputt, die Kachel weicht aber auf einen Standard aus. */
+    private function SelfTestRowNotes(string $name, array $row): array
+    {
+        $displayType = (string)($row['DisplayType'] ?? 'text');
+        $variableId = (int)($row['Variable'] ?? 0);
+        if (($displayType !== 'slider' && $displayType !== 'progress') || $variableId <= 0 || !IPS_VariableExists($variableId)) {
+            return [];
+        }
+        $bounds = $this->GetProgressMinMax($variableId);
+        if ((float)($bounds['max'] ?? 100) > (float)($bounds['min'] ?? 0)) {
+            return [];
+        }
+        return [sprintf($this->Translate('%s: variable %d has no range of its own, the tile uses 0 to 100. If that does not fit, set minimum and maximum in its presentation.'), $name, $variableId)];
     }
 }
