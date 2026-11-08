@@ -295,7 +295,7 @@ trait SelfTestTrait
         return $problems;
     }
 
-    /** Problem, wenn die Variable nicht zur Darstellungsart passt: Balken und Regler rechnen mit Zahlen, ein Float-Button wird nur als Text gezeigt. */
+    /** Problem, wenn die Variable nicht zur Darstellungsart passt: Balken und Regler rechnen mit Zahlen, Float-Buttons und Buttons ohne Assoziationen zeigt das Frontend nur als Text. */
     private function SelfTestTypeMismatch(string $name, array $row): ?string
     {
         if ($this->RowKind($row) !== 'variable') {
@@ -309,6 +309,9 @@ trait SelfTestTrait
         }
         if ($displayType === 'button' && $type === VARIABLETYPE_FLOAT) {
             return sprintf($this->Translate('%s: variable %d is a float, a button cannot switch it. Show it as a slider or as text.'), $name, $variableId);
+        }
+        if ($displayType === 'button' && ($type === VARIABLETYPE_INTEGER || $type === VARIABLETYPE_STRING) && empty($this->GetVariableAssociations($variableId, $type))) {
+            return sprintf($this->Translate('%s: variable %d has no associations, a button cannot offer any value. Define them in its presentation or profile, or show it as text.'), $name, $variableId);
         }
         return null;
     }
