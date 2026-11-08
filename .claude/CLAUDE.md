@@ -6,7 +6,7 @@ Projektwissen: **`.claude/docs/README.md`**. Betriebsdaten und der lokale Prüfs
 
 ## Aufbau
 
-- **`GeraeteStatus/`** (Präfix `UDST`, Klasse `UniversalDeviceTile`, `IPSModuleStrict`, ab Symcon 8.1). `module.php` ist schlank; die Logik liegt in Traits unter `libs/` (Namensraum `UDT`): `PayloadTrait`/`PayloadVariablesTrait` (Kachelstand), `UpdateTrait` (Zeilen-Protokoll), `ActionTrait` (Bedienung), `ImageHookTrait` (Bilder), `PresentationTrait`, `IconTrait`, `FormTrait`, `TileHtmlTrait`.
+- **`GeraeteStatus/`** (Präfix `UDST`, Klasse `UniversalDeviceTile`, `IPSModuleStrict`, ab Symcon 8.1). `module.php` ist schlank; die Logik liegt in Traits unter `libs/` (Namensraum `UDT`): `PayloadTrait`/`PayloadVariablesTrait` (Kachelstand), `UpdateTrait` (Zeilen-Protokoll), `ActionTrait` (Bedienung), `SelfTestTrait` (`UDST_RunSelfTest`, `UDST_GetConfigurationHelp`), `ImageHookTrait` (Bilder), `PresentationTrait`, `IconTrait`, `FormTrait`, `TileHtmlTrait`.
 - **`module.html` ist nur das Gerüst.** CSS und JS liegen in `html/css/` und `html/js/`; `TileHtmlTrait` setzt sie beim Ausliefern an den Zeilen `/*__UDT_PART <datei>__*/` ein. Neue Teile dort eintragen.
 - **Zeilen-Protokoll:** Jede Zeile hat einen Schlüssel (Index in der Variablenliste). Updates schicken `{"rows": [...]}` mit den betroffenen Zeilen vollständig; Bedienung kommt als `requestAction('row_<key>', Wunschwert)` und wirkt nur auf das Ziel dieser Zeile.
 - **Bilder** über den nativen Hook `/hook/udtimages/<ID>` (in `Create()`), nur für Medien dieser Kachel, mit Platzhalter über der Ausgabegrenze.
@@ -30,6 +30,7 @@ Der Prüfstand (`tests/`) ist **nicht** Teil dieses Repos: `.gitignore` schließ
 - **Release:** `version`, `build` und `date` in `library.json` hochsetzen, Changelog in beiden READMEs.
 - **Öffentliches Repo:** keine IP-Adressen, Ports, Instanz-IDs, Token, Pfade unter `/Users/` – auch nicht in Snapshots oder Doku.
 - **Keine Befehle an echte Geräte** aus Proben ohne Zusage des Nutzers.
+- **Bedienung durch KI-Assistenten:** Neue öffentliche Funktionen und Listenfelder gehören in die unsichtbaren Labels am Ende von `form.json` (`UDST_GetConfigurationHelp` liefert sie als Text), neue Prüfungen in `UDST_RunSelfTest`.
 - **Symcon-Hausregeln:** `declare(strict_types=1)`, typisierte Signaturen, kein Heavy Work vor `KR_READY`, Darstellungen statt Variablenprofilen für eigene Variablen, neue Nutzertexte sagen „Symcon“.
 
 ## Weiteres Wissen
