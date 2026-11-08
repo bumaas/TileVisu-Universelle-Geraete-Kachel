@@ -361,15 +361,26 @@ class UniversalDeviceTile extends IPSModuleStrict
             return;
         }
 
-        // Ein verknüpftes Objekt ist verschwunden oder unbrauchbar geworden
-        if (($Message === OM_UNREGISTER || $Message === SM_BROKEN || $Message === MM_AVAILABLE) && $this->IsKernelReady()) {
+        if (!$this->IsKernelReady()) {
+            return;
+        }
+
+        // Objekt verschwunden: Zeilen können wegfallen, das geht nur mit vollem Aufbau
+        if ($Message === OM_UNREGISTER) {
             $this->UpdateLinkStatus();
             $this->SendFullUpdate();
             return;
         }
 
-        // Medien-Änderungen: Bildzeilen, Statusbild, Hintergrund (Zeilen-Protokoll)
-        if ($Message === MM_UPDATE || $Message === MM_CHANGEFILE) {
+        // Skript fehlgeschlagen: an der Kachel ändert sich nichts
+        if ($Message === SM_BROKEN) {
+            $this->UpdateLinkStatus();
+            return;
+        }
+
+        // Medien-Änderungen: Bildzeilen, Statusbild, Hintergrund (Zeilen-Protokoll); eine neue Datei kann den Status reparieren
+        if ($Message === MM_UPDATE || $Message === MM_CHANGEFILE || $Message === MM_AVAILABLE) {
+            $this->UpdateLinkStatus();
             $this->HandleMediaUpdate((int)$SenderID);
         }
 }
