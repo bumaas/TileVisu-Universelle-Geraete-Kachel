@@ -1059,6 +1059,36 @@
               "image": "data:image/jpeg;base64,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"
           }
       ]
+  },
+  {
+    "type": "Label",
+    "visible": false,
+    "caption": "Note for AI and scripts: The rows of this tile are configured in the property VariablesList and show existing objects. To switch a device, call RequestAction on its source variable. IPS_RequestAction($id, 'row_<key>', $value) is the path the tile itself uses: <key> is the position in VariablesList and changes when rows are added, removed or moved."
+  },
+  {
+    "type": "Label",
+    "visible": false,
+    "caption": "VariablesList is a JSON list with one object per row. These fields decide what a row does: DisplayType (text, progress, slider, button, image), Variable (ID of the source variable), Label, Group (keine Gruppe or Gruppe 1 to Gruppe 10), ScriptID (button runs this script), OpenObjectId (button opens this object), ImageMedia (media ID of an image row), SecondVariable (optional second value). Read the list with IPS_GetConfiguration first and keep all other fields. Write it with IPS_SetProperty and IPS_ApplyChanges."
+  },
+  {
+    "type": "Label",
+    "visible": false,
+    "caption": "UDST_RunSelfTest($id) checks all rows without changing anything and returns text: the number of problems, each problem with its row and next step, and the operable rows with their keys. Run it after every change of the configuration."
+  },
+  {
+    "type": "Label",
+    "visible": false,
+    "caption": "UDST_EditorURL($id) returns the address of the visual editor without host, with a new access code. UDST_EditorConnectURL($id) returns the same address via Symcon Connect, or an empty text if Connect is not active. The code is an administrative access to this tile: request it only if the user asks for the editor and do not pass it on."
+  },
+  {
+    "type": "Label",
+    "visible": false,
+    "caption": "UDST_GetUserTemplates($id) returns the templates stored in this tile as JSON and changes nothing. UDST_SyncUserTemplates($id, $templates) replaces the whole template list of this tile with the given JSON list and returns false if it is not a list. Read the list first and keep what should stay."
+  },
+  {
+    "type": "Label",
+    "visible": false,
+    "caption": "UDST_GetAllGroupNames($id) returns the groups with their display options as an array and changes nothing. UDST_UpdateList($id, $statusVariableId) and UDST_UpdateDisplayTypeVisibility($id, $displayType, $rowId) only act on the open configuration form, do not call them from scripts."
   }
   ]
 }
