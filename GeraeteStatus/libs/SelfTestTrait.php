@@ -82,8 +82,8 @@ trait SelfTestTrait
         $problems = [];
         foreach (['DefaultImage' => 'Default Image', 'bgImage' => 'Background image'] as $property => $caption) {
             $mediaId = $this->ReadPropertyInteger($property);
-            if ($mediaId >= EditorSchema::MIN_OBJECT_ID && !IPS_MediaExists($mediaId)) {
-                $problems[] = sprintf($this->Translate('%s: image %d does not exist. Select another image.'), $this->Translate($caption), $mediaId);
+            if ($mediaId >= EditorSchema::MIN_OBJECT_ID) {
+                $problems = array_merge($problems, $this->SelfTestImageProblem($this->Translate($caption), $mediaId));
             }
         }
         $associations = Helpers::decodeJsonArray($this->ReadPropertyString('ProfilAssoziazionen'), __FUNCTION__);
@@ -96,11 +96,23 @@ trait SelfTestTrait
             $mediaId = (int)($association['EigenesBild'] ?? 0);
             if (!in_array($choice, EditorSchema::IMAGE_CHOICES, true)) {
                 $problems[] = sprintf($this->Translate('Status value "%s": unknown image choice "%s". Allowed are: %s.'), $name, mb_substr($choice, 0, 40), implode(', ', EditorSchema::IMAGE_CHOICES));
-            } elseif ($choice === 'custom' && !IPS_MediaExists($mediaId)) {
-                $problems[] = sprintf($this->Translate('Status value "%s": image %d does not exist. Select another image.'), $name, $mediaId);
+            } elseif ($choice === 'custom') {
+                $problems = array_merge($problems, $this->SelfTestImageProblem(sprintf($this->Translate('Status value "%s"'), $name), $mediaId));
             }
         }
         return $problems;
+    }
+
+    /** Problem eines gewählten Bildes: Die Kachel zeigt nur vorhandene Medien vom Typ Bild. */
+    private function SelfTestImageProblem(string $owner, int $mediaId): array
+    {
+        if (!IPS_MediaExists($mediaId)) {
+            return [sprintf($this->Translate('%s: image %d does not exist. Select another image.'), $owner, $mediaId)];
+        }
+        if (IPS_GetMedia($mediaId)['MediaType'] !== MEDIATYPE_IMAGE) {
+            return [sprintf($this->Translate('%s: media object %d is not an image. Select an image.'), $owner, $mediaId)];
+        }
+        return [];
     }
 
     /** Probleme einer Zeile als Texte mit nächstem Schritt. */
@@ -129,8 +141,8 @@ trait SelfTestTrait
         if ($displayType === 'image') {
             if ($mediaId < EditorSchema::MIN_OBJECT_ID) {
                 $problems[] = sprintf($this->Translate('%s: no image selected. Select an image for this row.'), $name);
-            } elseif (!IPS_MediaExists($mediaId)) {
-                $problems[] = sprintf($this->Translate('%s: image %d does not exist. Select another image for this row.'), $name, $mediaId);
+            } else {
+                $problems = array_merge($problems, $this->SelfTestImageProblem($name, $mediaId));
             }
             return $problems;
         }
