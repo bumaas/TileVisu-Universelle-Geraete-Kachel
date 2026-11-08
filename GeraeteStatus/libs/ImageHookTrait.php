@@ -141,6 +141,9 @@ trait ImageHookTrait
     {
         $base = '/hook/udtimages/' . $this->InstanceID;
         $token = $this->ReadAttributeString('HookToken');
+        if ($mediaId > 0 && !IPS_MediaExists($mediaId)) {
+            $mediaId = 0; // gelöschtes Medium: IPS_GetMedia würde eine Warnung in die Kachel schreiben
+        }
         if ($mediaId > 0) {
             $q = 'mid=' . (int)$mediaId . '&v=' . rawurlencode($this->GetMediaVersion($mediaId));
         } else {
