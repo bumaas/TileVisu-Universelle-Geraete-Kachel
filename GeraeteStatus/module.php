@@ -352,8 +352,7 @@ class UniversalDeviceTile extends IPSModuleStrict
         // Nur Bedienelemente dieser Kachel: fremde Variablen und Scripts sind über die Kachel nicht erreichbar
         $target = $this->ResolveActionTarget((string)$Ident);
         if ($target === null) {
-            $this->SendDebug(__FUNCTION__, 'Abgelehnt, keine bedienbare Zeile dieser Kachel: ' . $Ident, 0);
-            trigger_error(sprintf($this->Translate('Action rejected: "%s" is not an operable row of this tile. Read the row keys with UDST_RunSelfTest or switch the source variable directly.'), $Ident), E_USER_WARNING);
+            $this->RejectIdent($Ident);
             return;
         }
         $this->RunActionTarget($target, $Value);

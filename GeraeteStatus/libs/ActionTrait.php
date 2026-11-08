@@ -138,10 +138,25 @@ trait ActionTrait
         return is_numeric($value) && abs((float)$value) < PHP_INT_MAX;
     }
 
+    /** Meldet einen Ident ohne bedienbare Zeile. */
+    private function RejectIdent(string $ident): void
+    {
+        $shown = self::ShortText($ident);
+        $this->SendDebug(__FUNCTION__, 'Abgelehnt, keine bedienbare Zeile dieser Kachel: ' . $shown, 0);
+        trigger_error(sprintf($this->Translate('Action rejected: "%s" is not an operable row of this tile. Read the row keys with UDST_RunSelfTest or switch the source variable directly.'), $shown), E_USER_WARNING);
+    }
+
+    /** Text vom Aufrufer für das Meldungsprotokoll: gültiges UTF-8, ohne Steuerzeichen, höchstens 40 Zeichen. */
+    private static function ShortText(string $text): string
+    {
+        $clean = (string)preg_replace('/\p{Cc}+/u', ' ', mb_scrub($text, 'UTF-8'));
+        return mb_strlen($clean) > 40 ? mb_substr($clean, 0, 40) . '…' : $clean;
+    }
+
     /** Meldet einen abgelehnten Wunschwert; $message enthält %s für den Wert. */
     private function RejectValue(mixed $value, string $message): void
     {
-        $shown = is_float($value) && !is_finite($value) ? var_export($value, true) : (string)json_encode($value);
+        $shown = self::ShortText(is_float($value) && !is_finite($value) ? var_export($value, true) : (string)json_encode($value, JSON_INVALID_UTF8_SUBSTITUTE));
         $this->SendDebug(__FUNCTION__, 'Ungültiger Wunschwert: ' . $shown, 0);
         trigger_error(sprintf($message, $shown), E_USER_WARNING);
     }
