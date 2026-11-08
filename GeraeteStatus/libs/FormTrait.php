@@ -280,7 +280,7 @@ trait FormTrait
         // OpenObject-Buttons: OpenObjectId-Namen anzeigen (hat Priorität)
         if (($displayType === 'button') && isset($row['OpenObjectId'])) {
             $openObjectId = intval($row['OpenObjectId']);
-            if ($openObjectId > 1 && IPS_ObjectExists($openObjectId)) {
+            if ($openObjectId > 0 && IPS_ObjectExists($openObjectId)) {
                 return $this->formatObjectWithParent($openObjectId);
             }
         }

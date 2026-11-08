@@ -155,7 +155,7 @@ trait SelfTestTrait
                 $targets['scripts'][] = $scriptId;
             }
             $openId = (int)($row['OpenObjectId'] ?? 0);
-            if ($openId > 1 && IPS_ObjectExists($openId)) {
+            if ($openId > 0 && IPS_ObjectExists($openId)) {
                 $targets['objects'][] = $openId;
             }
         }
@@ -165,7 +165,7 @@ trait SelfTestTrait
     /** Problem bei der Statusvariable. */
     private function SelfTestStatusVariable(): array
     {
-        $statusId = $this->ReadPropertyInteger('Status');
+        $statusId = EditorSchema::ObjectRef($this->ReadPropertyInteger('Status'));
         if ($statusId > 0 && !IPS_VariableExists($statusId)) {
             return [sprintf($this->Translate('Status: variable %d does not exist. Select another status variable.'), $statusId)];
         }
@@ -177,8 +177,8 @@ trait SelfTestTrait
     {
         $problems = [];
         foreach (['DefaultImage' => 'Default Image', 'bgImage' => 'Background image'] as $property => $caption) {
-            $mediaId = $this->ReadPropertyInteger($property);
-            if ($mediaId >= EditorSchema::MIN_OBJECT_ID) {
+            $mediaId = EditorSchema::ObjectRef($this->ReadPropertyInteger($property));
+            if ($mediaId > 0) {
                 $problems = array_merge($problems, $this->SelfTestImageProblem($this->Translate($caption), $mediaId));
             }
         }
@@ -189,10 +189,10 @@ trait SelfTestTrait
             }
             $name = mb_substr((string)($association['AssoziationName'] ?? ''), 0, 40);
             $choice = (string)($association['Bildauswahl'] ?? 'none');
-            $mediaId = (int)($association['EigenesBild'] ?? 0);
+            $mediaId = EditorSchema::ObjectRef($association['EigenesBild'] ?? 0);
             if (!in_array($choice, EditorSchema::IMAGE_CHOICES, true)) {
                 $problems[] = sprintf($this->Translate('Status value "%s": unknown image choice "%s". Allowed are: %s.'), $name, mb_substr($choice, 0, 40), implode(', ', EditorSchema::IMAGE_CHOICES));
-            } elseif ($choice === 'custom') {
+            } elseif ($choice === 'custom' && $mediaId > 0) {
                 $problems = array_merge($problems, $this->SelfTestImageProblem(sprintf($this->Translate('Status value "%s"'), $name), $mediaId));
             }
         }
@@ -228,23 +228,27 @@ trait SelfTestTrait
             $problems[] = sprintf($this->Translate('%s: second variable %d does not exist. Select another one or remove it.'), $name, $secondId);
         }
         if ($displayType === 'image') {
-            $mediaId = (int)($row['ImageMedia'] ?? 0);
-            return $mediaId < EditorSchema::MIN_OBJECT_ID ? $problems : array_merge($problems, $this->SelfTestImageProblem($name, $mediaId));
+            $mediaId = EditorSchema::ObjectRef($row['ImageMedia'] ?? 0);
+            return $mediaId === 0 ? $problems : array_merge($problems, $this->SelfTestImageProblem($name, $mediaId));
         }
         $openId = (int)($row['OpenObjectId'] ?? 0);
-        if ($this->RowClickOpensObject($row) && !IPS_ObjectExists($openId)) {
+        $opensObject = $this->RowClickOpensObject($row);
+        if ($opensObject && !IPS_ObjectExists($openId)) {
             $problems[] = sprintf($this->Translate('%s: object %d to open does not exist. Select another object for this row.'), $name, $openId);
         }
         $kind = $this->RowKind($row);
         $scriptId = (int)($row['ScriptID'] ?? 0);
-        if ($kind === 'script' && !IPS_ScriptExists($scriptId)) {
+        // Öffnet der Klick ein Objekt, erreicht er das Skript nie
+        if ($kind === 'script' && !$opensObject && !IPS_ScriptExists($scriptId)) {
             $problems[] = sprintf($this->Translate('%s: script %d does not exist. Select another script for this row.'), $name, $scriptId);
-        } elseif ($kind === 'script' && IPS_GetScript($scriptId)['ScriptIsBroken']) {
+        } elseif ($kind === 'script' && !$opensObject && IPS_GetScript($scriptId)['ScriptIsBroken']) {
             $problems[] = sprintf($this->Translate('%s: script %d failed on its last run. Fix it and run it again.'), $name, $scriptId);
         }
         $variableId = (int)($row['Variable'] ?? 0);
         if ($kind === 'none' && $variableId > 0) {
             $problems[] = sprintf($this->Translate('%s: variable %d does not exist. Select another variable for this row.'), $name, $variableId);
+        } elseif (($kind === 'script' || $kind === 'object') && $variableId > 0) {
+            $problems[] = sprintf($this->Translate('%s: variable %d does not exist, the row uses its script or object to open instead. Remove the variable or select another one.'), $name, $variableId);
         }
         return $problems;
     }
@@ -265,7 +269,7 @@ trait SelfTestTrait
         }
 
         if ($displayType === 'image') {
-            if ((int)($row['ImageMedia'] ?? 0) < EditorSchema::MIN_OBJECT_ID) {
+            if (EditorSchema::ObjectRef($row['ImageMedia'] ?? 0) === 0) {
                 $problems[] = sprintf($this->Translate('%s: no image selected. Select an image for this row.'), $name);
             }
             return $problems;
@@ -314,9 +318,6 @@ trait SelfTestTrait
     {
         $displayType = (string)($row['DisplayType'] ?? 'text');
         $variableId = (int)($row['Variable'] ?? 0);
-        if ($variableId > 0 && in_array($this->RowKind($row), ['script', 'object'], true)) {
-            return [sprintf($this->Translate('%s: variable %d does not exist, the row uses its script or object to open instead. Remove the variable or select another one.'), $name, $variableId)];
-        }
         if (($displayType !== 'slider' && $displayType !== 'progress') || $variableId <= 0 || !IPS_VariableExists($variableId)) {
             return [];
         }

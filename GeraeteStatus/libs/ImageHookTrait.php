@@ -25,8 +25,8 @@ trait ImageHookTrait
             foreach ($profilAssoziazionen as $assoziation) {
                 $bildauswahl = $assoziation['Bildauswahl'] ?? 'none';
                 
-                if ($bildauswahl === 'custom' && isset($assoziation['EigenesBild']) && $assoziation['EigenesBild'] > 0) {
-                    $mediaId = (int)$assoziation['EigenesBild'];
+                if ($bildauswahl === 'custom') {
+                    $mediaId = EditorSchema::ObjectRef($assoziation['EigenesBild'] ?? 0);
                     if ($mediaId > 0 && IPS_MediaExists($mediaId)) {
                         $assets['img_custom_' . $mediaId] = $this->BuildImageHookUrl($mediaId);
                     }

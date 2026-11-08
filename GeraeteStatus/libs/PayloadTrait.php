@@ -15,8 +15,9 @@ trait PayloadTrait
 
     /**
      * Die Variablenliste mit festen Typen: Objekt-IDs als int, Texte als string. Ältere oder per Skript
-     * gesetzte Listen tragen IDs auch als String oder Float, unter strict_types würde das werfen. Die
-     * Schlüssel (Zeilen-Schlüssel) bleiben erhalten; unlesbare Einträge werden zu leeren Zeilen.
+     * gesetzte Listen tragen IDs auch als String oder Float, unter strict_types würde das werfen. Referenzen
+     * unter 10000 werden 0, danach heißt überall > 0 „gewählt“. Die Schlüssel (Zeilen-Schlüssel) bleiben
+     * erhalten; unlesbare Einträge werden zu leeren Zeilen.
      */
     private function ReadVariablesList(): array
     {
@@ -29,7 +30,7 @@ trait PayloadTrait
             }
             foreach (['Variable', 'SecondVariable', 'ScriptID', 'OpenObjectId', 'ImageMedia'] as $field) {
                 if (isset($row[$field]) && is_numeric($row[$field])) {
-                    $row[$field] = (int)$row[$field];
+                    $row[$field] = EditorSchema::ObjectRef($row[$field]);
                 }
             }
             foreach (['DisplayType', 'Group', 'Label', 'SecondVariableLabel'] as $field) {
@@ -142,10 +143,11 @@ trait PayloadTrait
                         
                         if ($bildauswahl === 'custom') {
                             // Verwende eigenes Bild aus SelectMedia-Feld
-                            if (isset($assoziation['EigenesBild']) && $assoziation['EigenesBild'] > 0) {
+                            $customImage = EditorSchema::ObjectRef($assoziation['EigenesBild'] ?? 0);
+                            if ($customImage > 0) {
                                 // Asset-Name für Custom Image (wird in GenerateAssets() als base64 geladen)
-                                $result['statusBildauswahl'] = 'img_custom_' . $assoziation['EigenesBild'];
-                                $result['statusImageUrl'] = $this->BuildImageHookUrl((int)$assoziation['EigenesBild']);
+                                $result['statusBildauswahl'] = 'img_custom_' . $customImage;
+                                $result['statusImageUrl'] = $this->BuildImageHookUrl($customImage);
                             } else {
                                 // Fallback: Verwende Standard-Bild wenn konfiguriert, sonst 'none'
                                 $result['statusBildauswahl'] = $this->getDefaultImageOrNone();
@@ -334,7 +336,7 @@ trait PayloadTrait
             $result['statusBildauswahl'] = 'symcon_icon_' . $first['SymconIcon'];
             $result['statusIconColor'] = $transparent ? '' : '#' . sprintf('%06X', $color);
             $result['isStatusIconColorTransparent'] = $transparent;
-        } elseif ($choice === 'custom' && (int)($first['EigenesBild'] ?? 0) > 0) {
+        } elseif ($choice === 'custom' && EditorSchema::ObjectRef($first['EigenesBild'] ?? 0) > 0) {
             $result['statusBildauswahl'] = 'img_custom_' . (int)$first['EigenesBild'];
             $result['statusImageUrl'] = $this->BuildImageHookUrl((int)$first['EigenesBild']);
         } elseif (!in_array($choice, ['none', 'custom', 'symcon_icon'], true)) {

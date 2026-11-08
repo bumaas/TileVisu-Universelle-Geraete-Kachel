@@ -40,7 +40,7 @@ trait ActionTrait
         if ($displayType === 'button' && (int)($row['ScriptID'] ?? 0) > 0) {
             return 'script';
         }
-        return ($displayType === 'button' && (int)($row['OpenObjectId'] ?? 0) > 1) ? 'object' : 'none';
+        return ($displayType === 'button' && (int)($row['OpenObjectId'] ?? 0) > 0) ? 'object' : 'none';
     }
 
     /**
@@ -49,7 +49,7 @@ trait ActionTrait
      */
     private function RowClickOpensObject(array $row): bool
     {
-        if ((int)($row['OpenObjectId'] ?? 0) <= 1) {
+        if ((int)($row['OpenObjectId'] ?? 0) <= 0) {
             return false;
         }
         $kind = $this->RowKind($row);

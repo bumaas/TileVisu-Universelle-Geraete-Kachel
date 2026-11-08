@@ -243,7 +243,7 @@ class UniversalDeviceTile extends IPSModuleStrict
         $ids = $mediaIds;
         
         // Füge Status-Variable hinzu
-        $statusId = $this->ReadPropertyInteger('Status');
+        $statusId = \UDT\EditorSchema::ObjectRef($this->ReadPropertyInteger('Status'));
         if ($statusId > 0) {
             $ids[] = $statusId;
         }

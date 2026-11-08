@@ -131,6 +131,13 @@ final class EditorSchema
         'ImageMedia' => 0, 'ImageWidth' => 40, 'ImageBorderRadius' => 6,
     ];
 
+    /** Gespeicherte Objekt-Referenz: Symcon vergibt IDs ab 10000, alles darunter (0, Altwert 1) heißt „nichts gewählt“ und wird 0. */
+    public static function ObjectRef(mixed $value): int
+    {
+        $id = is_numeric($value) ? (int)$value : 0;
+        return $id >= self::MIN_OBJECT_ID ? $id : 0;
+    }
+
     /** Objekt-IDs einer (vereinheitlichten) Konfiguration nach Art: variable|script|object|image => [IDs]. */
     public static function References(array $config): array
     {
