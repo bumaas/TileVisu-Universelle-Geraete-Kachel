@@ -25,6 +25,15 @@ if (!defined('MM_UPDATE')) {
     // IPS_BASE (10000) + IPS_MEDIAMESSAGE (900) + 5
     define('MM_UPDATE', 10905);
 }
+if (!defined('MM_AVAILABLE')) {
+    define('MM_AVAILABLE', 10904);
+}
+if (!defined('OM_UNREGISTER')) {
+    define('OM_UNREGISTER', 10402);
+}
+if (!defined('SM_BROKEN')) {
+    define('SM_BROKEN', 10704);
+}
 
 require_once __DIR__ . '/libs/CommonHelpers.php';
 require_once __DIR__ . '/libs/SettingsAccessTrait.php';
@@ -249,6 +258,10 @@ class UniversalDeviceTile extends IPSModuleStrict
             }
         }
 
+        // Skripte und Klickziele der Buttons gehören ebenso in die Referenzen
+        $buttonTargets = $this->ButtonTargets($variablesList);
+        $ids = array_merge($ids, $buttonTargets['scripts'], $buttonTargets['objects']);
+
         
         // Entferne alle alten Referenzen
         $refs = $this->GetReferenceList();
@@ -294,10 +307,29 @@ class UniversalDeviceTile extends IPSModuleStrict
                 // Aktualisierung und Dateiänderung beobachten
                 $this->RegisterMessage($mid, MM_UPDATE);
                 $this->RegisterMessage($mid, MM_CHANGEFILE);
+                $this->RegisterMessage($mid, MM_AVAILABLE);
             }
         }
 
+        // Verknüpfte Objekte beobachten: Verschwinden oder Unbrauchbarwerden setzt den Status der Kachel um
+        foreach (array_unique($ids) as $id) {
+            if ($id > 0 && IPS_ObjectExists((int)$id)) {
+                $this->RegisterMessage((int)$id, OM_UNREGISTER);
+            }
+        }
+        foreach ($buttonTargets['scripts'] as $scriptId) {
+            $this->RegisterMessage($scriptId, SM_BROKEN);
+        }
+
+        $this->UpdateLinkStatus();
+
         // Schicke eine komplette Update-Nachricht an die Darstellung, da sich ja Parameter geändert haben können
+        $this->SendFullUpdate();
+    }
+
+    /** Schickt den kompletten Kachelstand samt Assets an die Darstellung. */
+    private function SendFullUpdate(): void
+    {
         $fullUpdateMessage = $this->BuildFullPayload();
         $assets = $this->GenerateAssets();
         if (!empty($assets)) {
@@ -326,6 +358,13 @@ class UniversalDeviceTile extends IPSModuleStrict
         // Wertänderung: nur die betroffenen Zeilen (und bei der Statusvariable der Statusteil)
         if ($Message === VM_UPDATE) {
             $this->HandleVariableUpdate((int)$SenderID, is_array($Data) ? $Data : []);
+            return;
+        }
+
+        // Ein verknüpftes Objekt ist verschwunden oder unbrauchbar geworden
+        if (($Message === OM_UNREGISTER || $Message === SM_BROKEN || $Message === MM_AVAILABLE) && $this->IsKernelReady()) {
+            $this->UpdateLinkStatus();
+            $this->SendFullUpdate();
             return;
         }
 

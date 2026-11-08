@@ -18,12 +18,7 @@ trait SelfTestTrait
         $notes = [];
         $operable = [];
 
-        $statusId = $this->ReadPropertyInteger('Status');
-        if ($statusId > 0 && !IPS_VariableExists($statusId)) {
-            $problems[] = sprintf($this->Translate('Status: variable %d does not exist. Select another status variable.'), $statusId);
-        }
-
-        $problems = array_merge($problems, $this->SelfTestImages());
+        $problems = array_merge($this->SelfTestStatusVariable(), $this->SelfTestImages());
 
         foreach ($rows as $key => $row) {
             $name = 'row_' . $key;
@@ -76,6 +71,56 @@ trait SelfTestTrait
         return implode("\n\n", $notes);
     }
 
+    /** Setzt den Instanzstatus: Fehler, solange ein verknüpftes Objekt fehlt oder unbrauchbar ist, sonst aktiv. Symcon setzt ihn nicht von selbst zurück. */
+    private function UpdateLinkStatus(): void
+    {
+        $this->SetStatus($this->HasBrokenLinks() ? IS_EBASE + 1 : IS_ACTIVE);
+    }
+
+    /** Fehlt ein verknüpftes Objekt oder ist es unbrauchbar? Dieselben Prüfungen wie im Selbsttest, ohne Zeilen, die nur noch nicht fertig eingerichtet sind. */
+    private function HasBrokenLinks(): bool
+    {
+        if ($this->SelfTestStatusVariable() !== [] || $this->SelfTestImages() !== []) {
+            return true;
+        }
+        foreach ($this->ReadVariablesList() as $key => $row) {
+            if ($this->RowBrokenLinks('row_' . $key, $row) !== []) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Vorhandene Skripte und Klickziele der Button-Zeilen. */
+    private function ButtonTargets(array $rows): array
+    {
+        $targets = ['scripts' => [], 'objects' => []];
+        foreach ($rows as $row) {
+            if (($row['DisplayType'] ?? 'text') !== 'button') {
+                continue;
+            }
+            $scriptId = (int)($row['ScriptID'] ?? 0);
+            if ($scriptId > 0 && IPS_ScriptExists($scriptId)) {
+                $targets['scripts'][] = $scriptId;
+            }
+            $openId = (int)($row['OpenObjectId'] ?? 0);
+            if ($openId > 1 && IPS_ObjectExists($openId)) {
+                $targets['objects'][] = $openId;
+            }
+        }
+        return $targets;
+    }
+
+    /** Problem bei der Statusvariable. */
+    private function SelfTestStatusVariable(): array
+    {
+        $statusId = $this->ReadPropertyInteger('Status');
+        if ($statusId > 0 && !IPS_VariableExists($statusId)) {
+            return [sprintf($this->Translate('Status: variable %d does not exist. Select another status variable.'), $statusId)];
+        }
+        return [];
+    }
+
     /** Probleme bei Standardbild, Hintergrundbild und den Bildern der Status-Zuordnungen. */
     private function SelfTestImages(): array
     {
@@ -109,10 +154,48 @@ trait SelfTestTrait
         if (!IPS_MediaExists($mediaId)) {
             return [sprintf($this->Translate('%s: image %d does not exist. Select another image.'), $owner, $mediaId)];
         }
-        if (IPS_GetMedia($mediaId)['MediaType'] !== MEDIATYPE_IMAGE) {
+        $media = IPS_GetMedia($mediaId);
+        if ($media['MediaType'] !== MEDIATYPE_IMAGE) {
             return [sprintf($this->Translate('%s: media object %d is not an image. Select an image.'), $owner, $mediaId)];
         }
+        if (!$media['MediaIsAvailable']) {
+            return [sprintf($this->Translate('%s: the file of image %d is not available. Assign the file again or select another image.'), $owner, $mediaId)];
+        }
         return [];
+    }
+
+    /** Verknüpfte Objekte einer Zeile, die fehlen oder unbrauchbar sind: Sie setzen auch den Instanzstatus. */
+    private function RowBrokenLinks(string $name, array $row): array
+    {
+        $displayType = (string)($row['DisplayType'] ?? 'text');
+        if (!EditorSchema::RowFieldValid('DisplayType', $displayType)) {
+            return [];
+        }
+        $problems = [];
+        $secondId = (int)($row['SecondVariable'] ?? 0);
+        if ($displayType === 'progress' && $secondId > 0 && !IPS_VariableExists($secondId)) {
+            $problems[] = sprintf($this->Translate('%s: second variable %d does not exist. Select another one or remove it.'), $name, $secondId);
+        }
+        if ($displayType === 'image') {
+            $mediaId = (int)($row['ImageMedia'] ?? 0);
+            return $mediaId < EditorSchema::MIN_OBJECT_ID ? $problems : array_merge($problems, $this->SelfTestImageProblem($name, $mediaId));
+        }
+        $openId = (int)($row['OpenObjectId'] ?? 0);
+        if ($this->RowClickOpensObject($row) && !IPS_ObjectExists($openId)) {
+            $problems[] = sprintf($this->Translate('%s: object %d to open does not exist. Select another object for this row.'), $name, $openId);
+        }
+        $kind = $this->RowKind($row);
+        $scriptId = (int)($row['ScriptID'] ?? 0);
+        if ($kind === 'script' && !IPS_ScriptExists($scriptId)) {
+            $problems[] = sprintf($this->Translate('%s: script %d does not exist. Select another script for this row.'), $name, $scriptId);
+        } elseif ($kind === 'script' && IPS_GetScript($scriptId)['ScriptIsBroken']) {
+            $problems[] = sprintf($this->Translate('%s: script %d failed on its last run. Fix it and run it again.'), $name, $scriptId);
+        }
+        $variableId = (int)($row['Variable'] ?? 0);
+        if ($kind === 'none' && $variableId > 0) {
+            $problems[] = sprintf($this->Translate('%s: variable %d does not exist. Select another variable for this row.'), $name, $variableId);
+        }
+        return $problems;
     }
 
     /** Probleme einer Zeile als Texte mit nächstem Schritt. */
@@ -120,41 +203,25 @@ trait SelfTestTrait
     {
         $displayType = (string)($row['DisplayType'] ?? 'text');
         $variableId = (int)($row['Variable'] ?? 0);
-        $scriptId = (int)($row['ScriptID'] ?? 0);
-        $openId = (int)($row['OpenObjectId'] ?? 0);
-        $mediaId = (int)($row['ImageMedia'] ?? 0);
-        $secondId = (int)($row['SecondVariable'] ?? 0);
-        $problems = [];
 
         if (!EditorSchema::RowFieldValid('DisplayType', $displayType)) {
             return [sprintf($this->Translate('%s: unknown display type "%s". Allowed are: %s.'), $name, mb_substr($displayType, 0, 40), implode(', ', EditorSchema::DISPLAY_TYPES))];
         }
+        $problems = $this->RowBrokenLinks($name, $row);
         $group = (string)($row['Group'] ?? '');
         if ($group !== '' && !EditorSchema::RowFieldValid('Group', $group)) {
             $problems[] = sprintf($this->Translate('%s: unknown group "%s". Allowed are keine Gruppe and Gruppe 1 to Gruppe 10.'), $name, mb_substr($group, 0, 40));
         }
 
-        if ($displayType === 'progress' && $secondId > 0 && !IPS_VariableExists($secondId)) {
-            $problems[] = sprintf($this->Translate('%s: second variable %d does not exist. Select another one or remove it.'), $name, $secondId);
-        }
-
         if ($displayType === 'image') {
-            if ($mediaId < EditorSchema::MIN_OBJECT_ID) {
+            if ((int)($row['ImageMedia'] ?? 0) < EditorSchema::MIN_OBJECT_ID) {
                 $problems[] = sprintf($this->Translate('%s: no image selected. Select an image for this row.'), $name);
-            } else {
-                $problems = array_merge($problems, $this->SelfTestImageProblem($name, $mediaId));
             }
             return $problems;
         }
 
         $kind = $this->RowKind($row);
         $opensObject = $this->RowClickOpensObject($row);
-        if ($opensObject && !IPS_ObjectExists($openId)) {
-            $problems[] = sprintf($this->Translate('%s: object %d to open does not exist. Select another object for this row.'), $name, $openId);
-        }
-        if ($kind === 'script' && !IPS_ScriptExists($scriptId)) {
-            $problems[] = sprintf($this->Translate('%s: script %d does not exist. Select another script for this row.'), $name, $scriptId);
-        }
         $mismatch = $this->SelfTestTypeMismatch($name, $row);
         if ($mismatch !== null) {
             $problems[] = $mismatch;
@@ -163,10 +230,8 @@ trait SelfTestTrait
         if ($kind === 'variable' && !$opensObject && ($displayType === 'button' || $displayType === 'slider') && !HasAction($variableId)) {
             $problems[] = sprintf($this->Translate('%s: variable %d has no action, the row cannot switch. Give the variable an action or show it as text.'), $name, $variableId);
         }
-        if ($kind === 'none') {
-            if ($variableId > 0) {
-                $problems[] = sprintf($this->Translate('%s: variable %d does not exist. Select another variable for this row.'), $name, $variableId);
-            } elseif ($displayType === 'button') {
+        if ($kind === 'none' && $variableId <= 0) {
+            if ($displayType === 'button') {
                 $problems[] = sprintf($this->Translate('%s: the button has no target. Select a variable, a script or an object to open.'), $name);
             } else {
                 $problems[] = sprintf($this->Translate('%s: no variable selected. Select a variable for this row.'), $name);

@@ -1099,6 +1099,25 @@
     "type": "Label",
     "visible": false,
     "caption": "UDST_GetAllGroupNames($id) returns the groups with their display options as an array and changes nothing. UDST_UpdateList($id, $statusVariableId) and UDST_UpdateDisplayTypeVisibility($id, $displayType, $rowId) only act on the open configuration form, do not call them from scripts."
+  },
+  {
+    "type": "Label",
+    "visible": false,
+    "caption": "Instance status 201 means that a linked object is missing or unusable: a deleted variable, script or image, an image file that is not available, a script that failed on its last run or an invalid image choice. It is set as soon as this happens, the tile stays usable. UDST_RunSelfTest names the row. After a repair save the configuration. A variable without an action does not set it."
   }
+  ],
+  "actions": [
+    {
+      "type": "Button",
+      "caption": "Self test",
+      "onClick": "echo UDST_RunSelfTest($id);"
+    }
+  ],
+  "status": [
+    {
+      "code": 201,
+      "icon": "error",
+      "caption": "A linked object is missing or unusable. The Self test button names the affected row."
+    }
   ]
 }

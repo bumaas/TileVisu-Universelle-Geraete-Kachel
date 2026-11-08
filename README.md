@@ -159,9 +159,11 @@ Die Funktionalität erfolgt über die Instanz-Konfiguration und den Editor. Für
 - `UDST_GetUserTemplates(int $InstanzID): string` – die eigenen Vorlagen, wie sie in dieser Kachel liegen, als JSON.
 - `UDST_SyncUserTemplates(int $InstanzID, string $Vorlagen): bool` – die Liste der eigenen Vorlagen dieser Kachel ersetzen; der Editor verteilt damit eine geänderte Liste an alle Kacheln.
 
-`UDST_RunSelfTest(int $InstanzID): string`: prüft alle Zeilen, ohne etwas zu ändern, und liefert einen kurzen Text mit den gefundenen Problemen (fehlende Objekte und Bilder, unbekannte Darstellungsarten und Gruppen, Variablen vom falschen Typ, Schalter ohne Aktion), Hinweisen (Balken oder Regler ohne eigenen Bereich, gelöschte Variable an einem Button mit Skript oder Objekt) und den bedienbaren Zeilen samt Schlüssel.
+`UDST_RunSelfTest(int $InstanzID): string`: prüft alle Zeilen, ohne etwas zu ändern, und liefert einen kurzen Text mit den gefundenen Problemen (fehlende Objekte und Bilder, nicht verfügbare Bilddateien, fehlgeschlagene Skripte, unbekannte Darstellungsarten und Gruppen, Variablen vom falschen Typ, Schalter ohne Aktion), Hinweisen (Balken oder Regler ohne eigenen Bereich, gelöschte Variable an einem Button mit Skript oder Objekt) und den bedienbaren Zeilen samt Schlüssel.
 
 `UDST_GetConfigurationHelp(int $InstanzID): string`: liefert die Hinweise für KI-Assistenten und Skripte aus dem Formular als Text und ändert nichts.
+
+Fehlt ein verknüpftes Objekt oder ist es nicht nutzbar (gelöschte Variable, gelöschtes Skript oder Bild, nicht verfügbare Bilddatei, beim letzten Lauf fehlgeschlagenes Skript, ungültige Bildwahl), steht die Instanz sofort auf Fehlerstatus 201. Die Kachel bleibt bedienbar, der Knopf „Selbsttest“ im Formular nennt die betroffene Zeile. Nach einer Reparatur die Konfiguration speichern. Eine Variable ohne Aktion setzt den Status nicht, der Selbsttest nennt sie trotzdem. Eine außerhalb von Symcon gelöschte Bilddatei bemerkt Symcon nicht, sie setzt den Status also auch nicht.
 
 Eine Aktion, die die Kachel nicht ausführen kann, meldet `IPS_RequestAction` als Warnung mit dem Grund: eine Kennung ohne bedienbare Zeile, ein fehlendes Skript oder ein ungültiger Wert (beim Schalter weder true noch false, bei Zahlenvariablen keine Zahl).
 
