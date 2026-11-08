@@ -1103,6 +1103,11 @@
   {
     "type": "Label",
     "visible": false,
+    "caption": "UDST_GetSelfTestReport($id) returns the findings of UDST_RunSelfTest as text for people: rows with their position and name, without keys and without the list of operable rows. The Self test button shows it. Scripts and assistants use UDST_RunSelfTest."
+  },
+  {
+    "type": "Label",
+    "visible": false,
     "caption": "Instance status 201 means that a linked object is missing or unusable: a deleted variable, script or image, an image file that is not available, a script that failed on its last run or an invalid image choice. It is set as soon as this happens, the tile stays usable. UDST_RunSelfTest names the row. After a repair save the configuration. A variable without an action does not set it."
   }
   ],
@@ -1110,7 +1115,7 @@
     {
       "type": "Button",
       "caption": "Self test",
-      "onClick": "echo UDST_RunSelfTest($id);"
+      "onClick": "echo UDST_GetSelfTestReport($id);"
     }
   ],
   "status": [

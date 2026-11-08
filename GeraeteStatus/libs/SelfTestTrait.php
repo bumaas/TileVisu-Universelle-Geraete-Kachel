@@ -10,8 +10,8 @@ namespace UDT;
  */
 trait SelfTestTrait
 {
-    /** Prüft die Konfiguration der Kachel ohne Wirkung. */
-    public function RunSelfTest(): string
+    /** Prüft die Konfiguration der Kachel ohne Wirkung und liefert die Befunde. */
+    private function SelfTestFindings(): array
     {
         $rows = $this->ReadVariablesList();
         $problems = [];
@@ -36,6 +36,14 @@ trait SelfTestTrait
             }
         }
 
+        return ['rows' => $rows, 'problems' => $problems, 'notes' => $notes, 'operable' => $operable];
+    }
+
+    /** Die Befunde für Skripte und KI-Assistenten, mit Zeilenschlüsseln und Objektnummern. */
+    public function RunSelfTest(): string
+    {
+        ['rows' => $rows, 'problems' => $problems, 'notes' => $notes, 'operable' => $operable] = $this->SelfTestFindings();
+
         $lines = [sprintf($this->Translate('Tile %d, rows %d, problems %d, notes %d.'), $this->InstanceID, count($rows), count($problems), count($notes))];
         if ($problems !== []) {
             $lines[] = $this->Translate('Problems:');
@@ -56,6 +64,49 @@ trait SelfTestTrait
             }
         }
         return implode("\n", $lines);
+    }
+
+    /** Dieselben Befunde für Anwender: Der Knopf im Formular zeigt sie, die Zeile steht mit Position und Name da. */
+    public function GetSelfTestReport(): string
+    {
+        ['rows' => $rows, 'problems' => $problems, 'notes' => $notes] = $this->SelfTestFindings();
+
+        $count = count($problems);
+        if ($count === 0) {
+            $head = $this->Translate('No problems found.');
+        } elseif ($count === 1) {
+            $head = $this->Translate('One problem found.');
+        } else {
+            $head = sprintf($this->Translate('%d problems found.'), $count);
+        }
+
+        $sections = [$head];
+        foreach ([[$problems, 'Problem:', 'Problems:'], [$notes, 'Note:', 'Notes:']] as [$texts, $one, $many]) {
+            if ($texts === []) {
+                continue;
+            }
+            $lines = array_map(fn (string $text): string => $this->SelfTestReportLine($text, $rows), $texts);
+            $sections[] = $this->Translate(count($texts) === 1 ? $one : $many) . "\n" . implode("\n", $lines);
+        }
+        return implode("\n\n", $sections);
+    }
+
+    /** Macht einen Befund lesbar: Nummern nur noch für Objekte, die es nicht mehr gibt, statt des Zeilenschlüssels Position und Name. */
+    private function SelfTestReportLine(string $text, array $rows): string
+    {
+        $text = (string)preg_replace_callback('/ ([1-5]\d{4})\b/', static fn (array $m): string => IPS_ObjectExists((int)$m[1]) ? '' : $m[0], $text);
+        return (string)preg_replace_callback('/^row_(\d+):/', fn (array $m): string => $this->SelfTestRowTitle((int)$m[1], (array)($rows[(int)$m[1]] ?? [])) . ':', $text);
+    }
+
+    /** Zeile, wie der Anwender sie im Formular findet: Position in der Liste, Beschriftung oder Variablenname. */
+    private function SelfTestRowTitle(int $key, array $row): string
+    {
+        $name = trim((string)($row['Label'] ?? ''));
+        $variableId = (int)($row['Variable'] ?? 0);
+        if ($name === '' && $variableId > 0 && IPS_VariableExists($variableId)) {
+            $name = IPS_GetName($variableId);
+        }
+        return $name === '' ? sprintf($this->Translate('Row %d'), $key + 1) : sprintf($this->Translate('Row %d "%s"'), $key + 1, mb_substr($name, 0, 40));
     }
 
     /** Die unsichtbaren Hinweise des Formulars als Text: Das ganze Formular sprengt die Antwortgrenze eines Assistenten. */

@@ -1,6 +1,14 @@
 {
     "translations": {
         "de": {
+            "UDST_GetSelfTestReport($id) returns the findings of UDST_RunSelfTest as text for people: rows with their position and name, without keys and without the list of operable rows. The Self test button shows it. Scripts and assistants use UDST_RunSelfTest.": "UDST_GetSelfTestReport($id) liefert die Befunde von UDST_RunSelfTest als Text für Menschen: Zeilen mit Position und Name, ohne Schlüssel und ohne die Liste der bedienbaren Zeilen. Der Knopf Selbsttest zeigt ihn an. Skripte und Assistenten nehmen UDST_RunSelfTest.",
+            "No problems found.": "Keine Probleme gefunden.",
+            "One problem found.": "1 Problem gefunden.",
+            "%d problems found.": "%d Probleme gefunden.",
+            "Problem:": "Problem:",
+            "Note:": "Hinweis:",
+            "Row %d": "Zeile %d",
+            "Row %d \"%s\"": "Zeile %d „%s“",
             "Instance status 201 means that a linked object is missing or unusable: a deleted variable, script or image, an image file that is not available, a script that failed on its last run or an invalid image choice. It is set as soon as this happens, the tile stays usable. UDST_RunSelfTest names the row. After a repair save the configuration. A variable without an action does not set it.": "Instanzstatus 201 bedeutet, dass ein verknüpftes Objekt fehlt oder nicht nutzbar ist: eine gelöschte Variable, ein gelöschtes Skript oder Bild, eine nicht verfügbare Bilddatei, ein beim letzten Lauf fehlgeschlagenes Skript oder eine ungültige Bildwahl. Er wird sofort gesetzt, die Kachel bleibt bedienbar. UDST_RunSelfTest nennt die Zeile. Nach einer Reparatur die Konfiguration speichern. Eine Variable ohne Aktion setzt ihn nicht.",
             "Self test": "Selbsttest",
             "A linked object is missing or unusable. The Self test button names the affected row.": "Ein verknüpftes Objekt fehlt oder ist nicht nutzbar. Der Knopf Selbsttest nennt die betroffene Zeile.",

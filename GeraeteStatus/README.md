@@ -161,6 +161,8 @@ Die Funktionalität erfolgt über die Instanz-Konfiguration und den Editor. Für
 
 `UDST_RunSelfTest(int $InstanzID): string`: prüft alle Zeilen, ohne etwas zu ändern, und liefert einen kurzen Text mit den gefundenen Problemen (fehlende Objekte und Bilder, nicht verfügbare Bilddateien, fehlgeschlagene Skripte, unbekannte Darstellungsarten und Gruppen, Variablen vom falschen Typ, Schalter ohne Aktion), Hinweisen (Balken oder Regler ohne eigenen Bereich, gelöschte Variable an einem Button mit Skript oder Objekt) und den bedienbaren Zeilen samt Schlüssel.
 
+`UDST_GetSelfTestReport(int $InstanzID): string`: liefert dieselben Befunde als Text für Anwender, mit Position und Name der Zeile. Das zeigt auch der Knopf „Selbsttest“ im Formular.
+
 `UDST_GetConfigurationHelp(int $InstanzID): string`: liefert die Hinweise für KI-Assistenten und Skripte aus dem Formular als Text und ändert nichts.
 
 Fehlt ein verknüpftes Objekt oder ist es nicht nutzbar (gelöschte Variable, gelöschtes Skript oder Bild, nicht verfügbare Bilddatei, beim letzten Lauf fehlgeschlagenes Skript, ungültige Bildwahl), steht die Instanz sofort auf Fehlerstatus 201. Die Kachel bleibt bedienbar, der Knopf „Selbsttest“ im Formular nennt die betroffene Zeile. Nach einer Reparatur die Konfiguration speichern. Eine Variable ohne Aktion setzt den Status nicht, der Selbsttest nennt sie trotzdem. Eine außerhalb von Symcon gelöschte Bilddatei bemerkt Symcon nicht, sie setzt den Status also auch nicht.
