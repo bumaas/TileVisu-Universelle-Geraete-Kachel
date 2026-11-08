@@ -1078,6 +1078,11 @@
   {
     "type": "Label",
     "visible": false,
+    "caption": "GroupNamesList is a JSON list of 10 groups, the position decides the number (first entry = Gruppe 1): GroupName, Groupicon (icon name), ShowGroupName, ShowAbove (name above the group), line (line below the group), stretch (elements use the full width). In VariablesList, InactiveDisplay sets what a progress row shows while it is inactive: dash (grey with a dash), value (current value), hide (row hidden)."
+  },
+  {
+    "type": "Label",
+    "visible": false,
     "caption": "UDST_RunSelfTest($id) checks all rows without changing anything and returns text: the number of problems and notes, each problem with its row and next step, notes where the tile falls back to a default, and the operable rows with their keys. Run it after every change of the configuration. UDST_GetConfigurationHelp($id) returns all notes of this form as text and changes nothing."
   },
   {

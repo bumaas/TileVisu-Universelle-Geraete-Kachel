@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "GroupNamesList is a JSON list of 10 groups, the position decides the number (first entry = Gruppe 1): GroupName, Groupicon (icon name), ShowGroupName, ShowAbove (name above the group), line (line below the group), stretch (elements use the full width). In VariablesList, InactiveDisplay sets what a progress row shows while it is inactive: dash (grey with a dash), value (current value), hide (row hidden).": "GroupNamesList ist eine JSON-Liste mit 10 Gruppen, die Position bestimmt die Nummer (erster Eintrag = Gruppe 1): GroupName, Groupicon (Icon-Name), ShowGroupName, ShowAbove (Name über der Gruppe), line (Linie unter der Gruppe), stretch (Elemente auf voller Breite). In VariablesList legt InactiveDisplay fest, was eine Fortschrittszeile zeigt, solange sie inaktiv ist: dash (grau mit Strich), value (aktueller Wert), hide (Zeile ausgeblendet).",
             "%s: image %d does not exist. Select another image.": "%s: Das Bild %d existiert nicht. Bitte ein anderes Bild wählen.",
             "%s: media object %d is not an image. Select an image.": "%s: Das Medienobjekt %d ist kein Bild. Bitte ein Bild wählen.",
             "Status value \"%s\"": "Statuswert „%s“",
