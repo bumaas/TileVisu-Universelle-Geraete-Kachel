@@ -115,6 +115,10 @@ trait ActionTrait
                 RequestAction($id, $this->NormalizeSliderValue($id, $value, false));
                 break;
             case VARIABLETYPE_STRING:
+                if (!self::IsTextWish($value)) {
+                    $this->RejectValue($value, $this->Translate('Action rejected: %s is not a valid value for this row. Send a text.'));
+                    return;
+                }
                 RequestAction($id, strval($value));
                 break;
         }
@@ -136,6 +140,12 @@ trait ActionTrait
     private static function IsNumberWish(mixed $value): bool
     {
         return is_numeric($value) && abs((float)$value) < PHP_INT_MAX;
+    }
+
+    /** Text oder endliche Zahl; null, Bool, Listen und Objekte haben keine sinnvolle Textform. */
+    private static function IsTextWish(mixed $value): bool
+    {
+        return is_string($value) || is_int($value) || (is_float($value) && is_finite($value));
     }
 
     /** Meldet einen Ident ohne bedienbare Zeile. */

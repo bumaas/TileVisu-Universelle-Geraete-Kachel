@@ -52,6 +52,7 @@
             "Action failed: variable %d of this row does not exist. Select another variable for the row.": "Aktion fehlgeschlagen: Die Variable %d dieser Zeile existiert nicht. Bitte eine andere Variable für die Zeile wählen.",
             "Action rejected: %s is not a valid value for a switch. Send true or false.": "Aktion abgelehnt: %s ist kein gültiger Wert für einen Schalter. Bitte true oder false senden.",
             "Action rejected: %s is not a valid value for this row. Send a number.": "Aktion abgelehnt: %s ist kein gültiger Wert für diese Zeile. Bitte eine Zahl senden.",
+            "Action rejected: %s is not a valid value for this row. Send a text.": "Aktion abgelehnt: %s ist kein gültiger Wert für diese Zeile. Bitte einen Text senden.",
             "Universal Device Tile": "Universelle Geräte Kachel",
             "Tile configuration": "Kachelkonfiguration",
             "Example of a fully configured tile": "Beispiel einer voll konfigurierten Kachel",
