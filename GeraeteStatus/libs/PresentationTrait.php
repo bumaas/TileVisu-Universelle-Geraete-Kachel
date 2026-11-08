@@ -15,12 +15,13 @@ trait PresentationTrait
      * Extrahiert Min/Max-Werte aus Variablen-Profil oder Darstellung für Progress-Balken
      * Verwendet die gleiche Presentation-Hierarchie wie Icons für konsistente Behandlung
      * @param int $variableId Die Variable-ID
-     * @return array Array mit 'min' und 'max' Werten
+     * @return array Array mit 'min' und 'max' Werten; 'isDefault' steht nur beim Standardbereich ohne eigene Angabe
      */
     private function GetProgressMinMax(int $variableId): array {
         $defaultMinMax = [
             'min' => 0,
-            'max' => 100
+            'max' => 100,
+            'isDefault' => true
         ];
         $profileMinMax = null; // Profil-Werte nur als Fallback verwenden
         

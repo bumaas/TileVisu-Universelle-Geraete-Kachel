@@ -162,7 +162,7 @@ trait SelfTestTrait
             return [];
         }
         $bounds = $this->GetProgressMinMax($variableId);
-        if ((float)($bounds['max'] ?? 100) > (float)($bounds['min'] ?? 0)) {
+        if (empty($bounds['isDefault']) && (float)($bounds['max'] ?? 100) > (float)($bounds['min'] ?? 0)) {
             return [];
         }
         return [sprintf($this->Translate('%s: variable %d has no range of its own, the tile uses 0 to 100. If that does not fit, set minimum and maximum in its presentation.'), $name, $variableId)];
