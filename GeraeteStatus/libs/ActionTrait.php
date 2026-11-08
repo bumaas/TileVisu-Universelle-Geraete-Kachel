@@ -58,24 +58,57 @@ trait ActionTrait
         switch (IPS_GetVariable($id)['VariableType']) {
             case VARIABLETYPE_BOOLEAN:
                 // Wunschwert (der Zustand nach dem Klick), nicht umschalten: ein Doppelklick schaltet nicht zurück
-                $wish = is_bool($value) ? $value : filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+                $wish = self::BoolWish($value);
                 if ($wish === null) {
-                    $this->SendDebug(__FUNCTION__, 'Kein Bool-Wunschwert: ' . json_encode($value), 0);
-                    trigger_error(sprintf($this->Translate('Action rejected: %s is not a valid value for a switch. Send true or false.'), (string)json_encode($value)), E_USER_WARNING);
+                    $this->RejectValue($value, $this->Translate('Action rejected: %s is not a valid value for a switch. Send true or false.'));
                     return;
                 }
                 RequestAction($id, $wish);
                 break;
             case VARIABLETYPE_INTEGER:
+                if (!self::IsNumberWish($value)) {
+                    $this->RejectValue($value, $this->Translate('Action rejected: %s is not a valid value for this row. Send a number.'));
+                    return;
+                }
                 RequestAction($id, $displayType === 'slider' ? $this->NormalizeSliderValue($id, $value, true) : intval($value));
                 break;
             case VARIABLETYPE_FLOAT:
+                if (!self::IsNumberWish($value)) {
+                    $this->RejectValue($value, $this->Translate('Action rejected: %s is not a valid value for this row. Send a number.'));
+                    return;
+                }
                 RequestAction($id, $this->NormalizeSliderValue($id, $value, false));
                 break;
             case VARIABLETYPE_STRING:
                 RequestAction($id, strval($value));
                 break;
         }
+    }
+
+    /** Bool-Wunschwert oder null. Leerer Text und null wären für filter_var ein gültiges false. */
+    private static function BoolWish(mixed $value): ?bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+        if ($value === null || (is_string($value) && trim($value) === '')) {
+            return null;
+        }
+        return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+    }
+
+    /** Zahl oder Zahlentext im Integer-Bereich; der Vergleich schließt auch NAN und INF aus. */
+    private static function IsNumberWish(mixed $value): bool
+    {
+        return is_numeric($value) && abs((float)$value) < PHP_INT_MAX;
+    }
+
+    /** Meldet einen abgelehnten Wunschwert; $message enthält %s für den Wert. */
+    private function RejectValue(mixed $value, string $message): void
+    {
+        $shown = is_float($value) && !is_finite($value) ? var_export($value, true) : (string)json_encode($value);
+        $this->SendDebug(__FUNCTION__, 'Ungültiger Wunschwert: ' . $shown, 0);
+        trigger_error(sprintf($message, $shown), E_USER_WARNING);
     }
 
     /**
@@ -98,7 +131,7 @@ trait ActionTrait
         if ($step <= 0) {
             $step = $integer ? 1.0 : ($digits > 0 ? 10 ** -$digits : ($max - $min) / 100);
         }
-        $number = is_numeric($value) ? (float)$value : $min;
+        $number = (float)$value;
         $number = $min + round(($number - $min) / $step) * $step;
         $number = min($max, max($min, $number));
         // auf die Genauigkeit der Schrittweite runden (0,05 → 2 Stellen), nicht auf die Anzeige-Stellen

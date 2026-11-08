@@ -163,7 +163,7 @@ Die Funktionalität erfolgt über die Instanz-Konfiguration und den Editor. Für
 
 `UDST_GetConfigurationHelp(int $InstanzID): string`: liefert die Hinweise für KI-Assistenten und Skripte aus dem Formular als Text und ändert nichts.
 
-Eine Aktion, die die Kachel nicht ausführen kann, meldet `IPS_RequestAction` als Warnung mit dem Grund: eine Kennung ohne bedienbare Zeile, ein fehlendes Skript oder ein ungültiger Schaltwert.
+Eine Aktion, die die Kachel nicht ausführen kann, meldet `IPS_RequestAction` als Warnung mit dem Grund: eine Kennung ohne bedienbare Zeile, ein fehlendes Skript oder ein ungültiger Wert (beim Schalter weder true noch false, bei Zahlenvariablen keine Zahl).
 
 ## Changelog
 - **3.1.0** (Beta)
