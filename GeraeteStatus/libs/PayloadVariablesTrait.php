@@ -54,17 +54,14 @@ trait PayloadVariablesTrait
     private function buildRow(int $key, array $variable, bool $progressbarActive): ?array
     {
         try {
-            $row = null;
             $displayType = $variable['DisplayType'] ?? 'text';
-            if (isset($variable['Variable']) && $variable['Variable'] > 0 && IPS_VariableExists($variable['Variable'])) {
-                $row = $this->buildVariableRow($variable, $progressbarActive);
-            } elseif ($displayType === 'image') {
-                $row = $this->buildImageRow($key, $variable);
-            } elseif ($displayType === 'button' && intval($variable['ScriptID'] ?? 0) > 0) {
-                $row = $this->buildScriptRow($variable);
-            } elseif ($displayType === 'button' && intval($variable['OpenObjectId'] ?? 0) > 1) {
-                $row = $this->buildObjectRow($variable);
-            }
+            $row = match ($this->RowKind($variable)) {
+                'variable' => $this->buildVariableRow($variable, $progressbarActive),
+                'image'    => $this->buildImageRow($key, $variable),
+                'script'   => $this->buildScriptRow($variable),
+                'object'   => $this->buildObjectRow($variable),
+                default    => null,
+            };
             $unset = $row === null || ($displayType === 'image' && intval($variable['ImageMedia'] ?? 0) <= 0);
             if ($unset && $this->IsPreview()) {
                 $row = $this->buildPlaceholderRow($variable); // nur im Editor: Zeile ohne Ziel sichtbar machen

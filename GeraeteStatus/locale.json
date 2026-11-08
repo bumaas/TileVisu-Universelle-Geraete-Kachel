@@ -23,6 +23,7 @@
             "%s: image %d does not exist. Select another image for this row.": "%s: Das Bild %d existiert nicht. Bitte ein anderes Bild für diese Zeile wählen.",
             "%s: script %d does not exist. Select another script for this row.": "%s: Das Skript %d existiert nicht. Bitte ein anderes Skript für diese Zeile wählen.",
             "%s: object %d to open does not exist. Select another object for this row.": "%s: Das zu öffnende Objekt %d existiert nicht. Bitte ein anderes Objekt für diese Zeile wählen.",
+            "%s: variable %d does not exist, the row uses its script or object to open instead. Remove the variable or select another one.": "%s: Die Variable %d existiert nicht, die Zeile nutzt stattdessen ihr Skript oder das zu öffnende Objekt. Bitte die Variable entfernen oder eine andere wählen.",
             "%s: the button has no target. Select a variable, a script or an object to open.": "%s: Der Schalter hat kein Ziel. Bitte eine Variable, ein Skript oder ein zu öffnendes Objekt wählen.",
             "%s: no variable selected. Select a variable for this row.": "%s: Keine Variable gewählt. Bitte eine Variable für diese Zeile wählen.",
             "%s: variable %d does not exist. Select another variable for this row.": "%s: Die Variable %d existiert nicht. Bitte eine andere Variable für diese Zeile wählen.",

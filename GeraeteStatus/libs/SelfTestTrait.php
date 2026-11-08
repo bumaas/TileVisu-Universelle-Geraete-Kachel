@@ -127,32 +127,25 @@ trait SelfTestTrait
             return $problems;
         }
 
-        if ($displayType === 'button' && $variableId <= 0) {
-            if ($scriptId > 0) {
-                if (!IPS_ScriptExists($scriptId)) {
-                    $problems[] = sprintf($this->Translate('%s: script %d does not exist. Select another script for this row.'), $name, $scriptId);
-                }
-            } elseif ($openId > 1) {
-                if (!IPS_ObjectExists($openId)) {
-                    $problems[] = sprintf($this->Translate('%s: object %d to open does not exist. Select another object for this row.'), $name, $openId);
-                }
-            } else {
-                $problems[] = sprintf($this->Translate('%s: the button has no target. Select a variable, a script or an object to open.'), $name);
-            }
-            return $problems;
+        $kind = $this->RowKind($row);
+        $opensObject = $this->RowClickOpensObject($row);
+        if ($opensObject && !IPS_ObjectExists($openId)) {
+            $problems[] = sprintf($this->Translate('%s: object %d to open does not exist. Select another object for this row.'), $name, $openId);
         }
-
-        if ($variableId <= 0) {
-            $problems[] = sprintf($this->Translate('%s: no variable selected. Select a variable for this row.'), $name);
-            return $problems;
+        if ($kind === 'script' && !IPS_ScriptExists($scriptId)) {
+            $problems[] = sprintf($this->Translate('%s: script %d does not exist. Select another script for this row.'), $name, $scriptId);
         }
-        if (!IPS_VariableExists($variableId)) {
-            $problems[] = sprintf($this->Translate('%s: variable %d does not exist. Select another variable for this row.'), $name, $variableId);
-            return $problems;
-        }
-
-        if (($displayType === 'button' || $displayType === 'slider') && !HasAction($variableId)) {
+        if ($kind === 'variable' && !$opensObject && ($displayType === 'button' || $displayType === 'slider') && !HasAction($variableId)) {
             $problems[] = sprintf($this->Translate('%s: variable %d has no action, the row cannot switch. Give the variable an action or show it as text.'), $name, $variableId);
+        }
+        if ($kind === 'none') {
+            if ($variableId > 0) {
+                $problems[] = sprintf($this->Translate('%s: variable %d does not exist. Select another variable for this row.'), $name, $variableId);
+            } elseif ($displayType === 'button') {
+                $problems[] = sprintf($this->Translate('%s: the button has no target. Select a variable, a script or an object to open.'), $name);
+            } else {
+                $problems[] = sprintf($this->Translate('%s: no variable selected. Select a variable for this row.'), $name);
+            }
         }
         return $problems;
     }
@@ -162,6 +155,9 @@ trait SelfTestTrait
     {
         $displayType = (string)($row['DisplayType'] ?? 'text');
         $variableId = (int)($row['Variable'] ?? 0);
+        if ($variableId > 0 && in_array($this->RowKind($row), ['script', 'object'], true)) {
+            return [sprintf($this->Translate('%s: variable %d does not exist, the row uses its script or object to open instead. Remove the variable or select another one.'), $name, $variableId)];
+        }
         if (($displayType !== 'slider' && $displayType !== 'progress') || $variableId <= 0 || !IPS_VariableExists($variableId)) {
             return [];
         }

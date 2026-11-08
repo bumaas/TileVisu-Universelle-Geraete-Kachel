@@ -23,16 +23,51 @@ trait ActionTrait
         return is_array($row) ? $this->RowActionTarget($row) : null;
     }
 
-    /** Bedienbares Ziel einer Zeile: Variable einer Button- oder Regler-Zeile, Script eines Script-Buttons. */
-    private function RowActionTarget(array $row): ?array
+    /**
+     * Was eine Zeile ist: variable, image, script, object oder none. Die einzige Stelle mit dieser
+     * Entscheidung, Kachel, Bedienung und Selbsttest lesen sie von hier.
+     */
+    private function RowKind(array $row): string
     {
         $displayType = $row['DisplayType'] ?? 'text';
         $variableID = (int)($row['Variable'] ?? 0);
         if ($variableID > 0 && IPS_VariableExists($variableID)) {
-            return ($displayType === 'button' || $displayType === 'slider') ? ['variable', $variableID, $displayType] : null;
+            return 'variable';
         }
-        $scriptID = (int)($row['ScriptID'] ?? 0);
-        return ($displayType === 'button' && $scriptID > 0) ? ['script', $scriptID, 'button'] : null;
+        if ($displayType === 'image') {
+            return 'image';
+        }
+        if ($displayType === 'button' && (int)($row['ScriptID'] ?? 0) > 0) {
+            return 'script';
+        }
+        return ($displayType === 'button' && (int)($row['OpenObjectId'] ?? 0) > 1) ? 'object' : 'none';
+    }
+
+    /**
+     * Öffnet ein Klick auf die Zeile ein Objekt statt zu schalten? Das Frontend wertet OpenObjectId nur am
+     * Bool-Button aus, den auch Script- und Objektzeilen benutzen; Mehrfach-Buttons und Regler ignorieren es.
+     */
+    private function RowClickOpensObject(array $row): bool
+    {
+        if ((int)($row['OpenObjectId'] ?? 0) <= 1) {
+            return false;
+        }
+        $kind = $this->RowKind($row);
+        if ($kind === 'variable') {
+            return ($row['DisplayType'] ?? 'text') === 'button' && IPS_GetVariable((int)$row['Variable'])['VariableType'] === VARIABLETYPE_BOOLEAN;
+        }
+        return $kind === 'script' || $kind === 'object';
+    }
+
+    /** Bedienbares Ziel einer Zeile: Variable einer Button- oder Regler-Zeile, Script eines Script-Buttons. */
+    private function RowActionTarget(array $row): ?array
+    {
+        $kind = $this->RowKind($row);
+        if ($kind === 'script') {
+            return ['script', (int)$row['ScriptID'], 'button'];
+        }
+        $displayType = $row['DisplayType'] ?? 'text';
+        return ($kind === 'variable' && ($displayType === 'button' || $displayType === 'slider')) ? ['variable', (int)$row['Variable'], $displayType] : null;
     }
 
     /** Führt die Bedienung auf dem Ziel aus: Script starten oder den Wert an die Variable geben. */
