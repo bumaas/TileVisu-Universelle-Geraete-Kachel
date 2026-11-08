@@ -10,6 +10,16 @@ namespace UDT;
  */
 trait SelfTestTrait
 {
+    /** Läuft gerade der Bericht für Anwender? Dort entfallen die Nummern vorhandener Objekte. */
+    private bool $selfTestForUser = false;
+
+    /** Text eines Befunds zu einem vorhandenen Objekt: Im Anwenderbericht entfällt dessen Nummer, die Zeile nennt es schon. */
+    private function KnownObjectText(string $text): string
+    {
+        $translated = $this->Translate($text);
+        return $this->selfTestForUser ? str_replace(' %d', '', $translated) : $translated;
+    }
+
     /** Prüft die Konfiguration der Kachel ohne Wirkung und liefert die Befunde. */
     private function SelfTestFindings(): array
     {
@@ -69,7 +79,9 @@ trait SelfTestTrait
     /** Dieselben Befunde für Anwender: Der Knopf im Formular zeigt sie, die Zeile steht mit Position und Name da. */
     public function GetSelfTestReport(): string
     {
+        $this->selfTestForUser = true;
         ['rows' => $rows, 'problems' => $problems, 'notes' => $notes] = $this->SelfTestFindings();
+        $this->selfTestForUser = false;
 
         $count = count($problems);
         if ($count === 0) {
@@ -91,10 +103,9 @@ trait SelfTestTrait
         return implode("\n\n", $sections);
     }
 
-    /** Macht einen Befund lesbar: Nummern nur noch für Objekte, die es nicht mehr gibt, statt des Zeilenschlüssels Position und Name. */
+    /** Macht einen Befund lesbar: statt des Zeilenschlüssels Position und Name. */
     private function SelfTestReportLine(string $text, array $rows): string
     {
-        $text = (string)preg_replace_callback('/ ([1-5]\d{4})\b/', static fn (array $m): string => IPS_ObjectExists((int)$m[1]) ? '' : $m[0], $text);
         return (string)preg_replace_callback('/^row_(\d+):/', fn (array $m): string => $this->SelfTestRowTitle((int)$m[1], (array)($rows[(int)$m[1]] ?? [])) . ':', $text);
     }
 
@@ -106,7 +117,7 @@ trait SelfTestTrait
         if ($name === '' && $variableId > 0 && IPS_VariableExists($variableId)) {
             $name = IPS_GetName($variableId);
         }
-        return $name === '' ? sprintf($this->Translate('Row %d'), $key + 1) : sprintf($this->Translate('Row %d "%s"'), $key + 1, mb_substr($name, 0, 40));
+        return $name === '' ? sprintf($this->Translate('Row %d'), $key + 1) : sprintf($this->Translate('Row %d "%s"'), $key + 1, self::ShortText($name));
     }
 
     /** Die unsichtbaren Hinweise des Formulars als Text: Das ganze Formular sprengt die Antwortgrenze eines Assistenten. */
@@ -187,11 +198,11 @@ trait SelfTestTrait
             if (!is_array($association)) {
                 continue;
             }
-            $name = mb_substr((string)($association['AssoziationName'] ?? ''), 0, 40);
+            $name = self::ShortText((string)($association['AssoziationName'] ?? ''));
             $choice = (string)($association['Bildauswahl'] ?? 'none');
             $mediaId = EditorSchema::ObjectRef($association['EigenesBild'] ?? 0);
             if (!in_array($choice, EditorSchema::IMAGE_CHOICES, true)) {
-                $problems[] = sprintf($this->Translate('Status value "%s": unknown image choice "%s". Allowed are: %s.'), $name, mb_substr($choice, 0, 40), implode(', ', EditorSchema::IMAGE_CHOICES));
+                $problems[] = sprintf($this->Translate('Status value "%s": unknown image choice "%s". Allowed are: %s.'), $name, self::ShortText($choice), implode(', ', EditorSchema::IMAGE_CHOICES));
             } elseif ($choice === 'custom' && $mediaId > 0) {
                 $problems = array_merge($problems, $this->SelfTestImageProblem(sprintf($this->Translate('Status value "%s"'), $name), $mediaId));
             }
@@ -207,10 +218,10 @@ trait SelfTestTrait
         }
         $media = IPS_GetMedia($mediaId);
         if ($media['MediaType'] !== MEDIATYPE_IMAGE) {
-            return [sprintf($this->Translate('%s: media object %d is not an image. Select an image.'), $owner, $mediaId)];
+            return [sprintf($this->KnownObjectText('%s: media object %d is not an image. Select an image.'), $owner, $mediaId)];
         }
         if (!$media['MediaIsAvailable']) {
-            return [sprintf($this->Translate('%s: the file of image %d is not available. Assign the file again or select another image.'), $owner, $mediaId)];
+            return [sprintf($this->KnownObjectText('%s: the file of image %d is not available. Assign the file again or select another image.'), $owner, $mediaId)];
         }
         return [];
     }
@@ -242,7 +253,7 @@ trait SelfTestTrait
         if ($kind === 'script' && !$opensObject && !IPS_ScriptExists($scriptId)) {
             $problems[] = sprintf($this->Translate('%s: script %d does not exist. Select another script for this row.'), $name, $scriptId);
         } elseif ($kind === 'script' && !$opensObject && IPS_GetScript($scriptId)['ScriptIsBroken']) {
-            $problems[] = sprintf($this->Translate('%s: script %d failed on its last run. Fix it and run it again.'), $name, $scriptId);
+            $problems[] = sprintf($this->KnownObjectText('%s: script %d failed on its last run. Fix it and run it again.'), $name, $scriptId);
         }
         $variableId = (int)($row['Variable'] ?? 0);
         if ($kind === 'none' && $variableId > 0) {
@@ -260,12 +271,12 @@ trait SelfTestTrait
         $variableId = (int)($row['Variable'] ?? 0);
 
         if (!EditorSchema::RowFieldValid('DisplayType', $displayType)) {
-            return [sprintf($this->Translate('%s: unknown display type "%s". Allowed are: %s.'), $name, mb_substr($displayType, 0, 40), implode(', ', EditorSchema::DISPLAY_TYPES))];
+            return [sprintf($this->Translate('%s: unknown display type "%s". Allowed are: %s.'), $name, self::ShortText($displayType), implode(', ', EditorSchema::DISPLAY_TYPES))];
         }
         $problems = $this->RowBrokenLinks($name, $row);
         $group = (string)($row['Group'] ?? '');
         if ($group !== '' && !EditorSchema::RowFieldValid('Group', $group)) {
-            $problems[] = sprintf($this->Translate('%s: unknown group "%s". Allowed are keine Gruppe and Gruppe 1 to Gruppe 10.'), $name, mb_substr($group, 0, 40));
+            $problems[] = sprintf($this->Translate('%s: unknown group "%s". Allowed are keine Gruppe and Gruppe 1 to Gruppe 10.'), $name, self::ShortText($group));
         }
 
         if ($displayType === 'image') {
@@ -283,7 +294,7 @@ trait SelfTestTrait
             return $problems;
         }
         if ($kind === 'variable' && !$opensObject && ($displayType === 'button' || $displayType === 'slider') && !HasAction($variableId)) {
-            $problems[] = sprintf($this->Translate('%s: variable %d has no action, the row cannot switch. Give the variable an action or show it as text.'), $name, $variableId);
+            $problems[] = sprintf($this->KnownObjectText('%s: variable %d has no action, the row cannot switch. Give the variable an action or show it as text.'), $name, $variableId);
         }
         if ($kind === 'none' && $variableId <= 0) {
             if ($displayType === 'button') {
@@ -305,13 +316,13 @@ trait SelfTestTrait
         $variableId = (int)$row['Variable'];
         $type = IPS_GetVariable($variableId)['VariableType'];
         if (($displayType === 'slider' || $displayType === 'progress') && $type !== VARIABLETYPE_INTEGER && $type !== VARIABLETYPE_FLOAT) {
-            return sprintf($this->Translate('%s: variable %d holds no number, this row type cannot show or set it. Select another variable or show it as text.'), $name, $variableId);
+            return sprintf($this->KnownObjectText('%s: variable %d holds no number, this row type cannot show or set it. Select another variable or show it as text.'), $name, $variableId);
         }
         if ($displayType === 'button' && $type === VARIABLETYPE_FLOAT) {
-            return sprintf($this->Translate('%s: variable %d is a float, a button cannot switch it. Show it as a slider or as text.'), $name, $variableId);
+            return sprintf($this->KnownObjectText('%s: variable %d is a float, a button cannot switch it. Show it as a slider or as text.'), $name, $variableId);
         }
         if ($displayType === 'button' && ($type === VARIABLETYPE_INTEGER || $type === VARIABLETYPE_STRING) && empty($this->GetVariableAssociations($variableId, $type))) {
-            return sprintf($this->Translate('%s: variable %d has no associations, a button cannot offer any value. Define them in its presentation or profile, or show it as text.'), $name, $variableId);
+            return sprintf($this->KnownObjectText('%s: variable %d has no associations, a button cannot offer any value. Define them in its presentation or profile, or show it as text.'), $name, $variableId);
         }
         return null;
     }
@@ -331,6 +342,6 @@ trait SelfTestTrait
         if (empty($bounds['isDefault']) && (float)($bounds['max'] ?? 100) > (float)($bounds['min'] ?? 0)) {
             return [];
         }
-        return [sprintf($this->Translate('%s: variable %d has no range of its own, the tile uses 0 to 100. If that does not fit, set minimum and maximum in its presentation.'), $name, $variableId)];
+        return [sprintf($this->KnownObjectText('%s: variable %d has no range of its own, the tile uses 0 to 100. If that does not fit, set minimum and maximum in its presentation.'), $name, $variableId)];
     }
 }
