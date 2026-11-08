@@ -114,7 +114,7 @@ trait SelfTestTrait
         $secondId = (int)($row['SecondVariable'] ?? 0);
         $problems = [];
 
-        if ($secondId > 0 && !IPS_VariableExists($secondId)) {
+        if ($displayType === 'progress' && $secondId > 0 && !IPS_VariableExists($secondId)) {
             $problems[] = sprintf($this->Translate('%s: second variable %d does not exist. Select another one or remove it.'), $name, $secondId);
         }
 
